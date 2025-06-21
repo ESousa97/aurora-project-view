@@ -1,17 +1,17 @@
-
+// Types baseados na estrutura real do banco de dados
 export interface ProjectCard {
-  id: string;
+  id: number; // No banco é integer, não string
   titulo: string;
   descricao: string;
   imageurl: string;
-  data_criacao: string;
-  data_modificacao: string;
+  data_criacao: string; // timestamp with time zone
+  data_modificacao: string; // timestamp with time zone  
   categoria: string;
+  conteudo: string; // Campo existe na tabela principal
 }
 
-export interface ProjectDetails extends ProjectCard {
-  conteudo: string;
-}
+// ProjectDetails é um alias para ProjectCard já que todos os campos estão na tabela principal
+export type ProjectDetails = ProjectCard;
 
 export interface Category {
   name: string;

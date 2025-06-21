@@ -24,12 +24,12 @@ export const Header = () => {
             <Menu className="h-5 w-5" />
           </Button>
           
-          <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">ES</span>
+          <div className="flex items-center space-x-3">
+            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">PP</span>
             </div>
-            <span className="hidden font-bold sm:inline-block">
-              ES Database V3
+            <span className="hidden font-bold text-lg sm:inline-block bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+              ProjPortfólio
             </span>
           </div>
         </div>
@@ -41,14 +41,14 @@ export const Header = () => {
               <Input
                 type="search"
                 placeholder="Buscar projetos..."
-                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] rounded-xl border-2 focus:border-primary/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
 
-          <Button variant="ghost" size="sm" onClick={toggleTheme}>
+          <Button variant="ghost" size="sm" onClick={toggleTheme} className="rounded-xl">
             {theme === 'light' ? (
               <Moon className="h-5 w-5" />
             ) : (

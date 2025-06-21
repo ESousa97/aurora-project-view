@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
 import { ProjectCard, ProjectDetails, Category } from '@/types';
@@ -21,11 +20,13 @@ export const useProjectDetails = (id: string) => {
   });
 };
 
+// Hook simplificado que sempre gera categorias a partir dos projetos
 export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: apiService.getCategories,
     staleTime: 15 * 60 * 1000, // 15 minutes
+    gcTime: 20 * 60 * 1000, // 20 minutes
   });
 };
 
