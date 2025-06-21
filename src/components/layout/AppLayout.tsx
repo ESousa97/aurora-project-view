@@ -2,8 +2,6 @@ import React, { useEffect } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { useUIStore } from '@/stores/uiStore';
-import { useAuthStore } from '@/stores/authStore';
-import { Navigate } from 'react-router-dom';
 import { keepAliveService } from '@/services/api';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +11,6 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { sidebarOpen, theme, setTheme } = useUIStore();
-  const { isAuthenticated } = useAuthStore();
 
   // Initialize theme on mount
   useEffect(() => {
@@ -25,10 +22,6 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const cleanup = keepAliveService.start();
     return cleanup;
   }, []);
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
   return (
     <div className="min-h-screen flex w-full bg-background">
