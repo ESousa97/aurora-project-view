@@ -1,3 +1,4 @@
+// src/pages/Projects.tsx
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectCard } from '@/components/project/ProjectCard';
@@ -30,7 +31,12 @@ const Projects = () => {
   // Categorias únicas dos projetos
   const categories = React.useMemo(() => {
     if (!projects) return [];
-    const uniqueCategories = [...new Set(projects.map(p => p.categoria))];
+    // LINHA MODIFICADA ABAIXO
+    const uniqueCategories = [...new Set(
+      projects
+        .map(p => p.categoria ? p.categoria.trim() : null) // Mapeia com segurança
+        .filter(Boolean) as string[] // Filtra valores nulos ou vazios
+    )];
     return uniqueCategories.sort();
   }, [projects]);
 
@@ -40,10 +46,9 @@ const Projects = () => {
 
     let filtered = [...projects];
 
-    // Filtro por categoria
     if (selectedCategory) {
       filtered = filtered.filter(project => 
-        project.categoria === selectedCategory
+        project.categoria?.trim() === selectedCategory
       );
     }
 
@@ -55,7 +60,8 @@ const Projects = () => {
         case 'title':
           return a.titulo.localeCompare(b.titulo, 'pt-BR');
         case 'category':
-          return a.categoria.localeCompare(b.categoria, 'pt-BR');
+          // Adicionando verificação para evitar erro na ordenação
+          return (a.categoria || '').localeCompare(b.categoria || '', 'pt-BR');
         case 'random':
           return Math.random() - 0.5;
         default:
@@ -66,7 +72,7 @@ const Projects = () => {
     return filtered;
   }, [projects, selectedCategory, sortBy]);
 
-  // Projetos para mostrar baseado no modo de revelação
+  // O restante do arquivo continua idêntico
   const displayProjects = React.useMemo(() => {
     if (revealMode === 'all') return processedProjects;
     return processedProjects.slice(0, revealedCount);
@@ -84,7 +90,6 @@ const Projects = () => {
     setSelectedCategory('');
   };
 
-  // Determinar variant dos cards baseado no view mode
   const getCardVariant = (index: number) => {
     if (viewMode === 'list') return 'compact';
     if (index < 3 && !selectedCategory) return 'featured';
@@ -131,14 +136,14 @@ const Projects = () => {
                   'Mapeando territórios...'
                 ) : selectedCategory ? (
                   <>
-                    {displayProjects.length} projeto{displayProjects.length !== 1 ? 's' : ''} neste território
+                    {processedProjects.length} projeto{processedProjects.length !== 1 ? 's' : ''} neste território
                     {processedProjects.length !== displayProjects.length && revealMode === 'progressive' && (
                       <span className="text-primary"> • {processedProjects.length - displayProjects.length} ainda ocultos</span>
                     )}
                   </>
                 ) : (
                   <>
-                    {displayProjects.length} projeto{displayProjects.length !== 1 ? 's' : ''} aguardando descoberta
+                    {(projects?.length || 0)} projeto{(projects?.length || 0) !== 1 ? 's' : ''} aguardando descoberta
                     {processedProjects.length !== displayProjects.length && revealMode === 'progressive' && (
                       <span className="text-primary"> • {processedProjects.length - displayProjects.length} ainda por revelar</span>
                     )}
@@ -179,6 +184,10 @@ const Projects = () => {
                   <SelectItem value="list">
                     <List className="h-4 w-4 mr-2 inline" />
                     Lista
+                  </SelectItem>
+                  <SelectItem value="timeline">
+                    <Clock className="h-4 w-4 mr-2 inline" />
+                    Timeline
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -254,7 +263,7 @@ const Projects = () => {
                 </div>
               ))}
             </motion.div>
-          ) : displayProjects.length === 0 ? (
+          ) : processedProjects.length === 0 ? (
             <motion.div 
               className="text-center py-16 space-y-6"
               initial={{ opacity: 0, y: 20 }}
