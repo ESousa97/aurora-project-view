@@ -1,18 +1,22 @@
-// src/components/project/ProjectGrid.tsx - Versão Atualizada
+// src/components/project/ProjectGrid.tsx - Versão Exploração
 import React from 'react';
 import { ProjectCard } from './ProjectCard';
 import { ProjectTimeline } from './ProjectTimeline';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { useUIStore } from '@/stores/uiStore';
+import { motion } from 'framer-motion';
+import { Compass, Sparkles, Map } from 'lucide-react';
 
 interface ProjectGridProps {
   projects: ProjectCardType[];
   isLoading?: boolean;
+  variant?: 'discovery' | 'exploration' | 'showcase';
 }
 
 export const ProjectGrid: React.FC<ProjectGridProps> = ({ 
   projects, 
-  isLoading = false 
+  isLoading = false,
+  variant = 'exploration'
 }) => {
   const { viewMode } = useUIStore();
 
@@ -26,11 +30,23 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
           : 'grid-cols-1' // timeline loading
       }`}>
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className={`bg-muted rounded-lg ${
+          <motion.div 
+            key={i} 
+            className="animate-pulse"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
+            <div className={`bg-gradient-to-br from-muted to-muted/50 rounded-lg ${
               viewMode === 'timeline' ? 'h-24' : 'h-64'
-            }`}></div>
-          </div>
+            }`}>
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-muted-foreground/20 rounded animate-pulse" />
+                <div className="h-3 bg-muted-foreground/20 rounded w-3/4 animate-pulse" />
+                <div className="h-3 bg-muted-foreground/20 rounded w-1/2 animate-pulse" />
+              </div>
+            </div>
+          </motion.div>
         ))}
       </div>
     );
@@ -38,13 +54,52 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
 
   if (projects.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-6xl mb-4">📋</div>
-        <h3 className="text-lg font-semibold mb-2">Nenhum projeto encontrado</h3>
-        <p className="text-muted-foreground">
-          Tente ajustar seus filtros de busca ou explorar outras categorias.
-        </p>
-      </div>
+      <motion.div 
+        className="text-center py-16 space-y-6"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <motion.div 
+          className="text-6xl"
+          animate={{ 
+            rotate: [0, 10, -10, 0],
+          }}
+          transition={{ 
+            duration: 2,
+            repeat: Infinity,
+            repeatType: "reverse" 
+          }}
+        >
+          🗺️
+        </motion.div>
+        
+        <div className="space-y-3">
+          <h3 className="text-2xl font-bold flex items-center gap-2 justify-center">
+            <Map className="h-6 w-6 text-primary" />
+            Território Inexplorado
+          </h3>
+          <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+            Este território ainda não foi mapeado pelos nossos exploradores. 
+            Novos projetos podem aparecer a qualquer momento durante sua jornada de descoberta.
+          </p>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="flex items-center justify-center gap-4 text-sm text-muted-foreground"
+        >
+          <div className="flex items-center gap-2">
+            <Compass className="h-4 w-4" />
+            <span>Continue explorando</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            <span>Novas descobertas em breve</span>
+          </div>
+        </motion.div>
+      </motion.div>
     );
   }
 
@@ -53,20 +108,66 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
     return <ProjectTimeline projects={projects} isLoading={isLoading} />;
   }
 
+  // Determinar a variante dos cards baseado no contexto
+  const getCardVariant = (index: number) => {
+    if (variant === 'discovery') {
+      // Página inicial - mix de variantes para criar interesse
+      if (index < 2) return 'featured';
+      if (index < 5) return 'default';
+      return 'mystery';
+    }
+    
+    if (variant === 'showcase') {
+      // Para destacar projetos específicos
+      return 'featured';
+    }
+    
+    // Exploração padrão
+    if (viewMode === 'list') return 'compact';
+    if (index < 3) return 'featured'; // Primeiros 3 em destaque
+    return 'default';
+  };
+
+  // Container variants para animação staggered
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   // Grid and List views
   return (
-    <div className={`grid gap-6 ${
-      viewMode === 'grid' 
-        ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
-        : 'grid-cols-1'
-    }`}>
-      {projects.map((project) => (
-        <ProjectCard 
-          key={project.id} 
-          project={project}
-          variant={viewMode === 'grid' ? 'default' : 'compact'}
-        />
+    <motion.div 
+      className={`grid gap-6 ${
+        viewMode === 'grid' 
+          ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+          : 'grid-cols-1'
+      }`}
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      {projects.map((project, index) => (
+        <motion.div
+          key={project.id}
+          variants={itemVariants}
+          layout
+        >
+          <ProjectCard 
+            project={project}
+            variant={getCardVariant(index)}
+            index={index}
+          />
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   );
 };
