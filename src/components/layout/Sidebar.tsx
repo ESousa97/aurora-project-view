@@ -33,7 +33,7 @@ const navigationItems = [
 const viewModes = [
   { id: 'grid', name: 'Exploração Visual', icon: Grid3X3, description: 'Ver em cards' },
   { id: 'list', name: 'Lista Compacta', icon: List, description: 'Ver em lista' },
-  { id: 'timeline', name: 'Linha do Tempo', icon: Clock, description: 'Em breve' },
+  { id: 'timeline', name: 'Linha do Tempo', icon: Clock, description: 'Ordenar por data' }, 
 ] as const;
 
 export const Sidebar = () => {
@@ -121,7 +121,6 @@ export const Sidebar = () => {
                   size="sm"
                   className="w-full justify-start group"
                   onClick={() => setViewMode(mode.id)}
-                  disabled={mode.id === 'timeline'} // Timeline em desenvolvimento
                 >
                   <mode.icon className="mr-3 h-4 w-4" />
                   <div className="flex-1 text-left">

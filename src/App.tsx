@@ -9,8 +9,7 @@ import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { Dashboard } from "./pages/Dashboard";
 import { Settings } from "./pages/Settings";
-import Login from "./pages/Login";
-import NotFound from "./pages/NotFound";
+import NotFound from "./pages/NotFound"; // Importado para a rota de 404
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,8 +33,7 @@ const App = () => (
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/login" element={<Login />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* A ROTA DE LOGIN FOI REMOVIDA */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -2,28 +2,14 @@
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useProjects, useCategories } from '@/hooks/useProjects';
-import { BarChart3, TrendingUp, Calendar, Target, Activity, Users } from 'lucide-react';
+import { useProjectStats, useCategories } from '@/hooks/useProjects';
+import { BarChart3, TrendingUp, Target, Activity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ProjectStatsChart } from '@/components/dashboard/ProjectStatsChart'; // Importado
 
 export const Dashboard = () => {
-  const { data: projects } = useProjects();
+  const { totalProjects, recentProjects, totalCategories, mostActiveCategory } = useProjectStats();
   const { data: categories } = useCategories();
-
-  const stats = React.useMemo(() => {
-    if (!projects) return null;
-
-    const now = new Date();
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
-    const recentProjects = projects.filter(p => new Date(p.data_modificacao) > lastMonth);
-
-    return {
-      total: projects.length,
-      recent: recentProjects.length,
-      categories: categories?.length || 0,
-      mostActiveCategory: categories?.[0]?.name || 'N/A'
-    };
-  }, [projects, categories]);
 
   return (
     <AppLayout>
@@ -43,52 +29,54 @@ export const Dashboard = () => {
               <Target className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.total || 0}</div>
+              <div className="text-2xl font-bold">{totalProjects || 0}</div>
               <p className="text-xs text-muted-foreground">projetos catalogados</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Categorias</CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.categories || 0}</div>
+              <div className="text-2xl font-bold">{totalCategories || 0}</div>
               <p className="text-xs text-muted-foreground">áreas técnicas</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Atualizações Recentes</CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats?.recent || 0}</div>
+              <div className="text-2xl font-bold">{recentProjects || 0}</div>
               <p className="text-xs text-muted-foreground">no último mês</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Categoria Mais Ativa</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold truncate">{stats?.mostActiveCategory}</div>
+              <div className="text-lg font-bold truncate">{mostActiveCategory?.name || 'N/A'}</div>
               <p className="text-xs text-muted-foreground">com mais projetos</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Charts and Lists */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* AQUI ESTÁ A MUDANÇA: Adicionando o gráfico */}
+          <div className="lg:col-span-2">
+            <ProjectStatsChart />
+          </div>
+          
           <Card>
             <CardHeader>
-              <CardTitle>Categorias por Quantidade</CardTitle>
+              <CardTitle>Top Categorias</CardTitle>
               <CardDescription>
-                Distribuição de projetos por categoria
+                Categorias com maior quantidade de projetos.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
@@ -98,29 +86,6 @@ export const Dashboard = () => {
                   <Badge variant="secondary">{category.count}</Badge>
                 </div>
               ))}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Funcionalidades Futuras</CardTitle>
-              <CardDescription>
-                Em desenvolvimento
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Sistema de usuários</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Timeline de atividades</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">Analytics avançado</span>
-              </div>
             </CardContent>
           </Card>
         </div>

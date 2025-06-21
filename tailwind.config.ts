@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,14 @@ export default {
 			}
 		},
 		extend: {
+			backgroundImage: { // Adicione esta seção
+				// Padrão de pontos sutil. Ajuste as cores se necessário.
+				// Use 'currentColor' ou 'hsl(var(--foreground))' para seguir o tema.
+				'dot-pattern': 'radial-gradient(circle, hsl(var(--muted-foreground)) 1px, transparent 1px)',
+			},
+			backgroundSize: { // Adicione esta seção para controlar o espaçamento dos pontos
+				'dot-pattern-size': '16px 16px', // Tamanho do grid de pontos
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

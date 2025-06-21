@@ -13,14 +13,18 @@ import { ptBR } from 'date-fns/locale';
 import ReactMarkdown from 'react-markdown';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { RelatedProjects } from '@/components/project/RelatedProjects'; // Importado
+import { useToast } from '@/hooks/use-toast'; // Importado
 
 const ProjectDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: project, isLoading, error } = useProjectDetails(id || '');
+  const { toast } = useToast(); // Hook do toast
 
   if (!id) {
     return <Navigate to="/projects" replace />;
   }
+
 
   if (isLoading) {
     return (
@@ -84,22 +88,24 @@ const ProjectDetail = () => {
   };
 
   const shareProject = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: project.titulo,
-        text: project.descricao,
-        url: window.location.href,
-      });
+    const shareData = {
+      title: project.titulo,
+      text: project.descricao,
+      url: window.location.href,
+    };
+    if (navigator.share && navigator.canShare(shareData)) {
+      navigator.share(shareData);
+      toast({ title: "Compartilhado!", description: "O projeto foi compartilhado com sucesso." });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      // Idealmente mostrar um toast aqui
+      toast({ title: "Link Copiado!", description: "O link do projeto foi copiado para sua área de transferência." });
     }
   };
 
   return (
     <AppLayout>
       <div className="space-y-6">
-        {/* Header */}
+        {/* Header continua o mesmo... */}
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           <Button variant="outline" asChild>
             <Link to="/projects">
@@ -240,7 +246,10 @@ const ProjectDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Actions */}
+            {/* AQUI ESTÁ A MUDANÇA: Usando o novo componente */}
+            <RelatedProjects projectId={project.id.toString()} category={project.categoria} />
+
+            {/* Ações */}
             <Card>
               <CardHeader>
                 <CardTitle>Ações</CardTitle>
@@ -250,7 +259,6 @@ const ProjectDetail = () => {
                   <Share2 className="mr-2 h-4 w-4" />
                   Compartilhar Projeto
                 </Button>
-                
                 <Button variant="outline" className="w-full" asChild>
                   <Link to={`/projects?category=${encodeURIComponent(project.categoria)}`}>
                     <Tag className="mr-2 h-4 w-4" />
