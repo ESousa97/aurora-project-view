@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Theme, ViewMode } from '@/types';
@@ -62,6 +61,7 @@ export const useUIStore = create<UIStore>()(
         theme: state.theme,
         viewMode: state.viewMode,
         sidebarOpen: state.sidebarOpen,
+        // Não persistir searchQuery para não causar problemas
       }),
     }
   )

@@ -1,4 +1,4 @@
-// src/pages/Projects.tsx - Versão Melhorada
+// src/pages/Projects.tsx - Versão Simplificada e Corrigida
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectGrid } from '@/components/project/ProjectGrid';
@@ -8,18 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, SortAsc, SortDesc, X, RefreshCw } from 'lucide-react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 const Projects = () => {
   const { data: projects, isLoading, refetch } = useProjects();
-  const { searchQuery, selectedCategory, setSearchQuery, setSelectedCategory } = useUIStore();
+  const { searchQuery, setSearchQuery, selectedCategory, setSelectedCategory } = useUIStore();
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   
+  // Estados locais para ordenação
   const [sortBy, setSortBy] = React.useState<'date' | 'title' | 'category'>('date');
   const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
 
-  // Sync URL params with state on mount
+  // Sincronizar com URL params apenas no mount
   React.useEffect(() => {
     const categoryParam = searchParams.get('category');
     const queryParam = searchParams.get('q');
@@ -30,35 +30,33 @@ const Projects = () => {
     if (queryParam && queryParam !== searchQuery) {
       setSearchQuery(queryParam);
     }
-  }, [searchParams, selectedCategory, searchQuery, setSelectedCategory, setSearchQuery]);
+  }, []); // Apenas no mount para evitar loops
 
-  // Update URL when filters change
+  // Atualizar URL quando filtros mudam (debounced)
   React.useEffect(() => {
-    const params = new URLSearchParams();
-    
-    if (selectedCategory) {
-      params.set('category', selectedCategory);
-    }
-    if (searchQuery) {
-      params.set('q', searchQuery);
-    }
-    
-    // Only update URL if params changed
-    const newParamsString = params.toString();
-    const currentParamsString = searchParams.toString();
-    
-    if (newParamsString !== currentParamsString) {
+    const timeoutId = setTimeout(() => {
+      const params = new URLSearchParams();
+      
+      if (selectedCategory) {
+        params.set('category', selectedCategory);
+      }
+      if (searchQuery) {
+        params.set('q', searchQuery);
+      }
+      
       setSearchParams(params, { replace: true });
-    }
-  }, [selectedCategory, searchQuery, setSearchParams, searchParams]);
+    }, 300);
 
-  // Filter and sort projects
+    return () => clearTimeout(timeoutId);
+  }, [selectedCategory, searchQuery, setSearchParams]);
+
+  // Filtrar e ordenar projetos
   const filteredProjects = React.useMemo(() => {
     if (!projects) return [];
 
-    let filtered = projects;
+    let filtered = [...projects];
 
-    // Filter by search query
+    // Filtro por busca
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(project => 
@@ -69,14 +67,14 @@ const Projects = () => {
       );
     }
 
-    // Filter by category
+    // Filtro por categoria
     if (selectedCategory) {
       filtered = filtered.filter(project => 
         project.categoria === selectedCategory
       );
     }
 
-    // Sort projects
+    // Ordenação
     filtered.sort((a, b) => {
       let comparison = 0;
       
@@ -105,7 +103,7 @@ const Projects = () => {
   const clearAllFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');
-    navigate('/projects', { replace: true });
+    setSearchParams({}, { replace: true });
   };
 
   const hasActiveFilters = searchQuery || selectedCategory;
@@ -134,9 +132,9 @@ const Projects = () => {
           {/* Controls */}
           <div className="flex gap-2 flex-wrap">
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
-                placeholder="Buscar projetos..."
+                placeholder="Filtrar projetos..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-8 w-[200px]"
@@ -164,7 +162,7 @@ const Projects = () => {
           </div>
         </div>
 
-        {/* Active Filters */}
+        {/* Filtros Ativos */}
         {hasActiveFilters && (
           <div className="flex gap-2 items-center flex-wrap p-4 bg-muted/30 rounded-lg">
             <span className="text-sm text-muted-foreground font-medium">Filtros ativos:</span>
@@ -197,21 +195,19 @@ const Projects = () => {
               </div>
             )}
 
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="ml-2"
-              >
-                <X className="h-3 w-3 mr-1" />
-                Limpar Tudo
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="ml-2"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Limpar Tudo
+            </Button>
           </div>
         )}
 
-        {/* Empty State with Suggestions */}
+        {/* Estado Vazio */}
         {!isLoading && filteredProjects.length === 0 && hasActiveFilters && (
           <div className="text-center py-12 space-y-4">
             <div className="text-6xl">🔍</div>
@@ -220,28 +216,20 @@ const Projects = () => {
               Não encontramos projetos que correspondam aos seus filtros atuais. 
               Tente ajustar os termos de busca ou explorar outras categorias.
             </p>
-            <div className="flex gap-2 justify-center">
-              <Button variant="outline" onClick={clearAllFilters}>
-                <X className="mr-2 h-4 w-4" />
-                Limpar Filtros
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/search')}>
-                <Search className="mr-2 h-4 w-4" />
-                Busca Avançada
-              </Button>
-            </div>
+            <Button variant="outline" onClick={clearAllFilters}>
+              <X className="mr-2 h-4 w-4" />
+              Limpar Filtros
+            </Button>
           </div>
         )}
 
-        {/* Projects Grid */}
-        {(!hasActiveFilters || filteredProjects.length > 0) && (
-          <ProjectGrid 
-            projects={filteredProjects} 
-            isLoading={isLoading}
-          />
-        )}
+        {/* Grid de Projetos */}
+        <ProjectGrid 
+          projects={filteredProjects} 
+          isLoading={isLoading}
+        />
 
-        {/* Sorting Info */}
+        {/* Info de Ordenação */}
         {filteredProjects.length > 0 && (
           <div className="flex justify-center">
             <p className="text-sm text-muted-foreground">
