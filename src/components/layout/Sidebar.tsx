@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,8 @@ import {
   ChevronRight,
   Grid3X3,
   List,
-  Clock
+  Clock,
+  AlertCircle
 } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import { useCategories } from '@/hooks/useProjects';
@@ -36,7 +36,18 @@ const viewModes = [
 export const Sidebar = () => {
   const location = useLocation();
   const { sidebarOpen, viewMode, selectedCategory, setViewMode, setSelectedCategory } = useUIStore();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories();
+
+  // Log para debug
+  React.useEffect(() => {
+    if (categories) {
+      console.log('📋 Sidebar received categories:', categories.length);
+      console.log('📊 Categories data:', categories.map(c => `${c.name}: ${c.count}`));
+    }
+    if (categoriesError) {
+      console.error('❌ Sidebar categories error:', categoriesError);
+    }
+  }, [categories, categoriesError]);
 
   return (
     <div
@@ -115,8 +126,18 @@ export const Sidebar = () => {
                   <div key={i} className="h-8 bg-muted rounded animate-pulse" />
                 ))}
               </div>
-            ) : (
-              categories?.map((category) => (
+            ) : categoriesError ? (
+              <div className="px-4 py-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-orange-600">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>Erro ao carregar categorias</span>
+                </div>
+                <p className="text-xs mt-1">
+                  Verifique a conexão com o servidor
+                </p>
+              </div>
+            ) : categories && categories.length > 0 ? (
+              categories.map((category) => (
                 <Button
                   key={category.name}
                   variant={selectedCategory === category.name ? 'secondary' : 'ghost'}
@@ -124,15 +145,24 @@ export const Sidebar = () => {
                   className="w-full justify-between"
                   onClick={() => setSelectedCategory(category.name)}
                 >
-                  <span className="truncate">{category.name}</span>
-                  <Badge variant="secondary" className="ml-2">
+                  <span className="truncate flex-1 text-left">{category.name}</span>
+                  <Badge variant="secondary" className="ml-2 shrink-0">
                     {category.count}
                   </Badge>
                 </Button>
               ))
+            ) : (
+              <div className="px-4 py-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>Nenhuma categoria encontrada</span>
+                </div>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Debug info in development */}
       </ScrollArea>
     </div>
   );

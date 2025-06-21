@@ -5,27 +5,38 @@ import { Card, CardContent, CardHeader, CardTitle }  from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge';
 import { ProjectGrid } from '@/components/project/ProjectGrid';
 import { useProjects, useCategories } from '@/hooks/useProjects';
-import { ArrowRight, Folder, Search, BarChart3, Sparkles, BookOpen, Target } from 'lucide-react';
+import { ArrowRight, Folder, Search, BarChart3, Sparkles, BookOpen, Target, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
-  const { data: projects, isLoading: projectsLoading } = useProjects();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: projects, isLoading: projectsLoading, error: projectsError } = useProjects();
+  const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories();
+
+  // Log para debug
+  React.useEffect(() => {
+    console.log('🏠 Index page rendered');
+    console.log('📊 Projects:', { count: projects?.length, loading: projectsLoading, error: !!projectsError });
+    console.log('📂 Categories:', { count: categories?.length, loading: categoriesLoading, error: !!categoriesError });
+  }, [projects, categories, projectsLoading, categoriesLoading, projectsError, categoriesError]);
 
   // Get recent projects (last 6)
   const recentProjects = React.useMemo(() => {
     if (!projects) return [];
-    return projects
+    const sorted = projects
       .sort((a, b) => new Date(b.data_modificacao).getTime() - new Date(a.data_modificacao).getTime())
       .slice(0, 6);
+    console.log('📋 Recent projects:', sorted.length);
+    return sorted;
   }, [projects]);
 
   // Get popular categories (top 6 by project count)
   const popularCategories = React.useMemo(() => {
     if (!categories) return [];
-    return categories
+    const sorted = categories
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
+    console.log('📂 Popular categories:', sorted.map(c => `${c.name}(${c.count})`));
+    return sorted;
   }, [categories]);
 
   return (
@@ -78,9 +89,17 @@ const Index = () => {
                 <BookOpen className="h-8 w-8 text-white" />
               </div>
               <div className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                {projectsLoading ? '...' : projects?.length || 0}
+                {projectsLoading ? '...' : projectsError ? '❌' : projects?.length || 0}
               </div>
-              <p className="text-blue-600 dark:text-blue-400 font-medium">Projetos Disponíveis</p>
+              <p className="text-blue-600 dark:text-blue-400 font-medium">
+                Projetos Disponíveis
+                {projectsError && (
+                  <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Erro ao carregar</span>
+                  </div>
+                )}
+              </p>
             </CardContent>
           </Card>
 
@@ -90,9 +109,17 @@ const Index = () => {
                 <Target className="h-8 w-8 text-white" />
               </div>
               <div className="text-3xl font-bold text-purple-700 dark:text-purple-300">
-                {categoriesLoading ? '...' : categories?.length || 0}
+                {categoriesLoading ? '...' : categoriesError ? '❌' : categories?.length || 0}
               </div>
-              <p className="text-purple-600 dark:text-purple-400 font-medium">Categorias Técnicas</p>
+              <p className="text-purple-600 dark:text-purple-400 font-medium">
+                Categorias Técnicas
+                {categoriesError && (
+                  <div className="flex items-center justify-center gap-1 mt-1 text-xs">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Erro ao carregar</span>
+                  </div>
+                )}
+              </p>
             </CardContent>
           </Card>
 
@@ -123,7 +150,18 @@ const Index = () => {
               [...Array(6)].map((_, i) => (
                 <div key={i} className="h-32 bg-muted rounded-xl animate-pulse" />
               ))
-            ) : (
+            ) : categoriesError ? (
+              <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Erro ao carregar categorias</h3>
+                <p className="text-muted-foreground mb-4">
+                  Não foi possível conectar com o servidor. Verifique sua conexão.
+                </p>
+                <Button variant="outline" onClick={() => window.location.reload()}>
+                  Tentar Novamente
+                </Button>
+              </div>
+            ) : popularCategories.length > 0 ? (
               popularCategories.map((category, index) => {
                 const colors = [
                   'from-blue-500 to-cyan-500',
@@ -154,17 +192,27 @@ const Index = () => {
                   </Card>
                 );
               })
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+                <Target className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Nenhuma categoria encontrada</h3>
+                <p className="text-muted-foreground">
+                  As categorias aparecerão quando os projetos forem carregados.
+                </p>
+              </div>
             )}
           </div>
           
-          <div className="text-center">
-            <Button variant="outline" size="lg" asChild>
-              <Link to="/projects">
-                Ver Todas as Categorias
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
+          {popularCategories.length > 0 && (
+            <div className="text-center">
+              <Button variant="outline" size="lg" asChild>
+                <Link to="/projects">
+                  Ver Todas as Categorias
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          )}
         </section>
 
         {/* Recent Projects */}
@@ -177,10 +225,23 @@ const Index = () => {
           </div>
           
           <div className="max-w-7xl mx-auto">
-            <ProjectGrid 
-              projects={recentProjects} 
-              isLoading={projectsLoading}
-            />
+            {projectsError ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Erro ao carregar projetos</h3>
+                <p className="text-muted-foreground mb-4">
+                  Não foi possível conectar com o servidor. Verifique sua conexão.
+                </p>
+                <Button variant="outline" onClick={() => window.location.reload()}>
+                  Tentar Novamente
+                </Button>
+              </div>
+            ) : (
+              <ProjectGrid 
+                projects={recentProjects} 
+                isLoading={projectsLoading}
+              />
+            )}
           </div>
           
           {recentProjects.length > 0 && (
@@ -213,6 +274,47 @@ const Index = () => {
             </Button>
           </div>
         </section>
+
+        {/* Debug Section - only in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <section className="bg-muted/50 rounded-lg p-6">
+            <h3 className="text-lg font-semibold mb-4">Debug Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-medium mb-2">Projects</h4>
+                <ul className="space-y-1 text-muted-foreground">
+                  <li>Total: {projects?.length || 0}</li>
+                  <li>Loading: {projectsLoading ? 'Yes' : 'No'}</li>
+                  <li>Error: {projectsError ? 'Yes' : 'No'}</li>
+                  <li>Recent: {recentProjects.length}</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">Categories</h4>
+                <ul className="space-y-1 text-muted-foreground">
+                  <li>Total: {categories?.length || 0}</li>
+                  <li>Loading: {categoriesLoading ? 'Yes' : 'No'}</li>
+                  <li>Error: {categoriesError ? 'Yes' : 'No'}</li>
+                  <li>Popular: {popularCategories.length}</li>
+                </ul>
+              </div>
+            </div>
+            {categoriesError && (
+              <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  Categories Error: {categoriesError.message}
+                </p>
+              </div>
+            )}
+            {projectsError && (
+              <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/30 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  Projects Error: {projectsError.message}
+                </p>
+              </div>
+            )}
+          </section>
+        )}
       </div>
     </AppLayout>
   );

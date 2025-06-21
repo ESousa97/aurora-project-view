@@ -13,6 +13,14 @@ export interface ProjectCard {
 // ProjectDetails é um alias para ProjectCard já que todos os campos estão na tabela principal
 export type ProjectDetails = ProjectCard;
 
+// Estrutura que o servidor retorna para categorias
+export interface CategoryServerResponse {
+  id: number;
+  titulo: string;
+  categoria: string;
+}
+
+// Estrutura processada das categorias para uso no frontend
 export interface Category {
   name: string;
   count: number;
@@ -31,6 +39,20 @@ export interface SearchFilters {
   category: string;
   sortBy: 'date' | 'title' | 'category';
   sortOrder: 'asc' | 'desc';
+}
+
+// Error types para melhor tratamento de erros
+export interface ApiError {
+  message: string;
+  status?: number;
+  code?: string;
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message?: string;
 }
 
 export type ViewMode = 'grid' | 'list' | 'compact' | 'timeline';

@@ -50,9 +50,52 @@ api.interceptors.response.use(
   }
 );
 
-// Função para gerar categorias a partir dos projetos
+// Função para processar dados de categorias do servidor
+const processCategoriesFromServer = (serverData: Array<{id: number, titulo: string, categoria: string}>): Category[] => {
+  console.log('📂 Processing categories from server data...');
+  console.log('📊 Server data sample:', serverData.slice(0, 3));
+  
+  const categoryMap = new Map<string, Array<{id: number, titulo: string, categoria: string}>>();
+  
+  // Agrupar projetos por categoria
+  serverData.forEach(project => {
+    const categoryName = project.categoria?.trim();
+    if (categoryName) {
+      if (!categoryMap.has(categoryName)) {
+        categoryMap.set(categoryName, []);
+      }
+      categoryMap.get(categoryName)?.push(project);
+    }
+  });
+  
+  // Converter para formato Category
+  const categories = Array.from(categoryMap.entries()).map(([name, projects]) => ({
+    name,
+    count: projects.length,
+    projects: projects.map(p => ({
+      id: p.id,
+      titulo: p.titulo,
+      categoria: p.categoria,
+      descricao: '', // Será preenchido quando necessário
+      imageurl: '',
+      data_criacao: '',
+      data_modificacao: '',
+      conteudo: ''
+    } as ProjectCard))
+  }));
+  
+  // Ordenar categorias por quantidade de projetos (decrescente)
+  categories.sort((a, b) => b.count - a.count);
+  
+  console.log(`📂 Processed ${categories.length} categories:`, 
+    categories.map(c => `${c.name} (${c.count} projetos)`));
+  
+  return categories;
+};
+
+// Função para gerar categorias a partir dos projetos completos (fallback)
 const generateCategoriesFromProjects = (projects: ProjectCard[]): Category[] => {
-  console.log('📂 Generating categories from projects...');
+  console.log('📂 Generating categories from full projects (fallback)...');
   
   const categoryMap = new Map<string, ProjectCard[]>();
   
@@ -62,10 +105,7 @@ const generateCategoriesFromProjects = (projects: ProjectCard[]): Category[] => 
       if (!categoryMap.has(categoryName)) {
         categoryMap.set(categoryName, []);
       }
-      const categoryProjects = categoryMap.get(categoryName);
-      if (categoryProjects) {
-        categoryProjects.push(project);
-      }
+      categoryMap.get(categoryName)?.push(project);
     }
   });
   
@@ -78,7 +118,8 @@ const generateCategoriesFromProjects = (projects: ProjectCard[]): Category[] => 
   // Ordenar categorias por quantidade de projetos (decrescente)
   categories.sort((a, b) => b.count - a.count);
   
-  console.log(`📂 Generated ${categories.length} categories:`, categories.map(c => `${c.name} (${c.count})`));
+  console.log(`📂 Generated ${categories.length} categories from fallback:`, 
+    categories.map(c => `${c.name} (${c.count})`));
   
   return categories;
 };
@@ -129,13 +170,28 @@ export const apiService = {
     }
   },
 
-  // Get categories from projects (não usa endpoint /categories)
+  // Get categories - usa endpoint específico do servidor
   getCategories: async (): Promise<Category[]> => {
-    console.log('📂 Fetching categories from projects...');
+    console.log('📂 Fetching categories from server...');
     
-    // Sempre busca as categorias a partir dos projetos
-    const projects = await apiService.getCards();
-    return generateCategoriesFromProjects(projects);
+    try {
+      // Tentar usar endpoint de categorias primeiro
+      const response = await api.get('/categories');
+      console.log(`📂 Server returned ${response.data?.length || 0} category entries`);
+      
+      if (response.data && Array.isArray(response.data)) {
+        return processCategoriesFromServer(response.data);
+      } else {
+        throw new Error('Invalid categories response format');
+      }
+    } catch (error) {
+      console.warn('📂 Categories endpoint failed, falling back to generating from projects');
+      console.error('Categories endpoint error:', error);
+      
+      // Fallback: gerar categorias a partir dos projetos
+      const projects = await apiService.getCards();
+      return generateCategoriesFromProjects(projects);
+    }
   },
 
   // Get project details
