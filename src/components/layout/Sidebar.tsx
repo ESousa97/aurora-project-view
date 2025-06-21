@@ -1,3 +1,4 @@
+// src/components/layout/Sidebar.tsx - Versão Melhorada
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -9,15 +10,15 @@ import {
   Search, 
   BarChart3, 
   Settings,
-  ChevronRight,
   Grid3X3,
   List,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ChevronRight
 } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import { useCategories } from '@/hooks/useProjects';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const navigationItems = [
   { name: 'Início', href: '/', icon: Home },
@@ -35,7 +36,15 @@ const viewModes = [
 
 export const Sidebar = () => {
   const location = useLocation();
-  const { sidebarOpen, viewMode, selectedCategory, setViewMode, setSelectedCategory } = useUIStore();
+  const navigate = useNavigate();
+  const { 
+    sidebarOpen, 
+    viewMode, 
+    selectedCategory, 
+    setViewMode, 
+    setSelectedCategory,
+    setSearchQuery 
+  } = useUIStore();
   const { data: categories, isLoading: categoriesLoading, error: categoriesError } = useCategories();
 
   // Log para debug
@@ -48,6 +57,27 @@ export const Sidebar = () => {
       console.error('❌ Sidebar categories error:', categoriesError);
     }
   }, [categories, categoriesError]);
+
+  // Handle category selection with navigation
+  const handleCategorySelect = (categoryName: string) => {
+    setSelectedCategory(categoryName);
+    setSearchQuery(''); // Clear search when selecting category
+    
+    // Navigate to projects page if not already there
+    if (location.pathname !== '/projects') {
+      navigate('/projects');
+    }
+  };
+
+  // Handle "All Categories" selection
+  const handleAllCategories = () => {
+    setSelectedCategory('');
+    setSearchQuery('');
+    
+    if (location.pathname !== '/projects') {
+      navigate('/projects');
+    }
+  };
 
   return (
     <div
@@ -82,7 +112,7 @@ export const Sidebar = () => {
           </div>
         </div>
 
-        {/* View Modes */}
+        {/* View Modes - Only show on projects page */}
         {location.pathname === '/projects' && (
           <div className="mt-8 space-y-2">
             <h3 className="mb-4 px-4 text-sm font-medium text-muted-foreground">
@@ -96,6 +126,7 @@ export const Sidebar = () => {
                   size="sm"
                   className="w-full justify-start"
                   onClick={() => setViewMode(mode.id)}
+                  // Timeline is now implemented!
                 >
                   <mode.icon className="mr-2 h-4 w-4" />
                   {mode.name}
@@ -107,17 +138,35 @@ export const Sidebar = () => {
 
         {/* Categories */}
         <div className="mt-8 space-y-2">
-          <h3 className="mb-4 px-4 text-sm font-medium text-muted-foreground">
-            Categorias
-          </h3>
+          <div className="flex items-center justify-between px-4 mb-4">
+            <h3 className="text-sm font-medium text-muted-foreground">
+              Categorias
+            </h3>
+            {selectedCategory && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAllCategories}
+                className="h-6 px-2 text-xs"
+              >
+                Limpar
+              </Button>
+            )}
+          </div>
+          
           <div className="space-y-1">
             <Button
               variant={selectedCategory === '' ? 'secondary' : 'ghost'}
               size="sm"
               className="w-full justify-start"
-              onClick={() => setSelectedCategory('')}
+              onClick={handleAllCategories}
             >
               Todas as Categorias
+              {categories && (
+                <Badge variant="secondary" className="ml-auto">
+                  {categories.reduce((total, cat) => total + cat.count, 0)}
+                </Badge>
+              )}
             </Button>
             
             {categoriesLoading ? (
@@ -142,13 +191,18 @@ export const Sidebar = () => {
                   key={category.name}
                   variant={selectedCategory === category.name ? 'secondary' : 'ghost'}
                   size="sm"
-                  className="w-full justify-between"
-                  onClick={() => setSelectedCategory(category.name)}
+                  className="w-full justify-between group"
+                  onClick={() => handleCategorySelect(category.name)}
                 >
                   <span className="truncate flex-1 text-left">{category.name}</span>
-                  <Badge variant="secondary" className="ml-2 shrink-0">
-                    {category.count}
-                  </Badge>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Badge variant="secondary" className="ml-2">
+                      {category.count}
+                    </Badge>
+                    {selectedCategory !== category.name && (
+                      <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    )}
+                  </div>
                 </Button>
               ))
             ) : (
@@ -162,7 +216,56 @@ export const Sidebar = () => {
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <div className="mt-8 space-y-2">
+          <h3 className="mb-4 px-4 text-sm font-medium text-muted-foreground">
+            Ações Rápidas
+          </h3>
+          <div className="space-y-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start"
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('');
+                navigate('/projects');
+              }}
+            >
+              <FolderOpen className="mr-2 h-4 w-4" />
+              Ver Todos os Projetos
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-start"
+              asChild
+            >
+              <Link to="/search">
+                <Search className="mr-2 h-4 w-4" />
+                Busca Avançada
+              </Link>
+            </Button>
+          </div>
+        </div>
+
         {/* Debug info in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-3 bg-muted/30 rounded-lg text-xs">
+            <div className="font-medium mb-2">Debug Info</div>
+            <div className="space-y-1 text-muted-foreground">
+              <div>Path: {location.pathname}</div>
+              <div>Categories: {categories?.length || 0}</div>
+              <div>Selected: {selectedCategory || 'None'}</div>
+              <div>View: {viewMode}</div>
+              <div>Loading: {categoriesLoading ? 'Yes' : 'No'}</div>
+              {categoriesError && (
+                <div className="text-red-500">Error: {categoriesError.message}</div>
+              )}
+            </div>
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

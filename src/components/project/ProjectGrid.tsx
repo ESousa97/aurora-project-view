@@ -1,6 +1,7 @@
-
+// src/components/project/ProjectGrid.tsx - Versão Atualizada
 import React from 'react';
 import { ProjectCard } from './ProjectCard';
+import { ProjectTimeline } from './ProjectTimeline';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { useUIStore } from '@/stores/uiStore';
 
@@ -20,11 +21,15 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
       <div className={`grid gap-6 ${
         viewMode === 'grid' 
           ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
-          : 'grid-cols-1'
+          : viewMode === 'list'
+          ? 'grid-cols-1'
+          : 'grid-cols-1' // timeline loading
       }`}>
         {[...Array(6)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="bg-muted rounded-lg h-64"></div>
+            <div className={`bg-muted rounded-lg ${
+              viewMode === 'timeline' ? 'h-24' : 'h-64'
+            }`}></div>
           </div>
         ))}
       </div>
@@ -43,6 +48,12 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
     );
   }
 
+  // Timeline view
+  if (viewMode === 'timeline') {
+    return <ProjectTimeline projects={projects} isLoading={isLoading} />;
+  }
+
+  // Grid and List views
   return (
     <div className={`grid gap-6 ${
       viewMode === 'grid' 
