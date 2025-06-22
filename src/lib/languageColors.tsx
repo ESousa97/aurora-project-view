@@ -1,4 +1,4 @@
-// src/lib/languageColors.ts
+// src/lib/languageColors.ts - Enhanced version with combined gradients
 export interface LanguageColor {
   name: string;
   color: string;
@@ -58,6 +58,14 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
     gradient: 'from-green-600 to-green-700',
     icon: '🟢'
   },
+  'nextjs': {
+    name: 'Next.js',
+    color: '#000000',
+    bgColor: 'bg-black',
+    textColor: 'text-white',
+    gradient: 'from-black to-gray-800',
+    icon: '▲'
+  },
 
   // Web Technologies
   'html': {
@@ -83,6 +91,14 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
     textColor: 'text-pink-100',
     gradient: 'from-pink-500 to-pink-600',
     icon: '💅'
+  },
+  'tailwind': {
+    name: 'Tailwind CSS',
+    color: '#06B6D4',
+    bgColor: 'bg-cyan-500',
+    textColor: 'text-cyan-100',
+    gradient: 'from-cyan-500 to-teal-500',
+    icon: '🌊'
   },
 
   // Backend Languages
@@ -194,6 +210,32 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
     gradient: 'from-green-600 to-green-700',
     icon: '🍃'
   },
+  'firebase': {
+    name: 'Firebase',
+    color: '#FFCA28',
+    bgColor: 'bg-yellow-400',
+    textColor: 'text-yellow-900',
+    gradient: 'from-yellow-400 to-orange-500',
+    icon: '🔥'
+  },
+
+  // Cloud & DevOps
+  'aws': {
+    name: 'AWS',
+    color: '#FF9900',
+    bgColor: 'bg-orange-500',
+    textColor: 'text-orange-100',
+    gradient: 'from-orange-500 to-orange-600',
+    icon: '☁️'
+  },
+  'docker': {
+    name: 'Docker',
+    color: '#2496ED',
+    bgColor: 'bg-blue-500',
+    textColor: 'text-blue-100',
+    gradient: 'from-blue-500 to-cyan-500',
+    icon: '🐳'
+  },
 
   // Default/Fallback
   'default': {
@@ -207,61 +249,233 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
 };
 
 /**
- * Detecta a linguagem principal de um projeto baseado no título, descrição e categoria
+ * Detecta múltiplas tecnologias em um texto e retorna suas configurações
  */
-export function detectLanguage(project: { titulo?: string; descricao?: string; categoria?: string } | null | undefined): LanguageColor {
-  // Verificação de segurança
-  if (!project) {
-    return LANGUAGE_COLORS.default;
+function detectMultipleTechnologies(content: string): LanguageColor[] {
+  const normalizedContent = content.toLowerCase();
+  const detected: LanguageColor[] = [];
+  
+  // Padrões comuns de separação: +, &, e, and, com, with
+  const separators = /[+&]|\s+(e|and|com|with)\s+/g;
+  
+  // Se não há separadores, usar detecção simples
+  if (!separators.test(normalizedContent)) {
+    const singleTech = detectSingleTechnology(content);
+    return [singleTech];
   }
-
-  // Garantir que os valores sejam strings válidas
-  const titulo = project.titulo || '';
-  const descricao = project.descricao || '';
-  const categoria = project.categoria || '';
   
-  const content = `${titulo} ${descricao} ${categoria}`.toLowerCase();
+  // Dividir por separadores e detectar cada tecnologia
+  const parts = normalizedContent.split(separators).map(part => part.trim());
   
-  // Ordem de prioridade para detecção
-  const priorities = [
-    'typescript', 'javascript', 'react', 'vue', 'angular', 'node',
-    'python', 'java', 'csharp', 'php', 'go', 'rust',
-    'swift', 'kotlin', 'flutter', 'react-native',
-    'html', 'css', 'sass',
-    'mysql', 'postgresql', 'mongodb'
-  ];
-
-  for (const lang of priorities) {
-    const langConfig = LANGUAGE_COLORS[lang];
-    if (content.includes(lang) || content.includes(langConfig.name.toLowerCase())) {
-      return langConfig;
+  for (const part of parts) {
+    if (part && part.length > 1) {
+      const tech = detectSingleTechnology(part);
+      if (tech && tech !== LANGUAGE_COLORS.default && !detected.some(d => d.name === tech.name)) {
+        detected.push(tech);
+      }
     }
   }
+  
+  // Se não detectou nenhuma tecnologia específica, usar detecção no conteúdo completo
+  if (detected.length === 0) {
+    detected.push(detectSingleTechnology(content));
+  }
+  
+  // Limitar a 3 tecnologias para não complicar muito o gradiente
+  return detected.slice(0, 3);
+}
 
-  // Verificações específicas
-  if (content.includes('c#') || content.includes('dotnet') || content.includes('.net')) {
+/**
+ * Detecta uma única tecnologia no conteúdo
+ */
+function detectSingleTechnology(content: string): LanguageColor {
+  const normalizedContent = content.toLowerCase().trim();
+  
+  // Verificações específicas primeiro
+  if (normalizedContent.includes('c#') || normalizedContent.includes('dotnet') || normalizedContent.includes('.net')) {
     return LANGUAGE_COLORS.csharp;
   }
   
-  if (content.includes('react native') || content.includes('reactnative')) {
+  if (normalizedContent.includes('react native') || normalizedContent.includes('reactnative')) {
     return LANGUAGE_COLORS['react-native'];
+  }
+  
+  if (normalizedContent.includes('next.js') || normalizedContent.includes('nextjs')) {
+    return LANGUAGE_COLORS.nextjs;
+  }
+  
+  if (normalizedContent.includes('tailwind')) {
+    return LANGUAGE_COLORS.tailwind;
+  }
+  
+  // Busca por prioridade
+  const priorities = [
+    'typescript', 'javascript', 'react', 'vue', 'angular', 'nextjs', 'node',
+    'python', 'java', 'csharp', 'php', 'go', 'rust',
+    'swift', 'kotlin', 'flutter', 'react-native',
+    'html', 'css', 'sass', 'tailwind',
+    'mysql', 'postgresql', 'mongodb', 'firebase',
+    'aws', 'docker'
+  ];
+
+  for (const tech of priorities) {
+    const techConfig = LANGUAGE_COLORS[tech];
+    if (normalizedContent.includes(tech) || normalizedContent.includes(techConfig.name.toLowerCase())) {
+      return techConfig;
+    }
   }
 
   return LANGUAGE_COLORS.default;
 }
 
 /**
- * Obtém configuração de cor por categoria
+ * Cria um gradiente combinado baseado em múltiplas tecnologias
+ */
+function createCombinedGradient(technologies: LanguageColor[]): string {
+  if (technologies.length === 1) {
+    return technologies[0].gradient;
+  }
+  
+  if (technologies.length === 2) {
+    // Para duas tecnologias, criar gradiente simples
+    const tech1 = technologies[0];
+    const tech2 = technologies[1];
+    
+    // Extrair cores dos gradientes existentes
+    const color1 = extractMainColor(tech1);
+    const color2 = extractMainColor(tech2);
+    
+    return `from-${color1} via-${color2} to-${color1}`;
+  }
+  
+  if (technologies.length === 3) {
+    // Para três tecnologias, criar gradiente mais complexo
+    const colors = technologies.map(extractMainColor);
+    return `from-${colors[0]} via-${colors[1]} to-${colors[2]}`;
+  }
+  
+  return technologies[0].gradient;
+}
+
+/**
+ * Extrai a cor principal de uma configuração de tecnologia
+ */
+function extractMainColor(tech: LanguageColor): string {
+  // Mapear cores hex para classes Tailwind equivalentes
+  const colorMap: Record<string, string> = {
+    '#F7DF1E': 'yellow-400',   // JavaScript
+    '#3178C6': 'blue-500',     // TypeScript
+    '#61DAFB': 'cyan-400',     // React
+    '#4FC08D': 'green-500',    // Vue
+    '#DD0031': 'red-600',      // Angular
+    '#339933': 'green-600',    // Node.js
+    '#000000': 'black',        // Next.js
+    '#E34F26': 'orange-500',   // HTML
+    '#1572B6': 'blue-600',     // CSS
+    '#CC6699': 'pink-500',     // Sass
+    '#06B6D4': 'cyan-500',     // Tailwind
+    '#3776AB': 'blue-500',     // Python
+    '#007396': 'orange-600',   // Java
+    '#239120': 'purple-600',   // C#
+    '#777BB4': 'indigo-500',   // PHP
+    '#00ADD8': 'cyan-500',     // Go
+    '#FA7343': 'orange-500',   // Swift
+    '#7F52FF': 'purple-500',   // Kotlin
+    '#02569B': 'blue-600',     // Flutter
+    '#4479A1': 'blue-600',     // MySQL
+    '#336791': 'blue-700',     // PostgreSQL
+    '#47A248': 'green-600',    // MongoDB
+    '#FFCA28': 'yellow-400',   // Firebase
+    '#FF9900': 'orange-500',   // AWS
+    '#2496ED': 'blue-500',     // Docker
+    '#6B7280': 'slate-500',    // Default
+  };
+  
+  return colorMap[tech.color] || 'slate-500';
+}
+
+/**
+ * Obtém a cor principal combinada de múltiplas tecnologias
+ */
+function getCombinedMainColor(technologies: LanguageColor[]): string {
+  if (technologies.length === 1) {
+    return technologies[0].color;
+  }
+  
+  // Para múltiplas tecnologias, usar a cor da primeira (mais relevante)
+  return technologies[0].color;
+}
+
+/**
+ * Detecta a linguagem/tecnologia principal de um projeto com suporte a múltiplas tecnologias
+ */
+export function detectLanguage(project: { titulo?: string; descricao?: string; categoria?: string } | null | undefined): LanguageColor {
+  if (!project) {
+    return LANGUAGE_COLORS.default;
+  }
+
+  const titulo = project.titulo || '';
+  const descricao = project.descricao || '';
+  const categoria = project.categoria || '';
+  
+  const content = `${titulo} ${descricao} ${categoria}`;
+  
+  // Detectar múltiplas tecnologias
+  const technologies = detectMultipleTechnologies(content);
+  
+  if (technologies.length === 1) {
+    return technologies[0];
+  }
+  
+  // Para múltiplas tecnologias, criar uma configuração combinada
+  const combinedGradient = createCombinedGradient(technologies);
+  const mainColor = getCombinedMainColor(technologies);
+  const combinedName = technologies.map(t => t.name).join(' + ');
+  
+  // Criar ícone combinado (máximo 2 ícones para não poluir)
+  const combinedIcon = technologies.slice(0, 2).map(t => t.icon).join('');
+  
+  return {
+    name: combinedName,
+    color: mainColor,
+    bgColor: technologies[0].bgColor, // Usar bg da tecnologia principal
+    textColor: technologies[0].textColor, // Usar texto da tecnologia principal
+    gradient: combinedGradient,
+    icon: combinedIcon
+  };
+}
+
+/**
+ * Obtém configuração de cor por categoria com suporte a múltiplas tecnologias
  */
 export function getCategoryColor(categoryName?: string | null): LanguageColor {
-  // Verificação de segurança
   if (!categoryName || typeof categoryName !== 'string') {
     return LANGUAGE_COLORS.default;
   }
 
   const normalizedCategory = categoryName.toLowerCase().trim();
   
-  // Mapeamento direto de categorias para linguagens
+  // Detectar se a categoria contém múltiplas tecnologias
+  const technologies = detectMultipleTechnologies(normalizedCategory);
+  
+  if (technologies.length > 1) {
+    // Criar configuração combinada para a categoria
+    const combinedGradient = createCombinedGradient(technologies);
+    const mainColor = getCombinedMainColor(technologies);
+    const combinedName = technologies.map(t => t.name).join(' + ');
+    const combinedIcon = technologies.slice(0, 2).map(t => t.icon).join('');
+    
+    return {
+      name: combinedName,
+      color: mainColor,
+      bgColor: technologies[0].bgColor,
+      textColor: technologies[0].textColor,
+      gradient: combinedGradient,
+      icon: combinedIcon
+    };
+  }
+  
+  // Mapeamento direto de categorias para linguagens (single tech)
   const categoryMappings: Record<string, string> = {
     'frontend': 'react',
     'backend': 'node',
@@ -270,7 +484,9 @@ export function getCategoryColor(categoryName?: string | null): LanguageColor {
     'web': 'html',
     'api': 'node',
     'database': 'postgresql',
-    'ui/ux': 'css'
+    'ui/ux': 'css',
+    'devops': 'docker',
+    'cloud': 'aws'
   };
 
   const mappedLang = categoryMappings[normalizedCategory];
@@ -278,37 +494,45 @@ export function getCategoryColor(categoryName?: string | null): LanguageColor {
     return LANGUAGE_COLORS[mappedLang];
   }
 
-  // Detecta baseado no nome da categoria
-  for (const [key, config] of Object.entries(LANGUAGE_COLORS)) {
-    if (normalizedCategory.includes(key) || normalizedCategory.includes(config.name.toLowerCase())) {
-      return config;
-    }
-  }
-
-  return LANGUAGE_COLORS.default;
+  // Se não encontrou mapeamento, usar detecção padrão
+  return technologies[0];
 }
 
 /**
- * Gera um gradiente aleatório para categorias não mapeadas
+ * Gera um gradiente territorial baseado em múltiplas tecnologias para categorias não mapeadas
  */
-export function generateCategoryGradient(categoryName?: string | null): string {
-  const gradients = [
-    'from-red-500 to-pink-500',
-    'from-blue-500 to-cyan-500', 
-    'from-green-500 to-emerald-500',
-    'from-purple-500 to-pink-500',
-    'from-orange-500 to-red-500',
-    'from-indigo-500 to-purple-500',
-    'from-teal-500 to-blue-500',
-    'from-yellow-500 to-orange-500',
-    'from-pink-500 to-rose-500'
-  ];
-  
+export function generateTerritoryGradient(categoryName?: string | null): string {
   if (!categoryName) {
-    return gradients[0];
+    return 'from-slate-500 to-slate-600';
   }
   
-  // Usa o nome da categoria para gerar um índice consistente
+  // Tentar detectar tecnologias na categoria
+  const technologies = detectMultipleTechnologies(categoryName);
+  
+  if (technologies.length > 1 && technologies[0] !== LANGUAGE_COLORS.default) {
+    return createCombinedGradient(technologies);
+  }
+  
+  // Fallback para gradientes territoriais baseados em hash
+  const territoryGradients = [
+    'from-red-500 via-orange-500 to-pink-500',
+    'from-blue-500 via-cyan-500 to-teal-500', 
+    'from-green-500 via-emerald-500 to-lime-500',
+    'from-purple-500 via-violet-500 to-fuchsia-500',
+    'from-orange-500 via-amber-500 to-yellow-500',
+    'from-indigo-500 via-blue-500 to-cyan-500',
+    'from-teal-500 via-green-500 to-emerald-500',
+    'from-yellow-500 via-orange-500 to-red-500',
+    'from-pink-500 via-purple-500 to-indigo-500',
+    'from-cyan-500 via-blue-500 to-purple-500'
+  ];
+  
+  // Usar hash do nome da categoria para consistência
   const hash = categoryName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return gradients[hash % gradients.length];
+  return territoryGradients[hash % territoryGradients.length];
 }
+
+/**
+ * Alias para retrocompatibilidade
+ */
+export const generateCategoryGradient = generateTerritoryGradient;
