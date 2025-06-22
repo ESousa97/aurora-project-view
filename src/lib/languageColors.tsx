@@ -1,4 +1,4 @@
-// src/lib/languageColors.ts - Enhanced version with combined gradients
+// src/lib/languageColors.tsx - Versão corrigida com validação de tipos
 export interface LanguageColor {
   name: string;
   color: string;
@@ -252,7 +252,17 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
  * Detecta múltiplas tecnologias em um texto e retorna suas configurações
  */
 function detectMultipleTechnologies(content: string): LanguageColor[] {
-  const normalizedContent = content.toLowerCase();
+  // Validação de entrada
+  if (!content || typeof content !== 'string') {
+    return [LANGUAGE_COLORS.default];
+  }
+
+  const normalizedContent = content.toLowerCase().trim();
+  
+  if (!normalizedContent) {
+    return [LANGUAGE_COLORS.default];
+  }
+
   const detected: LanguageColor[] = [];
   
   // Padrões comuns de separação: +, &, e, and, com, with
@@ -260,25 +270,25 @@ function detectMultipleTechnologies(content: string): LanguageColor[] {
   
   // Se não há separadores, usar detecção simples
   if (!separators.test(normalizedContent)) {
-    const singleTech = detectSingleTechnology(content);
+    const singleTech = detectSingleTechnology(normalizedContent);
     return [singleTech];
   }
   
   // Dividir por separadores e detectar cada tecnologia
-  const parts = normalizedContent.split(separators).map(part => part.trim());
+  const parts = normalizedContent.split(separators)
+    .map(part => part ? part.trim() : '')
+    .filter(part => part && part.length > 1);
   
   for (const part of parts) {
-    if (part && part.length > 1) {
-      const tech = detectSingleTechnology(part);
-      if (tech && tech !== LANGUAGE_COLORS.default && !detected.some(d => d.name === tech.name)) {
-        detected.push(tech);
-      }
+    const tech = detectSingleTechnology(part);
+    if (tech && tech !== LANGUAGE_COLORS.default && !detected.some(d => d.name === tech.name)) {
+      detected.push(tech);
     }
   }
   
   // Se não detectou nenhuma tecnologia específica, usar detecção no conteúdo completo
   if (detected.length === 0) {
-    detected.push(detectSingleTechnology(content));
+    detected.push(detectSingleTechnology(normalizedContent));
   }
   
   // Limitar a 3 tecnologias para não complicar muito o gradiente
@@ -289,7 +299,16 @@ function detectMultipleTechnologies(content: string): LanguageColor[] {
  * Detecta uma única tecnologia no conteúdo
  */
 function detectSingleTechnology(content: string): LanguageColor {
+  // Validação de entrada
+  if (!content || typeof content !== 'string') {
+    return LANGUAGE_COLORS.default;
+  }
+
   const normalizedContent = content.toLowerCase().trim();
+  
+  if (!normalizedContent) {
+    return LANGUAGE_COLORS.default;
+  }
   
   // Verificações específicas primeiro
   if (normalizedContent.includes('c#') || normalizedContent.includes('dotnet') || normalizedContent.includes('.net')) {
@@ -320,7 +339,7 @@ function detectSingleTechnology(content: string): LanguageColor {
 
   for (const tech of priorities) {
     const techConfig = LANGUAGE_COLORS[tech];
-    if (normalizedContent.includes(tech) || normalizedContent.includes(techConfig.name.toLowerCase())) {
+    if (techConfig && (normalizedContent.includes(tech) || normalizedContent.includes(techConfig.name.toLowerCase()))) {
       return techConfig;
     }
   }
@@ -332,16 +351,18 @@ function detectSingleTechnology(content: string): LanguageColor {
  * Cria um gradiente combinado baseado em múltiplas tecnologias
  */
 function createCombinedGradient(technologies: LanguageColor[]): string {
+  if (!technologies || technologies.length === 0) {
+    return LANGUAGE_COLORS.default.gradient;
+  }
+
   if (technologies.length === 1) {
     return technologies[0].gradient;
   }
   
   if (technologies.length === 2) {
-    // Para duas tecnologias, criar gradiente simples
     const tech1 = technologies[0];
     const tech2 = technologies[1];
     
-    // Extrair cores dos gradientes existentes
     const color1 = extractMainColor(tech1);
     const color2 = extractMainColor(tech2);
     
@@ -349,7 +370,6 @@ function createCombinedGradient(technologies: LanguageColor[]): string {
   }
   
   if (technologies.length === 3) {
-    // Para três tecnologias, criar gradiente mais complexo
     const colors = technologies.map(extractMainColor);
     return `from-${colors[0]} via-${colors[1]} to-${colors[2]}`;
   }
@@ -361,34 +381,38 @@ function createCombinedGradient(technologies: LanguageColor[]): string {
  * Extrai a cor principal de uma configuração de tecnologia
  */
 function extractMainColor(tech: LanguageColor): string {
+  if (!tech || !tech.color) {
+    return 'slate-500';
+  }
+
   // Mapear cores hex para classes Tailwind equivalentes
   const colorMap: Record<string, string> = {
-    '#F7DF1E': 'yellow-400',   // JavaScript
-    '#3178C6': 'blue-500',     // TypeScript
-    '#61DAFB': 'cyan-400',     // React
-    '#4FC08D': 'green-500',    // Vue
-    '#DD0031': 'red-600',      // Angular
-    '#339933': 'green-600',    // Node.js
-    '#000000': 'black',        // Next.js
-    '#E34F26': 'orange-500',   // HTML
-    '#1572B6': 'blue-600',     // CSS
-    '#CC6699': 'pink-500',     // Sass
-    '#06B6D4': 'cyan-500',     // Tailwind
-    '#3776AB': 'blue-500',     // Python
-    '#007396': 'orange-600',   // Java
-    '#239120': 'purple-600',   // C#
-    '#777BB4': 'indigo-500',   // PHP
-    '#00ADD8': 'cyan-500',     // Go
-    '#FA7343': 'orange-500',   // Swift
-    '#7F52FF': 'purple-500',   // Kotlin
-    '#02569B': 'blue-600',     // Flutter
-    '#4479A1': 'blue-600',     // MySQL
-    '#336791': 'blue-700',     // PostgreSQL
-    '#47A248': 'green-600',    // MongoDB
-    '#FFCA28': 'yellow-400',   // Firebase
-    '#FF9900': 'orange-500',   // AWS
-    '#2496ED': 'blue-500',     // Docker
-    '#6B7280': 'slate-500',    // Default
+    '#F7DF1E': 'yellow-400',
+    '#3178C6': 'blue-500',
+    '#61DAFB': 'cyan-400',
+    '#4FC08D': 'green-500',
+    '#DD0031': 'red-600',
+    '#339933': 'green-600',
+    '#000000': 'black',
+    '#E34F26': 'orange-500',
+    '#1572B6': 'blue-600',
+    '#CC6699': 'pink-500',
+    '#06B6D4': 'cyan-500',
+    '#3776AB': 'blue-500',
+    '#007396': 'orange-600',
+    '#239120': 'purple-600',
+    '#777BB4': 'indigo-500',
+    '#00ADD8': 'cyan-500',
+    '#FA7343': 'orange-500',
+    '#7F52FF': 'purple-500',
+    '#02569B': 'blue-600',
+    '#4479A1': 'blue-600',
+    '#336791': 'blue-700',
+    '#47A248': 'green-600',
+    '#FFCA28': 'yellow-400',
+    '#FF9900': 'orange-500',
+    '#2496ED': 'blue-500',
+    '#6B7280': 'slate-500',
   };
   
   return colorMap[tech.color] || 'slate-500';
@@ -398,11 +422,14 @@ function extractMainColor(tech: LanguageColor): string {
  * Obtém a cor principal combinada de múltiplas tecnologias
  */
 function getCombinedMainColor(technologies: LanguageColor[]): string {
+  if (!technologies || technologies.length === 0) {
+    return LANGUAGE_COLORS.default.color;
+  }
+
   if (technologies.length === 1) {
     return technologies[0].color;
   }
   
-  // Para múltiplas tecnologias, usar a cor da primeira (mais relevante)
   return technologies[0].color;
 }
 
@@ -410,7 +437,8 @@ function getCombinedMainColor(technologies: LanguageColor[]): string {
  * Detecta a linguagem/tecnologia principal de um projeto com suporte a múltiplas tecnologias
  */
 export function detectLanguage(project: { titulo?: string; descricao?: string; categoria?: string } | null | undefined): LanguageColor {
-  if (!project) {
+  // Validação de entrada robusta
+  if (!project || typeof project !== 'object') {
     return LANGUAGE_COLORS.default;
   }
 
@@ -418,10 +446,23 @@ export function detectLanguage(project: { titulo?: string; descricao?: string; c
   const descricao = project.descricao || '';
   const categoria = project.categoria || '';
   
-  const content = `${titulo} ${descricao} ${categoria}`;
+  // Verificação adicional para garantir que são strings
+  const tituloStr = typeof titulo === 'string' ? titulo : '';
+  const descricaoStr = typeof descricao === 'string' ? descricao : '';
+  const categoriaStr = typeof categoria === 'string' ? categoria : '';
+  
+  const content = `${tituloStr} ${descricaoStr} ${categoriaStr}`.trim();
+  
+  if (!content) {
+    return LANGUAGE_COLORS.default;
+  }
   
   // Detectar múltiplas tecnologias
   const technologies = detectMultipleTechnologies(content);
+  
+  if (!technologies || technologies.length === 0) {
+    return LANGUAGE_COLORS.default;
+  }
   
   if (technologies.length === 1) {
     return technologies[0];
@@ -433,13 +474,13 @@ export function detectLanguage(project: { titulo?: string; descricao?: string; c
   const combinedName = technologies.map(t => t.name).join(' + ');
   
   // Criar ícone combinado (máximo 2 ícones para não poluir)
-  const combinedIcon = technologies.slice(0, 2).map(t => t.icon).join('');
+  const combinedIcon = technologies.slice(0, 2).map(t => t.icon || '📦').join('');
   
   return {
     name: combinedName,
     color: mainColor,
-    bgColor: technologies[0].bgColor, // Usar bg da tecnologia principal
-    textColor: technologies[0].textColor, // Usar texto da tecnologia principal
+    bgColor: technologies[0].bgColor,
+    textColor: technologies[0].textColor,
     gradient: combinedGradient,
     icon: combinedIcon
   };
@@ -455,15 +496,19 @@ export function getCategoryColor(categoryName?: string | null): LanguageColor {
 
   const normalizedCategory = categoryName.toLowerCase().trim();
   
+  if (!normalizedCategory) {
+    return LANGUAGE_COLORS.default;
+  }
+  
   // Detectar se a categoria contém múltiplas tecnologias
   const technologies = detectMultipleTechnologies(normalizedCategory);
   
-  if (technologies.length > 1) {
+  if (technologies.length > 1 && technologies[0] !== LANGUAGE_COLORS.default) {
     // Criar configuração combinada para a categoria
     const combinedGradient = createCombinedGradient(technologies);
     const mainColor = getCombinedMainColor(technologies);
     const combinedName = technologies.map(t => t.name).join(' + ');
-    const combinedIcon = technologies.slice(0, 2).map(t => t.icon).join('');
+    const combinedIcon = technologies.slice(0, 2).map(t => t.icon || '📦').join('');
     
     return {
       name: combinedName,
@@ -502,7 +547,7 @@ export function getCategoryColor(categoryName?: string | null): LanguageColor {
  * Gera um gradiente territorial baseado em múltiplas tecnologias para categorias não mapeadas
  */
 export function generateTerritoryGradient(categoryName?: string | null): string {
-  if (!categoryName) {
+  if (!categoryName || typeof categoryName !== 'string') {
     return 'from-slate-500 to-slate-600';
   }
   
