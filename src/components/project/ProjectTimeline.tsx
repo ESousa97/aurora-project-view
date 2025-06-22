@@ -5,9 +5,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { Link } from 'react-router-dom';
-import { Calendar, Eye, ArrowRight } from 'lucide-react';
+import { Calendar, Eye, ArrowRight, Sparkles } from 'lucide-react';
 import { format, isWithinInterval, subDays, subMonths, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { motion } from 'framer-motion';
+import { detectLanguage } from '@/lib/languageColors';
 
 interface ProjectTimelineProps {
   projects: ProjectCardType[];
@@ -18,6 +20,8 @@ interface TimelinePeriod {
   label: string;
   projects: ProjectCardType[];
   period: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'older';
+  color: string;
+  icon: string;
 }
 
 export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ 
@@ -29,12 +33,12 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
 
     const now = new Date();
     const periods: TimelinePeriod[] = [
-      { label: 'Hoje', projects: [], period: 'today' },
-      { label: 'Esta Semana', projects: [], period: 'week' },
-      { label: 'Este Mês', projects: [], period: 'month' },
-      { label: 'Últimos 3 Meses', projects: [], period: 'quarter' },
-      { label: 'Este Ano', projects: [], period: 'year' },
-      { label: 'Mais Antigos', projects: [], period: 'older' },
+      { label: 'Hoje', projects: [], period: 'today', color: 'from-green-500 to-emerald-500', icon: '🌟' },
+      { label: 'Esta Semana', projects: [], period: 'week', color: 'from-blue-500 to-cyan-500', icon: '⚡' },
+      { label: 'Este Mês', projects: [], period: 'month', color: 'from-purple-500 to-pink-500', icon: '🚀' },
+      { label: 'Últimos 3 Meses', projects: [], period: 'quarter', color: 'from-orange-500 to-red-500', icon: '🔥' },
+      { label: 'Este Ano', projects: [], period: 'year', color: 'from-indigo-500 to-purple-500', icon: '💫' },
+      { label: 'Mais Antigos', projects: [], period: 'older', color: 'from-slate-500 to-slate-600', icon: '📚' },
     ];
 
     projects.forEach(project => {
@@ -95,14 +99,20 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
     return (
       <div className="space-y-8">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="space-y-4">
+          <motion.div 
+            key={i} 
+            className="space-y-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+          >
             <div className="h-6 w-32 bg-muted rounded animate-pulse" />
             <div className="space-y-3">
               {[...Array(2)].map((_, j) => (
                 <div key={j} className="h-24 bg-muted rounded animate-pulse" />
               ))}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     );
@@ -110,119 +120,199 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
 
   if (timelineData.length === 0) {
     return (
-      <div className="text-center py-12">
+      <motion.div 
+        className="text-center py-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <div className="text-6xl mb-4">📅</div>
         <h3 className="text-lg font-semibold mb-2">Nenhum projeto na timeline</h3>
         <p className="text-muted-foreground">
           Os projetos aparecerão organizados por data de modificação.
         </p>
-      </div>
+      </motion.div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {timelineData.map((period) => (
-        <div key={period.period} className="space-y-4">
+      {timelineData.map((period, periodIndex) => (
+        <motion.div 
+          key={period.period} 
+          className="space-y-4"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: periodIndex * 0.1 }}
+        >
           {/* Period Header */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-primary" />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${period.color} shadow-lg`} />
               <h2 className="text-xl font-semibold">{period.label}</h2>
+              <span className="text-2xl">{period.icon}</span>
             </div>
-            <div className="flex-1 h-px bg-border" />
-            <Badge variant="secondary">
+            <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
+            <Badge 
+              variant="secondary"
+              className="shadow-sm"
+              style={{ backgroundColor: `${period.color.split(' ')[1].replace('to-', '').replace('500', '100')}` }}
+            >
               {period.projects.length} projeto{period.projects.length !== 1 ? 's' : ''}
             </Badge>
           </div>
 
           {/* Period Projects */}
-          <div className="space-y-3 ml-6">
-            {period.projects.map((project, index) => (
-              <Card 
-                key={project.id} 
-                className="group hover:shadow-md transition-all duration-200 relative"
-              >
-                {/* Timeline Connector */}
-                {index < period.projects.length - 1 && (
-                  <div className="absolute left-[-1.5rem] top-16 w-px h-8 bg-border" />
-                )}
-                
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    {/* Project Image */}
-                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                      {project.imageurl ? (
-                        <img
-                          src={project.imageurl}
-                          alt={project.titulo}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=64&h=64&fit=crop&crop=entropy&auto=format&q=60`;
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                          <span className="text-lg font-bold text-primary/50">
-                            {project.titulo.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+          <div className="space-y-3 ml-6 relative">
+            {/* Vertical timeline line */}
+            <div className="absolute left-[-1.5rem] top-0 bottom-0 w-px bg-gradient-to-b from-border to-transparent" />
+            
+            {period.projects.map((project, index) => {
+              const languageConfig = detectLanguage(project);
+              const isNew = isWithinInterval(new Date(project.data_modificacao), {
+                start: subDays(new Date(), 2),
+                end: new Date()
+              });
 
-                    {/* Project Info */}
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-start justify-between gap-4">
-                        <Link 
-                          to={`/projects/${project.id}`}
-                          className="block group-hover:text-primary transition-colors"
-                        >
-                          <h3 className="font-semibold text-base line-clamp-1">
-                            {project.titulo}
-                          </h3>
-                        </Link>
-                        <Badge variant="outline" className="shrink-0">
-                          {project.categoria}
-                        </Badge>
-                      </div>
-
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {project.descricao}
-                      </p>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          <span>{formatRelativeDate(project.data_modificacao)}</span>
-                          <span>•</span>
-                          <span>{formatDate(project.data_modificacao)}</span>
+              return (
+                <motion.div
+                  key={project.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: (periodIndex * 0.1) + (index * 0.05) }}
+                >
+                  <Card 
+                    className="group hover:shadow-lg transition-all duration-300 cursor-pointer relative border-l-4"
+                    style={{ borderLeftColor: languageConfig.color }}
+                  >
+                    {/* Timeline Connector */}
+                    {index < period.projects.length - 1 && (
+                      <div className="absolute left-[-1.5rem] top-16 w-px h-8 bg-border" />
+                    )}
+                    
+                    {/* Timeline Dot */}
+                    <div 
+                      className="absolute left-[-1.8rem] top-6 w-3 h-3 rounded-full shadow-lg bg-gradient-to-br"
+                      style={{ background: `linear-gradient(to bottom right, ${languageConfig.color}, ${languageConfig.color}90)` }}
+                    />
+                    
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        {/* Project Image/Icon */}
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted flex-shrink-0 shadow-md">
+                          {project.imageurl ? (
+                            <img
+                              src={project.imageurl}
+                              alt={project.titulo}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=64&h=64&fit=crop&crop=entropy&auto=format&q=60`;
+                              }}
+                            />
+                          ) : (
+                            <div className={`w-full h-full bg-gradient-to-br ${languageConfig.gradient} flex items-center justify-center`}>
+                              <span className="text-xl opacity-80">
+                                {languageConfig.icon}
+                              </span>
+                            </div>
+                          )}
                         </div>
 
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link to={`/projects/${project.id}`}>
-                            <Eye className="h-3 w-3 mr-1" />
-                            Ver
-                            <ArrowRight className="h-3 w-3 ml-1" />
-                          </Link>
-                        </Button>
+                        {/* Project Info */}
+                        <div className="flex-1 min-w-0 space-y-3">
+                          <div className="flex items-start justify-between gap-4">
+                            <Link 
+                              to={`/projects/${project.id}`}
+                              className="block group-hover:text-primary transition-colors"
+                            >
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-bold text-lg line-clamp-1">
+                                  {project.titulo}
+                                </h3>
+                                {isNew && (
+                                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+                                    <Sparkles className="h-3 w-3 mr-1" />
+                                    Novo
+                                  </Badge>
+                                )}
+                              </div>
+                            </Link>
+                            <Badge 
+                              variant="outline" 
+                              className="shrink-0 border-current"
+                              style={{ color: languageConfig.color }}
+                            >
+                              {languageConfig.icon} {project.categoria}
+                            </Badge>
+                          </div>
+
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {project.descricao}
+                          </p>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                <span>{formatRelativeDate(project.data_modificacao)}</span>
+                              </div>
+                              <span>•</span>
+                              <span>{formatDate(project.data_modificacao)}</span>
+                            </div>
+
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              asChild
+                              className="group/btn hover:bg-current hover:bg-opacity-10"
+                              style={{ color: languageConfig.color }}
+                            >
+                              <Link to={`/projects/${project.id}`}>
+                                <Eye className="h-3 w-3 mr-1" />
+                                Ver
+                                <ArrowRight className="h-3 w-3 ml-1 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
           </div>
-        </div>
+        </motion.div>
       ))}
 
       {/* Timeline Summary */}
-      <div className="border-t pt-6 text-center">
-        <p className="text-sm text-muted-foreground">
-          Timeline mostrando {projects.length} projeto{projects.length !== 1 ? 's' : ''} 
-          organizados por data de modificação
-        </p>
-      </div>
+      <motion.div 
+        className="border-t pt-6 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+      >
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Timeline mostrando {projects.length} projeto{projects.length !== 1 ? 's' : ''} 
+            organizados por data de modificação
+          </p>
+          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <span>Recente</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <span>Última semana</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-purple-500" />
+              <span>Último mês</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 };

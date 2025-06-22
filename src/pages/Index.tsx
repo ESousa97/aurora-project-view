@@ -1,13 +1,15 @@
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle }  from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProjectCard } from '@/components/project/ProjectCard';
 import { useProjects, useCategories } from '@/hooks/useProjects';
-import { ArrowRight, Compass, MapPin, Star, Zap, Eye, Lock, Sparkles, Target, Telescope, Map, Gem, Crown, Gift, MousePointer, ChevronDown } from 'lucide-react';
+import { ArrowRight, Compass, Star, Zap, Eye, Sparkles, Target, Telescope, Crown, MousePointer, ChevronDown, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { getCategoryColor, detectLanguage } from '@/lib/languageColors';
+import { isWithinInterval, subDays } from 'date-fns';
 
 const Index = () => {
   const { data: projects, isLoading: projectsLoading } = useProjects();
@@ -19,41 +21,66 @@ const Index = () => {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
 
-  // Get featured projects in different categories for discovery journey
-  const discoveryProjects = React.useMemo(() => {
+  // Get featured projects (most recent and interesting)
+  const featuredProjects = React.useMemo(() => {
     if (!projects) return [];
     
-    // Separar projetos por categoria para criar uma jornada diversificada
-    const projectsByCategory = projects.reduce((acc, project) => {
-      if (!acc[project.categoria]) acc[project.categoria] = [];
-      acc[project.categoria].push(project);
-      return acc;
-    }, {} as Record<string, typeof projects>);
+    // Projetos recentes (últimos 14 dias)
+    const recentProjects = projects.filter(project => 
+      project.data_modificacao && isWithinInterval(new Date(project.data_modificacao), {
+        start: subDays(new Date(), 14),
+        end: new Date()
+      })
+    );
 
-    // Pegar alguns projetos interessantes de cada categoria
-    const featured = [];
-    Object.entries(projectsByCategory).forEach(([category, categoryProjects]) => {
-      // Ordenar por data e pegar os mais recentes
-      const sorted = categoryProjects.sort((a, b) => 
-        new Date(b.data_modificacao).getTime() - new Date(a.data_modificacao).getTime()
-      );
-      featured.push(...sorted.slice(0, 2)); // 2 por categoria
-    });
+    // Se há projetos recentes, use eles, senão use os mais recentes disponíveis
+    const sourceProjects = recentProjects.length > 0 ? recentProjects : projects;
 
-    return featured.slice(0, 9); // Máximo 9 projetos featured
+    // Ordenar por data de modificação (mais recente primeiro) e pegar os primeiros 6
+    return sourceProjects
+      .sort((a, b) => new Date(b.data_modificacao).getTime() - new Date(a.data_modificacao).getTime())
+      .slice(0, 6);
   }, [projects]);
 
+  // Mystery projects for discovery
   const mysteryProjects = React.useMemo(() => {
     if (!projects) return [];
     return projects
-      .filter(p => !discoveryProjects.includes(p))
+      .filter(p => !featuredProjects.some(fp => fp.id === p.id))
       .sort(() => Math.random() - 0.5)
       .slice(0, 6);
-  }, [projects, discoveryProjects]);
+  }, [projects, featuredProjects]);
 
   const handleProjectReveal = (projectId: number) => {
     setDiscoveredProjects(prev => new Set([...prev, projectId]));
   };
+
+  // Estatísticas dinâmicas
+  const stats = React.useMemo(() => {
+    if (!projects || !categories) return { total: 0, categories: 0, languages: 0, recent: 0 };
+
+    const uniqueLanguages = new Set();
+    let recentCount = 0;
+
+    projects.forEach(project => {
+      const language = detectLanguage(project);
+      uniqueLanguages.add(language.name);
+      
+      if (project.data_modificacao && isWithinInterval(new Date(project.data_modificacao), {
+        start: subDays(new Date(), 7),
+        end: new Date()
+      })) {
+        recentCount++;
+      }
+    });
+
+    return {
+      total: projects.length,
+      categories: categories.length,
+      languages: uniqueLanguages.size,
+      recent: recentCount
+    };
+  }, [projects, categories]);
 
   return (
     <AppLayout>
@@ -115,7 +142,7 @@ const Index = () => {
               <div className="flex items-center gap-2 text-muted-foreground">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <span className="text-sm">
-                  {projects?.length || 0} projetos aguardando descoberta
+                  {stats.total} projetos aguardando descoberta
                 </span>
               </div>
             </motion.div>
@@ -132,70 +159,70 @@ const Index = () => {
           </div>
         </motion.section>
 
-        {/* Discovery Stats with Mystery */}
+        {/* Discovery Stats */}
         <section className="max-w-6xl mx-auto">
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-6"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, staggerChildren: 0.2 }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
           >
-            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }}>
-              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/20 rounded-full blur-xl" />
-                <CardContent className="pt-8 pb-6 relative">
-                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                    <Gem className="h-8 w-8 text-white" />
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}>
+              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 overflow-hidden group hover:scale-105 transition-transform">
+                <CardContent className="pt-6 pb-4 relative">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/20 rounded-full blur-xl" />
+                  <Target className="h-8 w-8 mx-auto mb-3 text-blue-600" />
+                  <div className="text-3xl font-bold text-blue-700 dark:text-blue-300 mb-1">
+                    {stats.total}
                   </div>
-                  <div className="text-4xl font-bold text-blue-700 dark:text-blue-300 mb-2">
-                    {projects?.length || '???'}
-                  </div>
-                  <p className="text-blue-600 dark:text-blue-400 font-medium mb-2">
-                    Tesouros Técnicos
-                  </p>
-                  <p className="text-xs text-blue-500 dark:text-blue-400">
-                    Cada um com seus próprios segredos
+                  <p className="text-blue-600 dark:text-blue-400 font-medium text-sm">
+                    Projetos Únicos
                   </p>
                 </CardContent>
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}>
-              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-20 h-20 bg-purple-500/20 rounded-full blur-xl" />
-                <CardContent className="pt-8 pb-6 relative">
-                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                    <Map className="h-8 w-8 text-white" />
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}>
+              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 overflow-hidden group hover:scale-105 transition-transform">
+                <CardContent className="pt-6 pb-4 relative">
+                  <div className="absolute top-0 left-0 w-20 h-20 bg-green-500/20 rounded-full blur-xl" />
+                  <Compass className="h-8 w-8 mx-auto mb-3 text-green-600" />
+                  <div className="text-3xl font-bold text-green-700 dark:text-green-300 mb-1">
+                    {stats.categories}
                   </div>
-                  <div className="text-4xl font-bold text-purple-700 dark:text-purple-300 mb-2">
-                    {categories?.length || '??'}
-                  </div>
-                  <p className="text-purple-600 dark:text-purple-400 font-medium mb-2">
-                    Territórios Inexplorados
-                  </p>
-                  <p className="text-xs text-purple-500 dark:text-purple-400">
-                    Cada categoria, um mundo novo
+                  <p className="text-green-600 dark:text-green-400 font-medium text-sm">
+                    Territórios
                   </p>
                 </CardContent>
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }}>
-              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 relative overflow-hidden">
-                <div className="absolute bottom-0 right-0 w-20 h-20 bg-green-500/20 rounded-full blur-xl" />
-                <CardContent className="pt-8 pb-6 relative">
-                  <div className="mx-auto w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-                    <Crown className="h-8 w-8 text-white" />
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}>
+              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 overflow-hidden group hover:scale-105 transition-transform">
+                <CardContent className="pt-6 pb-4 relative">
+                  <div className="absolute bottom-0 right-0 w-20 h-20 bg-purple-500/20 rounded-full blur-xl" />
+                  <Zap className="h-8 w-8 mx-auto mb-3 text-purple-600" />
+                  <div className="text-3xl font-bold text-purple-700 dark:text-purple-300 mb-1">
+                    {stats.languages}
                   </div>
-                  <div className="text-4xl font-bold text-green-700 dark:text-green-300 mb-2">
-                    {discoveredProjects.size}
-                  </div>
-                  <p className="text-green-600 dark:text-green-400 font-medium mb-2">
-                    Seus Achados
+                  <p className="text-purple-600 dark:text-purple-400 font-medium text-sm">
+                    Linguagens
                   </p>
-                  <p className="text-xs text-green-500 dark:text-green-400">
-                    A coleção está crescendo!
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }}>
+              <Card className="text-center border-0 shadow-xl bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 overflow-hidden group hover:scale-105 transition-transform">
+                <CardContent className="pt-6 pb-4 relative">
+                  <div className="absolute bottom-0 left-0 w-20 h-20 bg-orange-500/20 rounded-full blur-xl" />
+                  <TrendingUp className="h-8 w-8 mx-auto mb-3 text-orange-600" />
+                  <div className="text-3xl font-bold text-orange-700 dark:text-orange-300 mb-1">
+                    {stats.recent}
+                  </div>
+                  <p className="text-orange-600 dark:text-orange-400 font-medium text-sm">
+                    Novos (7 dias)
                   </p>
                 </CardContent>
               </Card>
@@ -213,7 +240,7 @@ const Index = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-full">
               <Star className="h-4 w-4 text-orange-600" />
-              <span className="text-orange-600 dark:text-orange-400 font-medium text-sm">Descobertas em Destaque</span>
+              <span className="text-orange-600 dark:text-orange-400 font-medium text-sm">Descobertas Recentes</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">Projetos que Merecem Sua Atenção</h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -224,7 +251,7 @@ const Index = () => {
           
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {discoveryProjects.slice(0, 6).map((project, index) => (
+              {featuredProjects.map((project, index) => (
                 <ProjectCard 
                   key={project.id} 
                   project={project}
@@ -245,7 +272,7 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full">
-              <Gift className="h-4 w-4 text-purple-600" />
+              <Crown className="h-4 w-4 text-purple-600" />
               <span className="text-purple-600 dark:text-purple-400 font-medium text-sm">Câmara dos Mistérios</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">O que Está Escondido?</h2>
@@ -279,7 +306,7 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-full">
-              <MapPin className="h-4 w-4 text-blue-600" />
+              <Compass className="h-4 w-4 text-blue-600" />
               <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">Caminhos de Exploração</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">Escolha Sua Aventura</h2>
@@ -291,18 +318,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {categories?.slice(0, 9).map((category, index) => {
-              const colors = [
-                { bg: 'from-red-500 to-pink-500', icon: '🔥' },
-                { bg: 'from-blue-500 to-cyan-500', icon: '🌊' },
-                { bg: 'from-green-500 to-emerald-500', icon: '🌿' },
-                { bg: 'from-purple-500 to-pink-500', icon: '✨' },
-                { bg: 'from-orange-500 to-red-500', icon: '⚡' },
-                { bg: 'from-indigo-500 to-purple-500', icon: '🔮' },
-                { bg: 'from-teal-500 to-blue-500', icon: '🎯' },
-                { bg: 'from-yellow-500 to-orange-500', icon: '☀️' },
-                { bg: 'from-pink-500 to-rose-500', icon: '🚀' },
-              ];
-              const color = colors[index % colors.length];
+              const colorConfig = getCategoryColor(category.name);
               
               return (
                 <motion.div
@@ -314,11 +330,11 @@ const Index = () => {
                   whileHover={{ scale: 1.05, y: -5 }}
                 >
                   <Link to={`/projects?category=${encodeURIComponent(category.name)}`}>
-                    <Card className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 relative">
-                      <div className={`h-3 bg-gradient-to-r ${color.bg}`} />
+                    <Card className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 relative h-full">
+                      <div className={`h-3 bg-gradient-to-r ${colorConfig.gradient}`} />
                       <CardContent className="p-6 relative">
-                        <div className="absolute top-2 right-2 text-2xl opacity-20 group-hover:opacity-40 transition-opacity">
-                          {color.icon}
+                        <div className="absolute top-2 right-2 text-3xl opacity-20 group-hover:opacity-40 transition-opacity">
+                          {colorConfig.icon}
                         </div>
                         
                         <div className="space-y-4">
@@ -326,7 +342,11 @@ const Index = () => {
                             <h3 className="font-bold text-xl group-hover:text-primary transition-colors leading-tight">
                               {category.name}
                             </h3>
-                            <Badge variant="secondary" className="bg-primary/10 text-primary shrink-0 ml-2">
+                            <Badge 
+                              variant="secondary" 
+                              className="shrink-0 ml-2"
+                              style={{ backgroundColor: `${colorConfig.color}20`, color: colorConfig.color }}
+                            >
                               {category.count}
                             </Badge>
                           </div>

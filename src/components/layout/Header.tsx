@@ -1,9 +1,8 @@
 import React from 'react';
-import { Menu, Sun, Moon, Bell } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useUIStore } from '@/stores/uiStore';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 
 export const Header = () => {
   const { theme, toggleSidebar, setTheme } = useUIStore();
@@ -45,12 +44,6 @@ export const Header = () => {
               <span className="text-sm font-medium text-primary">Modo Descoberta</span>
             </div>
           )}
-
-          {/* Notification hint */}
-          <Button variant="ghost" size="sm" className="relative" disabled>
-            <Bell className="h-5 w-5" />
-            <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs">3</Badge>
-          </Button>
 
           <Button variant="ghost" size="sm" onClick={toggleTheme} className="rounded-xl">
             {theme === 'light' ? (

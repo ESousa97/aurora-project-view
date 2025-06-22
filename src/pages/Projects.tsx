@@ -1,4 +1,3 @@
-// src/pages/Projects.tsx
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectCard } from '@/components/project/ProjectCard';
@@ -8,9 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Shuffle, Grid3X3, List, Clock, Compass, MapPin, Filter } from 'lucide-react';
+import { Clock, Compass, MapPin, Filter, Sparkles, Target, TrendingUp, Zap } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getCategoryColor, detectLanguage } from '@/lib/languageColors';
+import { isWithinInterval, subDays } from 'date-fns';
 
 const Projects = () => {
   const { data: allProjects, isLoading: projectsLoading } = useProjects();
@@ -38,13 +39,11 @@ const Projects = () => {
       const categoryData = categories.find(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
       
       if (categoryData) {
-        // CORREÇÃO: "Hidratar" os projetos resumidos com os dados completos
         const projectIds = new Set(categoryData.projects.map(p => p.id));
         projectsToDisplay = allProjects.filter(p => projectIds.has(p.id));
       } else {
         projectsToDisplay = [];
       }
-
     } else {
       projectsToDisplay = allProjects;
     }
@@ -72,9 +71,38 @@ const Projects = () => {
     return 'default';
   };
 
+  // Estatísticas da página atual
+  const stats = React.useMemo(() => {
+    if (!processedProjects) return { total: 0, recent: 0, languages: 0 };
+
+    const uniqueLanguages = new Set();
+    let recentCount = 0;
+
+    processedProjects.forEach(project => {
+      const language = detectLanguage(project);
+      uniqueLanguages.add(language.name);
+      
+      if (project.data_modificacao && isWithinInterval(new Date(project.data_modificacao), {
+        start: subDays(new Date(), 7),
+        end: new Date()
+      })) {
+        recentCount++;
+      }
+    });
+
+    return {
+      total: processedProjects.length,
+      recent: recentCount,
+      languages: uniqueLanguages.size
+    };
+  }, [processedProjects]);
+
+  // Cor da categoria selecionada
+  const categoryColor = selectedCategory ? getCategoryColor(selectedCategory) : null;
+
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.1 } }
+    visible: { transition: { staggerChildren: 0.05 } }
   };
 
   const itemVariants = {
@@ -85,83 +113,257 @@ const Projects = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header */}
-        <motion.div className="flex flex-col gap-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-bold">Território de Exploração</h1>
-                {selectedCategory && (
-                  <Badge className="bg-primary/10 text-primary border-primary/20">
-                    <MapPin className="h-3 w-3 mr-1" />{selectedCategory}
-                  </Badge>
-                )}
+        {/* Header Enhanced */}
+        <motion.div 
+          className="space-y-6" 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {/* Hero Section */}
+          <div className="relative">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-4xl font-bold">
+                    {selectedCategory ? `Território: ${selectedCategory}` : 'Exploração Completa'}
+                  </h1>
+                  {selectedCategory && (
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className={`w-4 h-4 rounded-full bg-gradient-to-r ${categoryColor?.gradient}`} 
+                      />
+                      <Badge 
+                        className="border-0"
+                        style={{ backgroundColor: `${categoryColor?.color}20`, color: categoryColor?.color }}
+                      >
+                        {categoryColor?.icon} {selectedCategory}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-6 text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    <span>{stats.total} projeto{stats.total !== 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    <span>{stats.languages} linguagen{stats.languages !== 1 ? 's' : ''}</span>
+                  </div>
+                  {stats.recent > 0 && (
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-green-600" />
+                      <span className="text-green-600">{stats.recent} recente{stats.recent !== 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <p className="text-muted-foreground text-lg">
-                {isLoading ? 'Mapeando territórios...' : `${processedProjects.length} projeto${processedProjects.length !== 1 ? 's' : ''} encontrado${processedProjects.length !== 1 ? 's' : ''}`}
-              </p>
+
+              {/* Controls */}
+              <div className="flex gap-3 flex-wrap">
+                <Select value={sortBy} onValueChange={(value: 'date' | 'title') => setSortBy(value)}>
+                  <SelectTrigger className="w-[160px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="date">
+                      <Clock className="h-4 w-4 mr-2 inline" />
+                      Por Data
+                    </SelectItem>
+                    <SelectItem value="title">Alfabética</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={viewMode} onValueChange={setViewMode}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="grid">Grade</SelectItem>
+                    <SelectItem value="list">Lista</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            {/* Controles */}
-            <div className="flex gap-3 flex-wrap">
-              <Select value={sortBy} onValueChange={(value: 'date' | 'title') => setSortBy(value)}>
-                <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="date"><Clock className="h-4 w-4 mr-2 inline" />Por Data</SelectItem>
-                  <SelectItem value="title">Alfabética</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={viewMode} onValueChange={setViewMode}>
-                <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="grid"><Grid3X3 className="h-4 w-4 mr-2 inline" />Grade</SelectItem>
-                  <SelectItem value="list"><List className="h-4 w-4 mr-2 inline" />Lista</SelectItem>
-                  <SelectItem value="timeline"><Clock className="h-4 w-4 mr-2 inline" />Timeline</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+
+            {/* Active Filters */}
+            {selectedCategory && (
+              <motion.div 
+                className="flex gap-2 items-center mt-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                <span className="text-sm text-muted-foreground font-medium">Explorando:</span>
+                <Badge 
+                  variant="secondary" 
+                  className="gap-2 cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors"
+                  onClick={clearCategory}
+                >
+                  <Filter className="h-3 w-3" /> 
+                  {selectedCategory}
+                  <span className="ml-1 hover:bg-muted-foreground/20 rounded p-0.5 transition-colors">×</span>
+                </Badge>
+              </motion.div>
+            )}
           </div>
-          {/* Filtros Ativos */}
-          {selectedCategory && (
-            <div className="flex gap-2 items-center">
-              <span className="text-sm text-muted-foreground font-medium">Explorando:</span>
-              <Badge variant="secondary" className="gap-2">
-                <Filter className="h-3 w-3" /> {selectedCategory}
-                <button onClick={clearCategory} className="ml-1 hover:bg-muted-foreground/20 rounded p-0.5 transition-colors" aria-label="Limpar filtro">×</button>
-              </Badge>
-            </div>
+
+          {/* Quick Stats */}
+          {!isLoading && processedProjects.length > 0 && (
+            <motion.div 
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="text-center bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900 border-0">
+                <CardContent className="pt-4 pb-3">
+                  <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                    {stats.total}
+                  </div>
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    Total de Projetos
+                  </p>
+                </CardContent>
+              </Card>
+
+              {stats.recent > 0 && (
+                <Card className="text-center bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border-0">
+                  <CardContent className="pt-4 pb-3">
+                    <div className="text-2xl font-bold text-green-700 dark:text-green-300">
+                      {stats.recent}
+                    </div>
+                    <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                      Recentes (7 dias)
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card className="text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-0">
+                <CardContent className="pt-4 pb-3">
+                  <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                    {stats.languages}
+                  </div>
+                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                    Linguagens
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-0">
+                <CardContent className="pt-4 pb-3">
+                  <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">
+                    {categories?.length || 0}
+                  </div>
+                  <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                    Territórios
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
           )}
         </motion.div>
 
-        {/* Grade de Projetos */}
+        {/* Projects Grid */}
         <AnimatePresence mode="wait">
           {isLoading ? (
-            <motion.div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div 
+              className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`} 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+            >
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="animate-pulse"><div className={`bg-muted rounded-lg ${viewMode === 'list' ? 'h-24' : 'h-80'}`} /></div>
+                <motion.div 
+                  key={i} 
+                  className="animate-pulse"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                >
+                  <div className={`bg-gradient-to-br from-muted to-muted/50 rounded-lg ${viewMode === 'list' ? 'h-24' : 'h-80'}`} />
+                </motion.div>
               ))}
             </motion.div>
           ) : processedProjects.length === 0 ? (
-            <motion.div className="text-center py-16 space-y-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-              <div className="text-6xl">🗺️</div>
-              <h3 className="text-2xl font-bold">Território Inexplorado</h3>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Ainda não há projetos mapeados no território "{selectedCategory}". Que tal explorar outros territórios?
-              </p>
-              <Button variant="outline" onClick={clearCategory} className="gap-2">
-                <Compass className="h-4 w-4" /> Explorar Outros Territórios
-              </Button>
+            <motion.div 
+              className="text-center py-20 space-y-8" 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <motion.div
+                animate={{ 
+                  y: [0, -10, 0],
+                  rotate: [0, 5, -5, 0]
+                }}
+                transition={{ 
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="text-8xl"
+              >
+                🗺️
+              </motion.div>
+              
+              <div className="space-y-4">
+                <h3 className="text-3xl font-bold">Território Inexplorado</h3>
+                <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+                  {selectedCategory 
+                    ? `Ainda não há projetos mapeados no território "${selectedCategory}". Que tal explorar outros territórios?`
+                    : 'Nenhum projeto foi encontrado. Verifique os filtros ou tente uma nova busca.'
+                  }
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button variant="outline" onClick={clearCategory} className="gap-2">
+                  <Compass className="h-4 w-4" /> 
+                  {selectedCategory ? 'Explorar Outros Territórios' : 'Ver Todos os Projetos'}
+                </Button>
+                {selectedCategory && (
+                  <Button variant="ghost" onClick={() => window.location.reload()} className="gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Atualizar Dados
+                  </Button>
+                )}
+              </div>
             </motion.div>
           ) : (
-            <motion.div variants={containerVariants} initial="hidden" animate="visible"
-              className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}>
+            <motion.div 
+              variants={containerVariants} 
+              initial="hidden" 
+              animate="visible"
+              className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'}`}
+            >
               {processedProjects.map((project, index) => (
                 <motion.div key={project.id} variants={itemVariants}>
-                  <ProjectCard project={project} variant={getCardVariant(index)} index={index} />
+                  <ProjectCard 
+                    project={project} 
+                    variant={getCardVariant(index)} 
+                    index={index} 
+                  />
                 </motion.div>
               ))}
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Pagination hint for future */}
+        {!isLoading && processedProjects.length > 20 && (
+          <motion.div 
+            className="text-center py-8 space-y-4"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <h4 className="text-lg font-semibold">Muitas descobertas!</h4>
+            <p className="text-muted-foreground">
+              Encontramos {processedProjects.length} projetos. Use os filtros para refinar sua busca.
+            </p>
+          </motion.div>
+        )}
       </div>
     </AppLayout>
   );
