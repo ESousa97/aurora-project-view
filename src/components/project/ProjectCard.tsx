@@ -12,24 +12,39 @@ import { motion } from 'framer-motion';
 import { detectLanguage, getCategoryColor } from '@/lib/languageColors';
 
 interface ProjectCardProps {
-  project: ProjectCardType;
+  project: ProjectCardType | null | undefined;
   variant?: 'default' | 'compact' | 'mystery' | 'featured';
   index?: number;
+  onDiscover?: (id: number) => void;
+  isDiscovered?: boolean;
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ 
   project, 
   variant = 'default',
-  index = 0
+  index = 0,
+  onDiscover,
+  isDiscovered = false
 }) => {
   const [isRevealed, setIsRevealed] = React.useState(variant !== 'mystery');
   const [isHovered, setIsHovered] = React.useState(false);
+
+  // Verificação de segurança para projeto
+  if (!project || !project.id) {
+    return (
+      <div className="border rounded-lg p-4 bg-muted/50 text-center">
+        <p className="text-muted-foreground">Projeto não disponível</p>
+      </div>
+    );
+  }
 
   // Detecta a linguagem e obtém a configuração de cores
   const languageConfig = detectLanguage(project);
   const categoryConfig = getCategoryColor(project.categoria);
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Data não disponível';
+    
     try {
       return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR });
     } catch {
@@ -50,6 +65,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       start: subDays(new Date(), 2),
       end: new Date()
     }) : false;
+
+  const handleReveal = () => {
+    if (!isRevealed) {
+      setIsRevealed(true);
+      if (onDiscover && project.id) {
+        onDiscover(project.id);
+      }
+    }
+  };
 
   if (variant === 'compact') {
     return (
@@ -73,7 +97,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   <Link to={`/projects/${project.id}`} className="block group">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">
-                        {project.titulo}
+                        {project.titulo || 'Projeto sem título'}
                       </h3>
                       {isNew && (
                         <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
@@ -83,9 +107,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground line-clamp-2">
-                      {project.descricao.length > 80 
+                      {project.descricao && project.descricao.length > 80 
                         ? `${project.descricao.substring(0, 80)}...` 
-                        : project.descricao}
+                        : project.descricao || 'Sem descrição disponível'}
                     </p>
                   </Link>
                 </div>
@@ -95,7 +119,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     className="text-xs border-current"
                     style={{ color: languageConfig.color }}
                   >
-                    {languageConfig.icon} {project.categoria}
+                    {languageConfig.icon} {project.categoria || 'Sem categoria'}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
                     {formatDate(project.data_modificacao)}
@@ -119,7 +143,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     >
       <Card 
         className="group hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col" 
-        onClick={() => !isRevealed && setIsRevealed(true)}
+        onClick={handleReveal}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -128,7 +152,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             project.imageurl ? (
               <img 
                 src={project.imageurl} 
-                alt={project.titulo} 
+                alt={project.titulo || 'Projeto'} 
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 onError={(e) => { 
                   (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=225&fit=crop&crop=entropy&auto=format&q=60`; 
@@ -159,7 +183,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     color: languageConfig.textColor === 'text-yellow-900' ? '#000' : '#fff'
                   }}
                 >
-                  {languageConfig.icon} {project.categoria}
+                  {languageConfig.icon} {project.categoria || 'Sem categoria'}
                 </Badge>
               </div>
 
@@ -187,10 +211,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         <CardContent className="p-4 flex-1 flex flex-col">
           <Link to={`/projects/${project.id}`} className="block group flex-1">
             <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-2 mb-2">
-              {project.titulo}
+              {project.titulo || 'Projeto sem título'}
             </h3>
             <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
-              {project.descricao}
+              {project.descricao || 'Sem descrição disponível'}
             </p>
           </Link>
         </CardContent>

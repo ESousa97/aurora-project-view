@@ -209,8 +209,18 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
 /**
  * Detecta a linguagem principal de um projeto baseado no título, descrição e categoria
  */
-export function detectLanguage(project: { titulo: string; descricao: string; categoria: string }): LanguageColor {
-  const content = `${project.titulo} ${project.descricao} ${project.categoria}`.toLowerCase();
+export function detectLanguage(project: { titulo?: string; descricao?: string; categoria?: string } | null | undefined): LanguageColor {
+  // Verificação de segurança
+  if (!project) {
+    return LANGUAGE_COLORS.default;
+  }
+
+  // Garantir que os valores sejam strings válidas
+  const titulo = project.titulo || '';
+  const descricao = project.descricao || '';
+  const categoria = project.categoria || '';
+  
+  const content = `${titulo} ${descricao} ${categoria}`.toLowerCase();
   
   // Ordem de prioridade para detecção
   const priorities = [
@@ -243,7 +253,12 @@ export function detectLanguage(project: { titulo: string; descricao: string; cat
 /**
  * Obtém configuração de cor por categoria
  */
-export function getCategoryColor(categoryName: string): LanguageColor {
+export function getCategoryColor(categoryName?: string | null): LanguageColor {
+  // Verificação de segurança
+  if (!categoryName || typeof categoryName !== 'string') {
+    return LANGUAGE_COLORS.default;
+  }
+
   const normalizedCategory = categoryName.toLowerCase().trim();
   
   // Mapeamento direto de categorias para linguagens
@@ -276,7 +291,7 @@ export function getCategoryColor(categoryName: string): LanguageColor {
 /**
  * Gera um gradiente aleatório para categorias não mapeadas
  */
-export function generateCategoryGradient(categoryName: string): string {
+export function generateCategoryGradient(categoryName?: string | null): string {
   const gradients = [
     'from-red-500 to-pink-500',
     'from-blue-500 to-cyan-500', 
@@ -288,6 +303,10 @@ export function generateCategoryGradient(categoryName: string): string {
     'from-yellow-500 to-orange-500',
     'from-pink-500 to-rose-500'
   ];
+  
+  if (!categoryName) {
+    return gradients[0];
+  }
   
   // Usa o nome da categoria para gerar um índice consistente
   const hash = categoryName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);

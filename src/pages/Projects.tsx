@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectCard } from '@/components/project/ProjectCard';
+import { ProjectCardSkeleton, StatsLoading } from '@/components/ui/loading';
 import { useProjects, useCategories } from '@/hooks/useProjects';
 import { useUIStore } from '@/stores/uiStore';
 import { Button } from '@/components/ui/button';
@@ -79,6 +80,8 @@ const Projects = () => {
     let recentCount = 0;
 
     processedProjects.forEach(project => {
+      if (!project) return;
+      
       const language = detectLanguage(project);
       uniqueLanguages.add(language.name);
       
@@ -275,15 +278,10 @@ const Projects = () => {
               exit={{ opacity: 0 }}
             >
               {[...Array(6)].map((_, i) => (
-                <motion.div 
+                <ProjectCardSkeleton 
                   key={i} 
-                  className="animate-pulse"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <div className={`bg-gradient-to-br from-muted to-muted/50 rounded-lg ${viewMode === 'list' ? 'h-24' : 'h-80'}`} />
-                </motion.div>
+                  variant={viewMode === 'list' ? 'compact' : 'default'} 
+                />
               ))}
             </motion.div>
           ) : processedProjects.length === 0 ? (
