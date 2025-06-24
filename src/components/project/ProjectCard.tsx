@@ -1,4 +1,3 @@
-
 // src/components/project/ProjectCard.tsx - Sistema de Linguagens Melhorado
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -8,8 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { 
   Calendar, Eye, Lock, ArrowRight, Clock, TrendingUp, 
   Award, Zap, Target, ChevronRight, Users, Activity, 
-  Brain, Sparkles, Monitor, Database, Server, Globe,
-  Code2, FileCode, Terminal, Cpu, Settings, Layers
+  Brain, Sparkles, Code2
 } from 'lucide-react';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { Link } from 'react-router-dom';
@@ -209,10 +207,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           
           <CardContent className="p-4 flex items-center gap-4 relative z-10">
-            {/* Enhanced language indicator - removed icon */}
+            {/* Enhanced language indicator - removed icon, keeping gradient */}
             <div className="flex flex-col items-center gap-2 shrink-0">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                {/* Removed icon - just gradient background */}
+                {/* Apenas gradient background, sem ícone */}
               </div>
               
               {/* Multiple technologies indicator */}
@@ -280,7 +278,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    {/* Technology badges - removed icons */}
+                    {/* Technology badges - removed icons, keeping text and colors */}
                     {isMultiTech ? (
                       <Badge 
                         variant="outline" 
@@ -312,7 +310,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                 </div>
 
-                {/* Technology stack preview for multi-tech - removed icons */}
+                {/* Technology stack preview for multi-tech - removed icons, keeping text badges */}
                 {isMultiTech && detectedTechnologies.length > 1 && (
                   <div className="flex gap-1 mt-2 flex-wrap">
                     {detectedTechnologies.slice(0, 3).map((tech) => (
@@ -400,18 +398,18 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                   
                   <div className="text-center z-10">
-                    {/* Removed main technology icon */}
+                    {/* Generic code icon instead of technology-specific */}
                     <div className="w-16 h-16 bg-white/20 rounded-2xl mb-4 mx-auto flex items-center justify-center">
                       <Code2 className="w-8 h-8 text-white/90" />
                     </div>
                     {isMultiTech && (
                       <div className="flex justify-center gap-1 mb-2">
-                        {/* Removed individual tech icons */}
+                        {/* Simple colored dots without technology icons */}
                         {detectedTechnologies.slice(0, 3).map((tech, i) => (
                           <div 
                             key={tech.name}
                             className="w-6 h-6 bg-white/40 rounded-lg"
-                            style={{ animationDelay: `${i * 0.2}s` }}
+                            style={{ backgroundColor: tech.color + '60', animationDelay: `${i * 0.2}s` }}
                           />
                         ))}
                       </div>
@@ -440,7 +438,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 )}
               </div>
 
-              {/* Main tech badge - removed icon */}
+              {/* Main tech badge - removed icon, keeping text and colors */}
               <div className="absolute top-3 right-3">
                 <Badge 
                   className="shadow-lg border-0 max-w-[140px] truncate backdrop-blur-sm"
@@ -454,14 +452,14 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 </Badge>
               </div>
 
-              {/* Technologies indicator - removed icons */}
+              {/* Technologies indicator - removed icons, keeping colors */}
               <div className="absolute bottom-3 left-3 flex items-center gap-2">                
                 <Badge className="text-xs bg-black/30 text-white border-0 flex items-center gap-1">
                   <Code2 className="h-3 w-3" />
                   {isMultiTech ? `${detectedTechnologies.length} Techs` : languageConfig.category}
                 </Badge>
                 
-                {/* Additional tech indicators - removed icons */}
+                {/* Additional tech indicators - colored dots without icons */}
                 {isMultiTech && detectedTechnologies.length > 0 && (
                   <div className="flex gap-1">
                     {detectedTechnologies.slice(0, 3).map((tech) => (
@@ -556,7 +554,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}
           </Link>
 
-          {/* Technology tags for multi-tech projects - removed icons */}
+          {/* Technology tags for multi-tech projects - removed icons, keeping colors and text */}
           {isRevealed && isMultiTech && detectedTechnologies.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-1">
               {detectedTechnologies.slice(0, 4).map((tech) => (

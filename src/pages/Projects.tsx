@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ProjectCard } from '@/components/project/ProjectCard';
@@ -139,7 +140,7 @@ const Projects = () => {
                         className="border-0"
                         style={{ backgroundColor: `${categoryColor?.color}20`, color: categoryColor?.color }}
                       >
-                        {categoryColor?.icon} {selectedCategory}
+                        <span>{categoryColor?.icon}</span> {selectedCategory}
                       </Badge>
                     </div>
                   )}
