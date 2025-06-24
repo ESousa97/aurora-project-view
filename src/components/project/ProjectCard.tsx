@@ -1,15 +1,22 @@
-// src/components/project/ProjectCard.tsx - Enhanced version
+// src/components/project/ProjectCard.tsx - Versão Limpa e Melhorada
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Eye, Lock, Sparkles, ArrowRight, Clock } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Calendar, Eye, Lock, ArrowRight, Clock, TrendingUp, 
+  Award, Zap, Target, ChevronRight, Users, Activity, 
+  Brain, Sparkles, Monitor, Database, Server, Globe,
+  Code2, FileCode, Terminal, Cpu, Settings, Layers
+} from 'lucide-react';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { Link } from 'react-router-dom';
 import { format, isWithinInterval, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { detectLanguage, getCategoryColor } from '@/lib/languageColors';
+import { toast } from '@/components/ui/sonner';
 
 interface ProjectCardProps {
   project: ProjectCardType | null | undefined;
@@ -28,19 +35,44 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 }) => {
   const [isRevealed, setIsRevealed] = React.useState(variant !== 'mystery');
   const [isHovered, setIsHovered] = React.useState(false);
+  const [viewProgress, setViewProgress] = React.useState(0);
+
+  // Detecta as tecnologias e obtém a configuração de cores
+  const languageConfig = detectLanguage(project);
+  const categoryConfig = getCategoryColor(project?.categoria);
+
+  // Simular engajamento - versão simplificada
+  const simulateEngagement = React.useMemo(() => {
+    if (!project?.titulo && !project?.descricao) {
+      return {
+        difficulty: 1,
+        trending: false,
+        viewCount: 0
+      };
+    }
+    
+    const baseScore = (project.titulo?.length || 0) + (project.descricao?.length || 0);
+    return {
+      difficulty: languageConfig.difficulty || 1,
+      trending: languageConfig.trending || false,
+      viewCount: Math.floor((baseScore % 50) + 10)
+    };
+  }, [project, languageConfig]);
 
   // Verificação de segurança para projeto
   if (!project || !project.id) {
     return (
-      <div className="border rounded-lg p-4 bg-muted/50 text-center">
-        <p className="text-muted-foreground">Projeto não disponível</p>
+      <div className="border rounded-xl p-6 bg-muted/30 text-center">
+        <div className="space-y-3">
+          <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
+            <Target className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground font-medium">Projeto não disponível</p>
+          <p className="text-xs text-muted-foreground">Este território ainda está sendo mapeado</p>
+        </div>
       </div>
     );
   }
-
-  // Detecta as tecnologias e obtém a configuração de cores (agora com suporte a múltiplas)
-  const languageConfig = detectLanguage(project);
-  const categoryConfig = getCategoryColor(project.categoria);
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return 'Data não disponível';
@@ -69,8 +101,13 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const handleReveal = () => {
     if (!isRevealed) {
       setIsRevealed(true);
+      setViewProgress(100);
       if (onDiscover && project.id) {
         onDiscover(project.id);
+        toast.success("Descoberta realizada!", {
+          description: `Você descobriu ${project.titulo}! +10 XP de exploração`,
+          duration: 3000,
+        });
       }
     }
   };
@@ -78,70 +115,126 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   // Determinar se é um projeto com múltiplas tecnologias
   const isMultiTech = languageConfig.name && (languageConfig.name.includes('+') || languageConfig.name.includes('&'));
 
+  // Ícones melhorados para diferentes tipos de tecnologia
+  const getTechIcon = (category: string) => {
+    const cat = category?.toLowerCase() || '';
+    if (cat.includes('web') || cat.includes('frontend')) return Globe;
+    if (cat.includes('backend') || cat.includes('api')) return Server;
+    if (cat.includes('database') || cat.includes('db')) return Database;
+    if (cat.includes('mobile') || cat.includes('app')) return Monitor;
+    if (cat.includes('ai') || cat.includes('ml')) return Brain;
+    if (cat.includes('game')) return Zap;
+    if (cat.includes('tool') || cat.includes('cli')) return Terminal;
+    if (cat.includes('system')) return Cpu;
+    if (cat.includes('framework')) return Layers;
+    return Code2; // default
+  };
+
   if (variant === 'compact') {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.05 }}
-        whileHover={{ x: 4 }}
+        whileHover={{ x: 4, scale: 1.01 }}
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
       >
-        <Card className="hover:shadow-md transition-all duration-300 group cursor-pointer border-l-4 relative overflow-hidden"
-              style={{ borderLeftColor: languageConfig.color }}
-              onMouseEnter={() => setIsHovered(true)}
-              onMouseLeave={() => setIsHovered(false)}>
+        <Card className="group cursor-pointer border-l-4 relative overflow-hidden transition-all duration-300 hover:shadow-lg"
+              style={{ borderLeftColor: languageConfig.color }}>
           
-          {/* Gradiente de fundo sutil para múltiplas tecnologias */}
+          {/* Technology indicator gradient */}
           {isMultiTech && (
             <div className={`absolute inset-0 bg-gradient-to-r ${languageConfig.gradient} opacity-5`} />
           )}
           
+          {/* Trending indicator */}
+          {simulateEngagement.trending && (
+            <div className="absolute top-2 right-2 z-10">
+              <Badge className="bg-orange-500 text-white border-0 text-xs animate-pulse">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                Trending
+              </Badge>
+            </div>
+          )}
+          
           <CardContent className="p-4 flex items-center gap-4 relative z-10">
-            {/* Indicador de linguagem aprimorado */}
-            <div className="flex flex-col items-center gap-1 shrink-0">
-              <div className={`w-3 h-12 rounded-full bg-gradient-to-b ${languageConfig.gradient} shadow-sm`} />
-              {isMultiTech && (
-                <span className="text-xs text-muted-foreground font-medium">Multi</span>
+            {/* Enhanced language indicator */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                <languageConfig.icon className="h-6 w-6 text-white" />
+              </div>
+              
+              {/* Complexity indicator */}
+              {languageConfig.difficulty && (
+                <div className="flex gap-0.5">
+                  {[...Array(Math.min(languageConfig.difficulty, 3))].map((_, i) => (
+                    <div 
+                      key={i}
+                      className="w-1 h-1 rounded-full bg-current"
+                      style={{ color: languageConfig.color }}
+                    />
+                  ))}
+                </div>
               )}
             </div>
             
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <Link to={`/projects/${project.id}`} className="block group">
+              <Link to={`/projects/${project.id}`} className="block group">
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">
                         {project.titulo || 'Projeto sem título'}
                       </h3>
                       {isNew && (
-                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200 animate-pulse">
                           <Sparkles className="h-3 w-3 mr-1" />
                           Novo
                         </Badge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                       {project.descricao && project.descricao.length > 80 
                         ? `${project.descricao.substring(0, 80)}...` 
                         : project.descricao || 'Sem descrição disponível'}
                     </p>
-                  </Link>
+                  </div>
                 </div>
-                <div className="flex flex-col items-end gap-2 shrink-0">
-                  <Badge 
-                    variant="outline" 
-                    className="text-xs border-current max-w-[120px] truncate"
-                    style={{ color: languageConfig.color }}
-                    title={languageConfig.name}
-                  >
-                    <span className="mr-1">{languageConfig.icon}</span>
-                    {isMultiTech ? 'Multi-Tech' : languageConfig.name}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(project.data_modificacao)}
-                  </span>
+                
+                {/* Enhanced metadata */}
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-3 w-3" />
+                      <span>{simulateEngagement.viewCount}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      <span>{formatDate(project.data_modificacao)}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <Badge 
+                      variant="outline" 
+                      className="text-xs border-current max-w-[120px] truncate"
+                      style={{ color: languageConfig.color }}
+                      title={languageConfig.name}
+                    >
+                      {isMultiTech ? 'Multi-Tech' : languageConfig.name}
+                    </Badge>
+                    {isHovered && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                      >
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      </motion.div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -154,156 +247,232 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05 }}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -4, scale: 1.02 }}
       className="h-full"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
     >
       <Card 
-        className="group hover:shadow-xl transition-all duration-300 cursor-pointer h-full flex flex-col relative overflow-hidden" 
+        className="group hover:shadow-2xl transition-all duration-500 cursor-pointer h-full flex flex-col relative overflow-hidden border-0 shadow-lg" 
         onClick={handleReveal}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          background: isRevealed 
+            ? `linear-gradient(135deg, ${languageConfig.color}05 0%, transparent 50%)`
+            : 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--background)) 100%)'
+        }}
       >
-        {/* Gradiente de fundo para múltiplas tecnologias */}
-        {isRevealed && isMultiTech && (
-          <div className={`absolute inset-0 bg-gradient-to-br ${languageConfig.gradient} opacity-10 pointer-events-none`} />
+        {/* Mystery overlay */}
+        {!isRevealed && (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/20 to-primary/5 z-10" />
         )}
 
-        <div className="aspect-video relative overflow-hidden rounded-t-lg">
-          {isRevealed ? (
-            project.imageurl ? (
-              <img 
-                src={project.imageurl} 
-                alt={project.titulo || 'Projeto'} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                onError={(e) => { 
-                  (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=225&fit=crop&crop=entropy&auto=format&q=60`; 
-                }}
-              />
-            ) : (
-              <div className={`w-full h-full bg-gradient-to-br ${languageConfig.gradient} flex items-center justify-center`}>
-                <div className="text-center">
-                  <div className="text-5xl opacity-80 mb-2">{languageConfig.icon}</div>
-                  {isMultiTech && (
-                    <span className="text-xs text-white/80 font-medium bg-black/20 px-2 py-1 rounded">
-                      Multi-Tech
-                    </span>
-                  )}
-                </div>
-              </div>
-            )
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center cursor-pointer">
-              <div className="text-center space-y-3">
-                <Lock className="h-8 w-8 mx-auto text-primary/50" />
-                <p className="text-sm font-medium text-primary/70">Clique para Revelar</p>
-                <p className="text-xs text-primary/50">Território Misterioso</p>
-              </div>
+        {/* Trending ribbon */}
+        {isRevealed && simulateEngagement.trending && (
+          <div className="absolute top-0 right-0 z-20">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 transform rotate-12 translate-x-2 -translate-y-2 shadow-lg">
+              <TrendingUp className="h-3 w-3 mr-1 inline" />
+              HOT
             </div>
-          )}
-          
-          {isRevealed && (
-            <>
-              {/* Badge de tecnologia aprimorado */}
-              <div className="absolute top-3 right-3">
-                <Badge 
-                  className="shadow-lg border-0 max-w-[140px] truncate"
-                  style={{ 
-                    backgroundColor: languageConfig.color,
-                    color: languageConfig.textColor && languageConfig.textColor.includes('yellow-900') ? '#000' : '#fff'
-                  }}
-                  title={languageConfig.name}
-                >
-                  <span className="mr-1">{languageConfig.icon}</span>
-                  {isMultiTech ? 'Multi-Tech' : project.categoria}
-                </Badge>
-              </div>
+          </div>
+        )}
 
-              {/* Badge "Novo" - Only for very recent projects */}
-              {isNew && (
-                <div className="absolute top-3 left-3">
+        {/* Project image/tech visualization */}
+        <div className="aspect-video relative overflow-hidden">
+          {isRevealed ? (
+            <>
+              {project.imageurl ? (
+                <div className="relative w-full h-full">
+                  <img 
+                    src={project.imageurl} 
+                    alt={project.titulo || 'Projeto'} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    onError={(e) => { 
+                      (e.target as HTMLImageElement).src = `https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=225&fit=crop&crop=entropy&auto=format&q=60`; 
+                    }}
+                  />
+                  
+                  {/* Tech overlay */}
+                  <div className={`absolute inset-0 bg-gradient-to-t ${languageConfig.gradient} opacity-20`} />
+                </div>
+              ) : (
+                <div className={`w-full h-full bg-gradient-to-br ${languageConfig.gradient} flex items-center justify-center relative overflow-hidden`}>
+                  {/* Animated background pattern */}
+                  <div className="absolute inset-0 opacity-10">
+                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_25%_25%,_white_2px,_transparent_2px)] bg-[length:24px_24px] animate-pulse" />
+                  </div>
+                  
+                  <div className="text-center z-10">
+                    <languageConfig.icon className="w-16 h-16 text-white/90 mb-4 mx-auto" />
+                    {isMultiTech && (
+                      <div className="flex justify-center gap-1 mb-2">
+                        <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" />
+                        <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                        <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                      </div>
+                    )}
+                    <span className="text-xs text-white/80 font-medium bg-black/20 px-3 py-1 rounded-full">
+                      {isMultiTech ? 'Multi-Tech' : languageConfig.name}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Enhanced badges */}
+              <div className="absolute top-3 left-3 flex gap-2">
+                {isNew && (
                   <Badge className="bg-green-500 text-white border-0 shadow-lg animate-pulse">
                     <Sparkles className="h-3 w-3 mr-1" />
                     Novo
                   </Badge>
-                </div>
-              )}
+                )}
+                
+                {languageConfig.difficulty >= 4 && (
+                  <Badge className="bg-red-500 text-white border-0 shadow-lg">
+                    <Brain className="h-3 w-3 mr-1" />
+                    Expert
+                  </Badge>
+                )}
+              </div>
 
-              {/* Indicador de múltiplas tecnologias */}
-              {isMultiTech && (
-                <div className="absolute bottom-3 left-3">
-                  <div className="flex items-center gap-1">
-                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${languageConfig.gradient}`} />
-                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${languageConfig.gradient}`} />
-                    <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${languageConfig.gradient}`} />
-                  </div>
-                </div>
-              )}
+              {/* Tech badge */}
+              <div className="absolute top-3 right-3">
+                <Badge 
+                  className="shadow-lg border-0 max-w-[140px] truncate backdrop-blur-sm"
+                  style={{ 
+                    backgroundColor: `${languageConfig.color}E6`,
+                    color: languageConfig.textColor.includes('yellow-900') ? '#000' : '#fff'
+                  }}
+                  title={languageConfig.name}
+                >
+                  <languageConfig.icon className="h-3 w-3 mr-1" />
+                  {isMultiTech ? 'Multi' : project.categoria}
+                </Badge>
+              </div>
+
+              {/* Category indicator */}
+              <div className="absolute bottom-3 left-3 flex items-center gap-2">                
+                {/* Category indicator with improved icon */}
+                <Badge className="text-xs bg-black/30 text-white border-0 flex items-center gap-1">
+                  {React.createElement(getTechIcon(project.categoria || ''), { className: "h-3 w-3" })}
+                  {languageConfig.category}
+                </Badge>
+              </div>
             </>
-          )}
-
-          {/* Indicador de linguagem tradicional para projetos simples */}
-          {isRevealed && !isMultiTech && (
-            <div className="absolute bottom-3 left-3">
-              <div 
-                className={`w-4 h-4 rounded-full shadow-lg bg-gradient-to-br ${languageConfig.gradient}`}
-                title={`Projeto ${languageConfig.name}`}
-              />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center cursor-pointer relative overflow-hidden">
+              {/* Mystery pattern */}
+              <div className="absolute inset-0 opacity-20">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_hsl(var(--primary))_1px,_transparent_1px)] bg-[length:20px_20px] animate-pulse" />
+              </div>
+              
+              <div className="text-center space-y-4 z-10">
+                <motion.div
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <Lock className="h-12 w-12 mx-auto text-primary/70" />
+                </motion.div>
+                <div>
+                  <p className="text-sm font-medium text-primary/70 mb-1">Território Misterioso</p>
+                  <p className="text-xs text-primary/50">Clique para revelar os segredos</p>
+                </div>
+                
+                {/* Mystery progress */}
+                <div className="w-24 mx-auto">
+                  <Progress value={viewProgress} className="h-1" />
+                </div>
+              </div>
             </div>
           )}
         </div>
 
-        <CardContent className="p-4 flex-1 flex flex-col relative z-10">
+        <CardContent className="p-6 flex-1 flex flex-col relative z-10">
           <Link to={`/projects/${project.id}`} className="block group flex-1">
-            <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-2 mb-2">
-              {project.titulo || 'Projeto sem título'}
-            </h3>
-            <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed">
-              {project.descricao || 'Sem descrição disponível'}
+            <div className="flex items-start justify-between mb-3">
+              <h3 className="font-bold text-lg group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                {isRevealed ? (project.titulo || 'Projeto sem título') : 'Projeto Misterioso'}
+              </h3>
+              
+              {isRevealed && (
+                <div className="flex items-center gap-1 ml-2 shrink-0">
+                  <div className="text-xs text-muted-foreground">{simulateEngagement.viewCount}</div>
+                  <Eye className="h-3 w-3 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+            
+            <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed mb-4">
+              {isRevealed 
+                ? (project.descricao || 'Sem descrição disponível')
+                : 'Este projeto esconde segredos tecnológicos esperando para serem descobertos. Clique para revelar sua verdadeira natureza e descobrir as tecnologias que o compõem.'
+              }
             </p>
+
+            {/* Enhanced engagement metrics - simplified */}
+            {isRevealed && (
+              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                <div className="flex items-center gap-1">
+                  <Users className="h-3 w-3" />
+                  <span>Visualizações: {simulateEngagement.viewCount}</span>
+                </div>
+                {isRecent && (
+                  <Badge variant="outline" className="text-xs border-green-500 text-green-600">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    Atualizado
+                  </Badge>
+                )}
+              </div>
+            )}
           </Link>
 
-          {/* Tags de tecnologia para projetos multi-tech */}
+          {/* Technology tags for multi-tech projects */}
           {isRevealed && isMultiTech && languageConfig.name && (
-            <div className="mt-3 flex flex-wrap gap-1">
+            <div className="mb-4 flex flex-wrap gap-1">
               {languageConfig.name.split(/[+&]/).slice(0, 3).map((tech, i) => {
                 const trimmedTech = tech?.trim();
                 if (!trimmedTech) return null;
                 return (
-                  <span 
+                  <Badge 
                     key={i}
-                    className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground font-medium"
+                    variant="outline"
+                    className="text-xs px-2 py-1 border-current"
+                    style={{ color: languageConfig.color }}
                   >
                     {trimmedTech}
-                  </span>
+                  </Badge>
                 );
               }).filter(Boolean)}
             </div>
           )}
         </CardContent>
 
-        <CardFooter className="p-4 pt-0 flex items-center justify-between relative z-10">
+        <CardFooter className="p-6 pt-0 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" />
-            <span>{isRevealed ? formatDate(project.data_modificacao) : '...'}</span>
-            {isRecent && isRevealed && (
-              <Badge variant="outline" className="text-xs border-green-500 text-green-600">
-                Recente
-              </Badge>
-            )}
+            <span>{isRevealed ? formatDate(project.data_modificacao) : '???'}</span>
           </div>
           
           <Button 
             asChild 
             size="sm" 
-            variant="outline" 
+            className="group/btn"
+            style={isRevealed ? { 
+              backgroundColor: languageConfig.color,
+              color: languageConfig.textColor.includes('yellow-900') ? '#000' : '#fff'
+            } : undefined}
             disabled={!isRevealed}
-            className="group/btn hover:border-current"
-            style={isRevealed ? { color: languageConfig.color } : undefined}
           >
             <Link to={`/projects/${project.id}`}>
               <Eye className="h-4 w-4 mr-2" />
-              {isMultiTech ? 'Explorar' : 'Ver Projeto'}
-              <ArrowRight className="h-4 w-4 ml-1 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+              {isRevealed ? (isMultiTech ? 'Explorar' : 'Ver Projeto') : 'Revelar'}
+              <ArrowRight className="h-4 w-4 ml-1 opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all" />
             </Link>
           </Button>
         </CardFooter>
