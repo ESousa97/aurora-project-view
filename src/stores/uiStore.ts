@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Theme, ViewMode } from '@/types';
@@ -9,7 +8,6 @@ interface UIStore {
   viewMode: ViewMode;
   selectedCategory: string;
   isLoading: boolean;
-  searchQuery: string;
   // Exploration specific states
   discoveryMode: boolean;
   revealedProjects: Set<number>;
@@ -21,7 +19,6 @@ interface UIStore {
   setViewMode: (mode: ViewMode) => void;
   setSelectedCategory: (category: string) => void;
   setLoading: (loading: boolean) => void;
-  setSearchQuery: (query: string) => void;
   
   // Exploration actions
   setDiscoveryMode: (enabled: boolean) => void;
@@ -38,7 +35,6 @@ export const useUIStore = create<UIStore>()(
       viewMode: 'grid',
       selectedCategory: '',
       isLoading: false,
-      searchQuery: '',
       discoveryMode: false,
       revealedProjects: new Set(),
       explorationProgress: 0,
@@ -68,7 +64,6 @@ export const useUIStore = create<UIStore>()(
       setViewMode: (mode) => set({ viewMode: mode }),
       setSelectedCategory: (category) => set({ selectedCategory: category }),
       setLoading: (loading) => set({ isLoading: loading }),
-      setSearchQuery: (query) => set({ searchQuery: query }),
 
       // Exploration actions
       setDiscoveryMode: (enabled) => set({ discoveryMode: enabled }),
@@ -90,7 +85,6 @@ export const useUIStore = create<UIStore>()(
         theme: state.theme,
         viewMode: state.viewMode,
         sidebarOpen: state.sidebarOpen,
-        searchQuery: state.searchQuery,
         discoveryMode: state.discoveryMode,
         revealedProjects: Array.from(state.revealedProjects), // Convert Set to Array for persistence
         explorationProgress: state.explorationProgress,
