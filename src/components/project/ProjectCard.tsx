@@ -1,4 +1,4 @@
-// src/components/project/ProjectCard.tsx - Versão Limpa e Melhorada
+// src/components/project/ProjectCard.tsx - Sistema de Linguagens Melhorado
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { format, isWithinInterval, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion, AnimatePresence } from 'framer-motion';
-import { detectLanguage, getCategoryColor } from '@/lib/languageColors';
+import { detectLanguage, getCategoryColor, LANGUAGE_COLORS } from '@/lib/languageColors';
 import { toast } from '@/components/ui/sonner';
 
 interface ProjectCardProps {
@@ -37,9 +37,73 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [isHovered, setIsHovered] = React.useState(false);
   const [viewProgress, setViewProgress] = React.useState(0);
 
-  // Detecta as tecnologias e obtém a configuração de cores
-  const languageConfig = detectLanguage(project);
-  const categoryConfig = getCategoryColor(project?.categoria);
+  // Sistema de detecção de linguagens aprimorado
+  const languageConfig = React.useMemo(() => {
+    if (!project) return LANGUAGE_COLORS.default;
+    return detectLanguage(project);
+  }, [project]);
+
+  const categoryConfig = React.useMemo(() => {
+    if (!project?.categoria) return null;
+    return getCategoryColor(project.categoria);
+  }, [project?.categoria]);
+
+  // Detectar múltiplas tecnologias no projeto
+  const detectedTechnologies = React.useMemo(() => {
+    if (!project) return [];
+    
+    const content = [
+      project.titulo || '',
+      project.descricao || '',
+      project.categoria || '',
+      project.conteudo || ''
+    ].join(' ').toLowerCase();
+
+    const technologies = [];
+    
+    // Detectar tecnologias comuns
+    const techPatterns = [
+      { pattern: /react/i, tech: 'react' },
+      { pattern: /typescript|ts\b/i, tech: 'typescript' },
+      { pattern: /javascript|js\b/i, tech: 'javascript' },
+      { pattern: /python/i, tech: 'python' },
+      { pattern: /java\b/i, tech: 'java' },
+      { pattern: /node\.?js|nodejs/i, tech: 'node' },
+      { pattern: /vue\.?js|vue\b/i, tech: 'vue' },
+      { pattern: /angular/i, tech: 'angular' },
+      { pattern: /next\.?js/i, tech: 'nextjs' },
+      { pattern: /php/i, tech: 'php' },
+      { pattern: /laravel/i, tech: 'laravel' },
+      { pattern: /django/i, tech: 'django' },
+      { pattern: /flask/i, tech: 'flask' },
+      { pattern: /fastapi/i, tech: 'fastapi' },
+      { pattern: /spring/i, tech: 'spring' },
+      { pattern: /\.net|dotnet/i, tech: 'dotnet' },
+      { pattern: /flutter/i, tech: 'flutter' },
+      { pattern: /react.native/i, tech: 'react-native' },
+      { pattern: /mongodb/i, tech: 'mongodb' },
+      { pattern: /mysql/i, tech: 'mysql' },
+      { pattern: /postgresql|postgres/i, tech: 'postgresql' },
+      { pattern: /redis/i, tech: 'redis' },
+      { pattern: /docker/i, tech: 'docker' },
+      { pattern: /kubernetes|k8s/i, tech: 'kubernetes' },
+      { pattern: /aws/i, tech: 'aws' },
+      { pattern: /firebase/i, tech: 'firebase' }
+    ];
+
+    techPatterns.forEach(({ pattern, tech }) => {
+      if (pattern.test(content) && LANGUAGE_COLORS[tech]) {
+        technologies.push(LANGUAGE_COLORS[tech]);
+      }
+    });
+
+    // Remover duplicatas e limitar a 3
+    const uniqueTechs = technologies.filter((tech, index, self) => 
+      index === self.findIndex(t => t.name === tech.name)
+    ).slice(0, 3);
+
+    return uniqueTechs;
+  }, [project]);
 
   // Simular engajamento - versão simplificada
   const simulateEngagement = React.useMemo(() => {
@@ -113,22 +177,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   };
 
   // Determinar se é um projeto com múltiplas tecnologias
-  const isMultiTech = languageConfig.name && (languageConfig.name.includes('+') || languageConfig.name.includes('&'));
-
-  // Ícones melhorados para diferentes tipos de tecnologia
-  const getTechIcon = (category: string) => {
-    const cat = category?.toLowerCase() || '';
-    if (cat.includes('web') || cat.includes('frontend')) return Globe;
-    if (cat.includes('backend') || cat.includes('api')) return Server;
-    if (cat.includes('database') || cat.includes('db')) return Database;
-    if (cat.includes('mobile') || cat.includes('app')) return Monitor;
-    if (cat.includes('ai') || cat.includes('ml')) return Brain;
-    if (cat.includes('game')) return Zap;
-    if (cat.includes('tool') || cat.includes('cli')) return Terminal;
-    if (cat.includes('system')) return Cpu;
-    if (cat.includes('framework')) return Layers;
-    return Code2; // default
-  };
+  const isMultiTech = detectedTechnologies.length > 1;
 
   if (variant === 'compact') {
     return (
@@ -165,6 +214,20 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 <languageConfig.icon className="h-6 w-6 text-white" />
               </div>
               
+              {/* Multiple technologies indicator */}
+              {isMultiTech && (
+                <div className="flex gap-0.5">
+                  {detectedTechnologies.slice(0, 3).map((tech, i) => (
+                    <div 
+                      key={tech.name}
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: tech.color }}
+                      title={tech.displayName}
+                    />
+                  ))}
+                </div>
+              )}
+              
               {/* Complexity indicator */}
               {languageConfig.difficulty && (
                 <div className="flex gap-0.5">
@@ -183,7 +246,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               <Link to={`/projects/${project.id}`} className="block group">
                 <div className="flex items-start justify-between gap-4 mb-2">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate">
                         {project.titulo || 'Projeto sem título'}
                       </h3>
@@ -202,7 +265,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                 </div>
                 
-                {/* Enhanced metadata */}
+                {/* Enhanced metadata with technologies */}
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
@@ -216,14 +279,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    <Badge 
-                      variant="outline" 
-                      className="text-xs border-current max-w-[120px] truncate"
-                      style={{ color: languageConfig.color }}
-                      title={languageConfig.name}
-                    >
-                      {isMultiTech ? 'Multi-Tech' : languageConfig.name}
-                    </Badge>
+                    {/* Technology badges */}
+                    {isMultiTech ? (
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs border-current max-w-[100px] truncate"
+                        style={{ color: languageConfig.color }}
+                        title={detectedTechnologies.map(t => t.displayName).join(', ')}
+                      >
+                        <Layers className="h-3 w-3 mr-1" />
+                        Multi-Tech
+                      </Badge>
+                    ) : (
+                      <Badge 
+                        variant="outline" 
+                        className="text-xs border-current max-w-[120px] truncate"
+                        style={{ color: languageConfig.color }}
+                        title={languageConfig.displayName}
+                      >
+                        <languageConfig.icon className="h-3 w-3 mr-1" />
+                        {languageConfig.displayName}
+                      </Badge>
+                    )}
+                    
                     {isHovered && (
                       <motion.div
                         initial={{ opacity: 0, x: -10 }}
@@ -234,6 +312,28 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     )}
                   </div>
                 </div>
+
+                {/* Technology stack preview for multi-tech */}
+                {isMultiTech && detectedTechnologies.length > 1 && (
+                  <div className="flex gap-1 mt-2 flex-wrap">
+                    {detectedTechnologies.slice(0, 3).map((tech) => (
+                      <Badge 
+                        key={tech.name}
+                        variant="outline"
+                        className="text-xs px-1.5 py-0.5"
+                        style={{ 
+                          color: tech.color, 
+                          borderColor: tech.color + '40',
+                          backgroundColor: tech.color + '10'
+                        }}
+                        title={tech.description}
+                      >
+                        <tech.icon className="h-2.5 w-2.5 mr-1" />
+                        {tech.displayName}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </Link>
             </div>
           </CardContent>
@@ -276,7 +376,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
         )}
 
-        {/* Project image/tech visualization */}
+        {/* Enhanced project image/tech visualization */}
         <div className="aspect-video relative overflow-hidden">
           {isRevealed ? (
             <>
@@ -305,13 +405,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     <languageConfig.icon className="w-16 h-16 text-white/90 mb-4 mx-auto" />
                     {isMultiTech && (
                       <div className="flex justify-center gap-1 mb-2">
-                        <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" />
-                        <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                        <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                        {detectedTechnologies.slice(0, 3).map((tech, i) => (
+                          <tech.icon 
+                            key={tech.name}
+                            className="w-6 h-6 text-white/60"
+                            style={{ animationDelay: `${i * 0.2}s` }}
+                          />
+                        ))}
                       </div>
                     )}
                     <span className="text-xs text-white/80 font-medium bg-black/20 px-3 py-1 rounded-full">
-                      {isMultiTech ? 'Multi-Tech' : languageConfig.name}
+                      {isMultiTech ? `${detectedTechnologies.length} Tecnologias` : languageConfig.displayName}
                     </span>
                   </div>
                 </div>
@@ -334,7 +438,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 )}
               </div>
 
-              {/* Tech badge */}
+              {/* Main tech badge */}
               <div className="absolute top-3 right-3">
                 <Badge 
                   className="shadow-lg border-0 max-w-[140px] truncate backdrop-blur-sm"
@@ -342,20 +446,35 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     backgroundColor: `${languageConfig.color}E6`,
                     color: languageConfig.textColor.includes('yellow-900') ? '#000' : '#fff'
                   }}
-                  title={languageConfig.name}
+                  title={isMultiTech ? detectedTechnologies.map(t => t.displayName).join(', ') : languageConfig.displayName}
                 >
                   <languageConfig.icon className="h-3 w-3 mr-1" />
-                  {isMultiTech ? 'Multi' : project.categoria}
+                  {isMultiTech ? 'Multi-Tech' : project.categoria}
                 </Badge>
               </div>
 
-              {/* Category indicator */}
+              {/* Technologies indicator */}
               <div className="absolute bottom-3 left-3 flex items-center gap-2">                
-                {/* Category indicator with improved icon */}
                 <Badge className="text-xs bg-black/30 text-white border-0 flex items-center gap-1">
-                  {React.createElement(getTechIcon(project.categoria || ''), { className: "h-3 w-3" })}
-                  {languageConfig.category}
+                  <Code2 className="h-3 w-3" />
+                  {isMultiTech ? `${detectedTechnologies.length} Techs` : languageConfig.category}
                 </Badge>
+                
+                {/* Additional tech indicators */}
+                {isMultiTech && detectedTechnologies.length > 0 && (
+                  <div className="flex gap-1">
+                    {detectedTechnologies.slice(0, 3).map((tech) => (
+                      <div
+                        key={tech.name}
+                        className="w-4 h-4 rounded-full shadow-sm flex items-center justify-center"
+                        style={{ backgroundColor: tech.color }}
+                        title={tech.displayName}
+                      >
+                        <tech.icon className="h-2.5 w-2.5 text-white" />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </>
           ) : (
@@ -381,7 +500,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 </motion.div>
                 <div>
                   <p className="text-sm font-medium text-primary/70 mb-1">Território Misterioso</p>
-                  <p className="text-xs text-primary/50">Clique para revelar os segredos</p>
+                  <p className="text-xs text-primary/50">Clique para revelar as tecnologias</p>
                 </div>
                 
                 {/* Mystery progress */}
@@ -411,11 +530,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             <p className="text-muted-foreground line-clamp-3 text-sm leading-relaxed mb-4">
               {isRevealed 
                 ? (project.descricao || 'Sem descrição disponível')
-                : 'Este projeto esconde segredos tecnológicos esperando para serem descobertos. Clique para revelar sua verdadeira natureza e descobrir as tecnologias que o compõem.'
+                : 'Este projeto esconde tecnologias interessantes esperando para serem descobertas. Clique para revelar as linguagens, frameworks e ferramentas utilizadas.'
               }
             </p>
 
-            {/* Enhanced engagement metrics - simplified */}
+            {/* Enhanced engagement metrics */}
             {isRevealed && (
               <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                 <div className="flex items-center gap-1">
@@ -428,27 +547,31 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                     Atualizado
                   </Badge>
                 )}
+                {languageConfig.trending && (
+                  <Badge variant="outline" className="text-xs border-orange-500 text-orange-600">
+                    <Zap className="h-3 w-3 mr-1" />
+                    Trending
+                  </Badge>
+                )}
               </div>
             )}
           </Link>
 
           {/* Technology tags for multi-tech projects */}
-          {isRevealed && isMultiTech && languageConfig.name && (
+          {isRevealed && isMultiTech && detectedTechnologies.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-1">
-              {languageConfig.name.split(/[+&]/).slice(0, 3).map((tech, i) => {
-                const trimmedTech = tech?.trim();
-                if (!trimmedTech) return null;
-                return (
-                  <Badge 
-                    key={i}
-                    variant="outline"
-                    className="text-xs px-2 py-1 border-current"
-                    style={{ color: languageConfig.color }}
-                  >
-                    {trimmedTech}
-                  </Badge>
-                );
-              }).filter(Boolean)}
+              {detectedTechnologies.slice(0, 4).map((tech) => (
+                <Badge 
+                  key={tech.name}
+                  variant="outline"
+                  className="text-xs px-2 py-1 border-current"
+                  style={{ color: tech.color }}
+                  title={tech.description}
+                >
+                  <tech.icon className="h-3 w-3 mr-1" />
+                  {tech.displayName}
+                </Badge>
+              ))}
             </div>
           )}
         </CardContent>
@@ -471,7 +594,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           >
             <Link to={`/projects/${project.id}`}>
               <Eye className="h-4 w-4 mr-2" />
-              {isRevealed ? (isMultiTech ? 'Explorar' : 'Ver Projeto') : 'Revelar'}
+              {isRevealed ? (isMultiTech ? 'Explorar Tecnologias' : 'Ver Projeto') : 'Revelar'}
               <ArrowRight className="h-4 w-4 ml-1 opacity-0 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all" />
             </Link>
           </Button>
