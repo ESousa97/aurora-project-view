@@ -34,8 +34,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [viewProgress, setViewProgress] = React.useState(0);
 
   const languageConfig = React.useMemo(() => {
-    if (!project) return { color: '#6B7280', gradient: 'from-gray-400 to-gray-600', textColor: 'text-white' };
-    return detectLanguage(project);
+    if (!project) return { 
+      color: '#6B7280', 
+      gradient: 'from-gray-400 to-gray-600', 
+      textColor: 'text-white',
+      category: 'Unknown',
+      difficulty: 1
+    };
+    const config = detectLanguage(project);
+    return {
+      ...config,
+      category: (config as any).category || project.categoria || 'Web',
+      difficulty: (config as any).difficulty || 1
+    };
   }, [project]);
 
   const detectedTechnologies = detectProjectTechnologies(project);
