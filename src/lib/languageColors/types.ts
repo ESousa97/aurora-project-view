@@ -1,4 +1,4 @@
-
+// src/lib/languageColors/types.ts
 import { ReactComponentElement } from 'react';
 
 export interface LanguageColor {

@@ -7,7 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, Compass, Eye, Sparkles, Star, Zap, Target } from 'lucide-react';
+import { 
+  FaArrowRight, 
+  FaCompass, 
+  FaEye, 
+  FaStar, 
+  FaBolt, 
+  FaCrosshairs,
+  FaGlobe
+} from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { detectLanguage, getCategoryColor } from '@/lib/languageColors';
 
@@ -25,7 +33,7 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Compass className="h-5 w-5" />
+            <FaCompass className="h-5 w-5" />
             Projetos Relacionados
           </CardTitle>
         </CardHeader>
@@ -55,7 +63,7 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
       <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-orange-200 dark:border-orange-800">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-300">
-            <Compass className="h-5 w-5" />
+            <FaCompass className="h-5 w-5" />
             Projetos Relacionados
           </CardTitle>
         </CardHeader>
@@ -68,9 +76,9 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
               transition={{ duration: 3, repeat: Infinity }}
-              className="text-4xl"
+              className="text-4xl flex justify-center"
             >
-              🗺️
+              <FaGlobe />
             </motion.div>
             <div className="space-y-2">
               <h4 className="font-semibold text-orange-700 dark:text-orange-300">
@@ -83,7 +91,7 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
             </div>
             <Button variant="outline" size="sm" asChild className="border-orange-300 text-orange-700 hover:bg-orange-100">
               <Link to="/projects">
-                <Target className="mr-2 h-4 w-4" />
+                <FaCrosshairs className="mr-2 h-4 w-4" />
                 Explorar Outros Territórios
               </Link>
             </Button>
@@ -183,7 +191,7 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
                             animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : -10 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <FaArrowRight className="h-4 w-4 text-muted-foreground shrink-0" />
                           </motion.div>
                         </div>
                         
@@ -208,7 +216,7 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
                               animate={{ opacity: 1, scale: 1 }}
                               className="flex items-center gap-1"
                             >
-                              <Eye className="h-3 w-3 text-muted-foreground" />
+                              <FaEye className="h-3 w-3 text-muted-foreground" />
                               <span className="text-xs text-muted-foreground">Ver projeto</span>
                             </motion.div>
                           )}
@@ -247,9 +255,9 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
               asChild
             >
               <Link to={`/projects?category=${encodeURIComponent(category)}`}>
-                <Sparkles className="mr-2 h-4 w-4" />
+                <FaStar className="mr-2 h-4 w-4" />
                 Ver todos em {category}
-                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <FaArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
           </motion.div>
@@ -264,13 +272,13 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({ projectId, cat
         >
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-              <Star className="h-3 w-3" />
+              <FaStar className="h-3 w-3" />
               <span>Cada projeto é uma nova descoberta</span>
             </div>
             
             {relatedProjects.length > 3 && (
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                <Zap className="h-3 w-3 text-amber-500" />
+                <FaBolt className="h-3 w-3 text-amber-500" />
                 <span>+{relatedProjects.length - 3} projetos adicionais nesta categoria</span>
               </div>
             )}

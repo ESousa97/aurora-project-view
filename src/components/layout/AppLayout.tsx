@@ -37,7 +37,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       
       <div className={cn(
         "flex flex-1 flex-col transition-all duration-200 ease-in-out",
-        "lg:ml-72"
+        "lg:ml-80" // Sincronizado com w-80 do sidebar
       )}>
         <Header />
         <main className="flex-1 overflow-auto">

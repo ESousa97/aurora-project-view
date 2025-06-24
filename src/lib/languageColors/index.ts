@@ -1,4 +1,4 @@
-
+// src/lib/languageColors/index.ts
 import { LanguageColor, TechnologyCategory } from './types';
 import { LANGUAGE_COLORS } from './configs';
 import { detectMultipleTechnologies, detectSingleTechnology, createCombinedGradient } from './detectionUtils';

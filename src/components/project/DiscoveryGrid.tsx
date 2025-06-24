@@ -1,3 +1,4 @@
+// src/components/project/DiscoveryGrid.tsx
 import React from 'react';
 import { ProjectCard } from './ProjectCard';
 import { ProjectTimeline } from './ProjectTimeline';

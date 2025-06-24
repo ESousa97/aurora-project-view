@@ -5,7 +5,6 @@ import { Progress } from '@/components/ui/progress';
 import { Lock, Code2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ProjectCard as ProjectCardType } from '@/types';
-import { ProjectCardBadges } from './ProjectCardBadges';
 import { detectLanguage } from '@/lib/languageColors';
 import { detectProjectTechnologies } from '@/utils/projectHelpers';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
@@ -101,23 +100,6 @@ export const ProjectCardImage: React.FC<ProjectCardImageProps> = ({
           </div>
         </div>
       )}
-      
-      {/* Badges positioned over image */}
-      <div className="absolute top-3 left-3 flex gap-2">
-        <ProjectCardBadges 
-          project={project} 
-          isRevealed={isRevealed} 
-          trending={trending}
-        />
-      </div>
-
-      <div className="absolute top-3 right-3">
-        <ProjectCardBadges 
-          project={project} 
-          isRevealed={isRevealed} 
-          variant="compact"
-        />
-      </div>
 
       <div className="absolute bottom-3 left-3 flex items-center gap-2">                
         <Badge className="text-xs bg-black/30 text-white border-0 flex items-center gap-1">

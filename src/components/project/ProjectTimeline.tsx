@@ -5,7 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { Link } from 'react-router-dom';
-import { Calendar, Eye, ArrowRight, Sparkles } from 'lucide-react';
+import { 
+  FaCalendarAlt, 
+  FaEye, 
+  FaArrowRight, 
+  FaStar,
+  FaBolt,
+  FaRocket,
+  FaFire,
+  FaMagic,
+  FaBook,
+  FaCalendarDay
+} from 'react-icons/fa';
 import { format, isWithinInterval, subDays, subMonths, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -21,7 +32,7 @@ interface TimelinePeriod {
   projects: ProjectCardType[];
   period: 'today' | 'week' | 'month' | 'quarter' | 'year' | 'older';
   color: string;
-  icon: string;
+  iconElement: React.ReactElement;
 }
 
 export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ 
@@ -33,12 +44,48 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
 
     const now = new Date();
     const periods: TimelinePeriod[] = [
-      { label: 'Hoje', projects: [], period: 'today', color: 'from-green-500 to-emerald-500', icon: '🌟' },
-      { label: 'Esta Semana', projects: [], period: 'week', color: 'from-blue-500 to-cyan-500', icon: '⚡' },
-      { label: 'Este Mês', projects: [], period: 'month', color: 'from-purple-500 to-pink-500', icon: '🚀' },
-      { label: 'Últimos 3 Meses', projects: [], period: 'quarter', color: 'from-orange-500 to-red-500', icon: '🔥' },
-      { label: 'Este Ano', projects: [], period: 'year', color: 'from-indigo-500 to-purple-500', icon: '💫' },
-      { label: 'Mais Antigos', projects: [], period: 'older', color: 'from-slate-500 to-slate-600', icon: '📚' },
+      { 
+        label: 'Hoje', 
+        projects: [], 
+        period: 'today', 
+        color: 'from-green-500 to-emerald-500', 
+        iconElement: <FaStar className="w-5 h-5" />
+      },
+      { 
+        label: 'Esta Semana', 
+        projects: [], 
+        period: 'week', 
+        color: 'from-blue-500 to-cyan-500', 
+        iconElement: <FaBolt className="w-5 h-5" />
+      },
+      { 
+        label: 'Este Mês', 
+        projects: [], 
+        period: 'month', 
+        color: 'from-purple-500 to-pink-500', 
+        iconElement: <FaRocket className="w-5 h-5" />
+      },
+      { 
+        label: 'Últimos 3 Meses', 
+        projects: [], 
+        period: 'quarter', 
+        color: 'from-orange-500 to-red-500', 
+        iconElement: <FaFire className="w-5 h-5" />
+      },
+      { 
+        label: 'Este Ano', 
+        projects: [], 
+        period: 'year', 
+        color: 'from-indigo-500 to-purple-500', 
+        iconElement: <FaMagic className="w-5 h-5" />
+      },
+      { 
+        label: 'Mais Antigos', 
+        projects: [], 
+        period: 'older', 
+        color: 'from-slate-500 to-slate-600', 
+        iconElement: <FaBook className="w-5 h-5" />
+      },
     ];
 
     projects.forEach(project => {
@@ -125,7 +172,9 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="text-6xl mb-4">📅</div>
+        <div className="text-6xl mb-4 text-muted-foreground flex justify-center">
+          <FaCalendarDay />
+        </div>
         <h3 className="text-lg font-semibold mb-2">Nenhum projeto na timeline</h3>
         <p className="text-muted-foreground">
           Os projetos aparecerão organizados por data de modificação.
@@ -149,7 +198,9 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
             <div className="flex items-center gap-3">
               <div className={`w-4 h-4 rounded-full bg-gradient-to-r ${period.color} shadow-lg`} />
               <h2 className="text-xl font-semibold">{period.label}</h2>
-              <span className="text-2xl">{period.icon}</span>
+              <div className="text-lg text-muted-foreground">
+                {period.iconElement}
+              </div>
             </div>
             <div className="flex-1 h-px bg-gradient-to-r from-border to-transparent" />
             <Badge 
@@ -231,7 +282,7 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
                                 </h3>
                                 {isNew && (
                                   <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
-                                    <Sparkles className="h-3 w-3 mr-1" />
+                                    <FaStar className="h-3 w-3 mr-1" />
                                     Novo
                                   </Badge>
                                 )}
@@ -253,7 +304,7 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
+                                <FaCalendarAlt className="h-3 w-3" />
                                 <span>{formatRelativeDate(project.data_modificacao)}</span>
                               </div>
                               <span>•</span>
@@ -268,9 +319,9 @@ export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({
                               style={{ color: languageConfig.color }}
                             >
                               <Link to={`/projects/${project.id}`}>
-                                <Eye className="h-3 w-3 mr-1" />
+                                <FaEye className="h-3 w-3 mr-1" />
                                 Ver
-                                <ArrowRight className="h-3 w-3 ml-1 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                                <FaArrowRight className="h-3 w-3 ml-1 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
                               </Link>
                             </Button>
                           </div>

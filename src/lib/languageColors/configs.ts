@@ -1,4 +1,4 @@
-
+// src/lib/languageColors/configs.ts
 import { LanguageColor } from './types';
 import {
   SiJavascript, SiTypescript, SiReact, SiVuedotjs, SiAngular, SiNodedotjs, SiNextdotjs,

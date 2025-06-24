@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { Dashboard } from "./pages/Dashboard";
-import { Settings } from "./pages/Settings";
 import NotFound from "./pages/NotFound"; // Importado para a rota de 404
 
 const queryClient = new QueryClient({
@@ -32,7 +31,6 @@ const App = () => (
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
           {/* A ROTA DE LOGIN FOI REMOVIDA */}
           <Route path="*" element={<NotFound />} />
         </Routes>
