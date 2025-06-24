@@ -1,3 +1,4 @@
+
 // src/components/project/ProjectCard.tsx - Sistema de Linguagens Melhorado
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -208,10 +209,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           )}
           
           <CardContent className="p-4 flex items-center gap-4 relative z-10">
-            {/* Enhanced language indicator */}
+            {/* Enhanced language indicator - removed icon */}
             <div className="flex flex-col items-center gap-2 shrink-0">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <languageConfig.icon className="h-6 w-6 text-white" />
+                {/* Removed icon - just gradient background */}
               </div>
               
               {/* Multiple technologies indicator */}
@@ -279,7 +280,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                   
                   <div className="flex items-center gap-1">
-                    {/* Technology badges */}
+                    {/* Technology badges - removed icons */}
                     {isMultiTech ? (
                       <Badge 
                         variant="outline" 
@@ -287,7 +288,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                         style={{ color: languageConfig.color }}
                         title={detectedTechnologies.map(t => t.displayName).join(', ')}
                       >
-                        <Layers className="h-3 w-3 mr-1" />
                         Multi-Tech
                       </Badge>
                     ) : (
@@ -297,7 +297,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                         style={{ color: languageConfig.color }}
                         title={languageConfig.displayName}
                       >
-                        <languageConfig.icon className="h-3 w-3 mr-1" />
                         {languageConfig.displayName}
                       </Badge>
                     )}
@@ -313,7 +312,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                 </div>
 
-                {/* Technology stack preview for multi-tech */}
+                {/* Technology stack preview for multi-tech - removed icons */}
                 {isMultiTech && detectedTechnologies.length > 1 && (
                   <div className="flex gap-1 mt-2 flex-wrap">
                     {detectedTechnologies.slice(0, 3).map((tech) => (
@@ -328,7 +327,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                         }}
                         title={tech.description}
                       >
-                        <tech.icon className="h-2.5 w-2.5 mr-1" />
                         {tech.displayName}
                       </Badge>
                     ))}
@@ -402,13 +400,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   </div>
                   
                   <div className="text-center z-10">
-                    <languageConfig.icon className="w-16 h-16 text-white/90 mb-4 mx-auto" />
+                    {/* Removed main technology icon */}
+                    <div className="w-16 h-16 bg-white/20 rounded-2xl mb-4 mx-auto flex items-center justify-center">
+                      <Code2 className="w-8 h-8 text-white/90" />
+                    </div>
                     {isMultiTech && (
                       <div className="flex justify-center gap-1 mb-2">
+                        {/* Removed individual tech icons */}
                         {detectedTechnologies.slice(0, 3).map((tech, i) => (
-                          <tech.icon 
+                          <div 
                             key={tech.name}
-                            className="w-6 h-6 text-white/60"
+                            className="w-6 h-6 bg-white/40 rounded-lg"
                             style={{ animationDelay: `${i * 0.2}s` }}
                           />
                         ))}
@@ -438,7 +440,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 )}
               </div>
 
-              {/* Main tech badge */}
+              {/* Main tech badge - removed icon */}
               <div className="absolute top-3 right-3">
                 <Badge 
                   className="shadow-lg border-0 max-w-[140px] truncate backdrop-blur-sm"
@@ -448,30 +450,27 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   }}
                   title={isMultiTech ? detectedTechnologies.map(t => t.displayName).join(', ') : languageConfig.displayName}
                 >
-                  <languageConfig.icon className="h-3 w-3 mr-1" />
                   {isMultiTech ? 'Multi-Tech' : project.categoria}
                 </Badge>
               </div>
 
-              {/* Technologies indicator */}
+              {/* Technologies indicator - removed icons */}
               <div className="absolute bottom-3 left-3 flex items-center gap-2">                
                 <Badge className="text-xs bg-black/30 text-white border-0 flex items-center gap-1">
                   <Code2 className="h-3 w-3" />
                   {isMultiTech ? `${detectedTechnologies.length} Techs` : languageConfig.category}
                 </Badge>
                 
-                {/* Additional tech indicators */}
+                {/* Additional tech indicators - removed icons */}
                 {isMultiTech && detectedTechnologies.length > 0 && (
                   <div className="flex gap-1">
                     {detectedTechnologies.slice(0, 3).map((tech) => (
                       <div
                         key={tech.name}
-                        className="w-4 h-4 rounded-full shadow-sm flex items-center justify-center"
+                        className="w-4 h-4 rounded-full shadow-sm"
                         style={{ backgroundColor: tech.color }}
                         title={tech.displayName}
-                      >
-                        <tech.icon className="h-2.5 w-2.5 text-white" />
-                      </div>
+                      />
                     ))}
                   </div>
                 )}
@@ -557,7 +556,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             )}
           </Link>
 
-          {/* Technology tags for multi-tech projects */}
+          {/* Technology tags for multi-tech projects - removed icons */}
           {isRevealed && isMultiTech && detectedTechnologies.length > 0 && (
             <div className="mb-4 flex flex-wrap gap-1">
               {detectedTechnologies.slice(0, 4).map((tech) => (
@@ -568,7 +567,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                   style={{ color: tech.color }}
                   title={tech.description}
                 >
-                  <tech.icon className="h-3 w-3 mr-1" />
                   {tech.displayName}
                 </Badge>
               ))}
