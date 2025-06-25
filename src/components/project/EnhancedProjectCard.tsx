@@ -200,24 +200,33 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
             enhancedLanguage={isRevealed ? languageConfig : undefined}
           />
           
-          {/* Ícone da tecnologia sobreposto na imagem - só mostrar se revelado */}
-          <div className="absolute top-4 left-4 z-20">
-            <div 
-              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
-                isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-              } shadow-lg flex items-center justify-center backdrop-blur-sm`}
-              style={{ 
-                backgroundColor: isRevealed ? `${languageConfig.color}90` : '#64748b90'
-              }}
-              title={isRevealed ? `${languageConfig.displayName}` : 'Tecnologia oculta'}
-            >
-              {isRevealed ? (
+          {/* Ícone da tecnologia sobreposto na imagem - SOMENTE se revelado */}
+          {isRevealed && (
+            <div className="absolute top-4 left-4 z-20">
+              <div 
+                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center backdrop-blur-sm`}
+                style={{ 
+                  backgroundColor: `${languageConfig.color}90`
+                }}
+                title={`${languageConfig.displayName}`}
+              >
                 <ProjectIcon className="w-6 h-6 text-white" />
-              ) : (
-                <HelpCircle className="w-6 h-6 text-white" />
-              )}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Ícone de mistério para projetos não revelados */}
+          {!isRevealed && (
+            <div className="absolute top-4 left-4 z-20">
+              <div 
+                className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 shadow-lg flex items-center justify-center backdrop-blur-sm"
+                style={{ backgroundColor: '#64748b90' }}
+                title="Tecnologia oculta - Clique para revelar"
+              >
+                <HelpCircle className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Conteúdo do projeto */}
