@@ -21,20 +21,26 @@ export const ColorIndicator: React.FC<ColorIndicatorProps> = ({
 }) => {
   const colors = useColors();
   
-  const getColorConfig = () => {
+  const getColorValue = () => {
     switch (type) {
-      case 'technology':
-        return colors.context.technology[variant as keyof typeof colors.context.technology];
-      case 'status':
-        return colors.getStatusColor(variant as any);
-      case 'state':
-        return colors.getStateColor(variant as any);
+      case 'technology': {
+        const techConfig = colors.context.technology[variant as keyof typeof colors.context.technology];
+        return techConfig?.color || colors.variables.text['gray-400'];
+      }
+      case 'status': {
+        const statusConfig = colors.getStatusColor(variant as any);
+        return statusConfig?.bg || colors.variables.text['gray-400'];
+      }
+      case 'state': {
+        const stateConfig = colors.getStateColor(variant as any);
+        return stateConfig?.bg || colors.variables.text['gray-400'];
+      }
       default:
-        return { color: colors.variables.text['gray-400'] };
+        return colors.variables.text['gray-400'];
     }
   };
 
-  const config = getColorConfig();
+  const colorValue = getColorValue();
   
   const sizeClasses = {
     sm: 'w-2 h-2',
@@ -49,7 +55,7 @@ export const ColorIndicator: React.FC<ColorIndicatorProps> = ({
           'rounded-full',
           sizeClasses[size]
         )}
-        style={{ backgroundColor: colors.hsl(config.color || config.bg) }}
+        style={{ backgroundColor: colors.hsl(colorValue) }}
       />
       {showLabel && (
         <span className="text-xs text-muted-foreground capitalize">
