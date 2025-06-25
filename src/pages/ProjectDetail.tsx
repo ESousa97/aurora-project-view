@@ -13,7 +13,7 @@ import { ptBR } from 'date-fns/locale';
 import { RelatedProjects } from '@/components/project/RelatedProjects';
 import { ProjectCardEngagement } from '@/components/project/ProjectCardEngagement';
 
-export const ProjectDetail: React.FC = () => {
+const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data: projects, isLoading } = useProjectsWithLanguage();
   
@@ -124,7 +124,7 @@ export const ProjectDetail: React.FC = () => {
               </div>
 
               {/* Engagement */}
-              <ProjectCardEngagement project={project} variant="detailed" />
+              <ProjectCardEngagement project={project} variant="default" />
             </div>
 
             {/* Sidebar com informações */}
@@ -237,10 +237,13 @@ export const ProjectDetail: React.FC = () => {
         transition={{ delay: 0.4 }}
       >
         <RelatedProjects 
-          currentProject={project} 
-          allProjects={projects || []} 
+          projectId={project.id.toString()} 
+          category={project.categoria}
+          currentProjectTitle={project.titulo}
         />
       </motion.div>
     </div>
   );
 };
+
+export default ProjectDetail;
