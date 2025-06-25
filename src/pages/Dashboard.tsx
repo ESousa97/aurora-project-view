@@ -1,11 +1,15 @@
-// src/pages/Dashboard.tsx
+// src/pages/Dashboard.tsx - Dashboard com ícones do sistema
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProjectStats, useCategories } from '@/hooks/useProjects';
-import { BarChart3, TrendingUp, Target, Activity } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { ProjectStatsChart } from '@/components/dashboard/ProjectStatsChart'; // Importado
+import { ProjectStatsChart } from '@/components/dashboard/ProjectStatsChart';
+
+// Usar ícones do sistema languageColors
+import { 
+  FaChartBar, FaTrendingUp, FaTarget, FaBolt 
+} from '@/lib/languageColors/icons';
 
 export const Dashboard = () => {
   const { totalProjects, recentProjects, totalCategories, mostActiveCategory } = useProjectStats();
@@ -26,7 +30,7 @@ export const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Projetos</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <FaTarget className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalProjects || 0}</div>
@@ -36,7 +40,7 @@ export const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Categorias</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <FaChartBar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalCategories || 0}</div>
@@ -46,7 +50,7 @@ export const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Atualizações Recentes</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
+              <FaBolt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{recentProjects || 0}</div>
@@ -56,7 +60,7 @@ export const Dashboard = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Categoria Mais Ativa</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <FaTrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-lg font-bold truncate">{mostActiveCategory?.name || 'N/A'}</div>

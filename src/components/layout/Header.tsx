@@ -1,11 +1,14 @@
-// src/components/layout/Header.tsx - Header Simplificado
+// src/components/layout/Header.tsx - Header com ícones do sistema
 import React from 'react';
-import { Menu, Sun, Moon, BrainCircuit } from 'lucide-react';
+import { Menu, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useUIStore } from '@/stores/uiStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+
+// Usar ícone do sistema languageColors
+import { FaBrain } from '@/lib/languageColors/icons';
 
 export const Header = () => {
   const { theme, toggleSidebar, setTheme } = useUIStore();
@@ -39,7 +42,7 @@ export const Header = () => {
           >
             <div className="relative">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary via-purple-600 to-primary shadow-lg flex items-center justify-center group-hover:shadow-xl transition-shadow">
-                <BrainCircuit className="h-5 w-5 text-white" />
+                <FaBrain className="h-5 w-5 text-white" />
               </div>
             </div>
             

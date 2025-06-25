@@ -1,13 +1,17 @@
-// src/lib/languageColors/configs.ts
+// src/lib/languageColors/configs.ts - Configurações com ícones do sistema
 import { LanguageColor } from './types';
 import {
+  // Tecnologias principais
   SiJavascript, SiTypescript, SiReact, SiVuedotjs, SiAngular, SiNodedotjs, SiNextdotjs,
   SiNuxtdotjs, SiSvelte, SiSolid, SiHtml5, SiCss3, SiSass, SiTailwindcss,
   SiPython, SiDjango, SiFastapi, SiSharp, SiDotnet, SiPhp, SiLaravel,
   SiGo, SiRust, SiSwift, SiKotlin, SiFlutter, SiDart, SiPostgresql,
   SiMysql, SiMongodb, SiRedis, SiFirebase, SiSupabase, SiDocker,
   SiKubernetes, SiAmazonwebservices, SiGooglecloud, SiJest, SiCypress,
-  SiSolidity, SiEthereum, SiTensorflow, SiPytorch, FaJava, FaCode
+  SiSolidity, SiEthereum, SiTensorflow, SiPytorch,
+  // Font Awesome para categorias gerais
+  FaJava, FaCode, FaDatabase, FaServer, FaMobile, FaCloud, FaBrain, 
+  FaGamepad, FaLock, FaTools, FaPalette, FaAtom
 } from './icons';
 
 export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
@@ -102,6 +106,23 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
     description: 'Framework TypeScript para aplicações web',
     keywords: ['angular', 'ng', 'typescript', 'google', 'spa', 'cli']
   },
+  'svelte': {
+    name: 'svelte',
+    displayName: 'Svelte',
+    color: '#FF3E00',
+    bgColor: 'bg-orange-500',
+    textColor: 'text-orange-100',
+    gradient: 'from-orange-500 to-orange-600',
+    icon: SiSvelte,
+    category: 'frontend',
+    difficulty: 2,
+    trending: true,
+    popularity: 6,
+    description: 'Framework reativo e eficiente',
+    keywords: ['svelte', 'sveltekit', 'reactive', 'compiler']
+  },
+
+  // Backend
   'node': {
     name: 'node',
     displayName: 'Node.js',
@@ -147,21 +168,100 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
     description: 'Linguagem orientada a objetos enterprise',
     keywords: ['java', 'jvm', 'spring', 'hibernate', 'enterprise', 'oracle']
   },
-  'docker': {
-    name: 'docker',
-    displayName: 'Docker',
-    color: '#2496ED',
-    bgColor: 'bg-blue-500',
-    textColor: 'text-blue-100',
-    gradient: 'from-blue-500 to-cyan-500',
-    icon: SiDocker,
-    category: 'devops',
+  'php': {
+    name: 'php',
+    displayName: 'PHP',
+    color: '#777BB4',
+    bgColor: 'bg-purple-600',
+    textColor: 'text-purple-100',
+    gradient: 'from-purple-600 to-purple-700',
+    icon: SiPhp,
+    category: 'backend',
+    difficulty: 2,
+    trending: false,
+    popularity: 7,
+    description: 'Linguagem para desenvolvimento web',
+    keywords: ['php', 'laravel', 'symfony', 'wordpress', 'web']
+  },
+  'go': {
+    name: 'go',
+    displayName: 'Go',
+    color: '#00ADD8',
+    bgColor: 'bg-cyan-500',
+    textColor: 'text-cyan-100',
+    gradient: 'from-cyan-500 to-cyan-600',
+    icon: SiGo,
+    category: 'backend',
     difficulty: 3,
     trending: true,
-    popularity: 9,
-    description: 'Plataforma de containerização',
-    keywords: ['docker', 'container', 'virtualization', 'devops', 'microservices']
+    popularity: 7,
+    description: 'Linguagem compilada e eficiente',
+    keywords: ['go', 'golang', 'google', 'concurrent', 'microservices']
   },
+  'rust': {
+    name: 'rust',
+    displayName: 'Rust',
+    color: '#000000',
+    bgColor: 'bg-gray-800',
+    textColor: 'text-white',
+    gradient: 'from-gray-800 to-orange-600',
+    icon: SiRust,
+    category: 'backend',
+    difficulty: 5,
+    trending: true,
+    popularity: 6,
+    description: 'Linguagem segura e performática',
+    keywords: ['rust', 'memory safety', 'performance', 'systems']
+  },
+
+  // Mobile
+  'flutter': {
+    name: 'flutter',
+    displayName: 'Flutter',
+    color: '#02569B',
+    bgColor: 'bg-blue-600',
+    textColor: 'text-blue-100',
+    gradient: 'from-blue-600 to-cyan-500',
+    icon: SiFlutter,
+    category: 'mobile',
+    difficulty: 3,
+    trending: true,
+    popularity: 8,
+    description: 'Framework cross-platform do Google',
+    keywords: ['flutter', 'dart', 'mobile', 'cross-platform', 'google']
+  },
+  'swift': {
+    name: 'swift',
+    displayName: 'Swift',
+    color: '#FA7343',
+    bgColor: 'bg-orange-500',
+    textColor: 'text-orange-100',
+    gradient: 'from-orange-500 to-red-500',
+    icon: SiSwift,
+    category: 'mobile',
+    difficulty: 3,
+    trending: true,
+    popularity: 7,
+    description: 'Linguagem da Apple para iOS/macOS',
+    keywords: ['swift', 'ios', 'macos', 'apple', 'xcode']
+  },
+  'kotlin': {
+    name: 'kotlin',
+    displayName: 'Kotlin',
+    color: '#7F52FF',
+    bgColor: 'bg-purple-500',
+    textColor: 'text-purple-100',
+    gradient: 'from-purple-500 to-purple-600',
+    icon: SiKotlin,
+    category: 'mobile',
+    difficulty: 3,
+    trending: true,
+    popularity: 7,
+    description: 'Linguagem moderna para Android',
+    keywords: ['kotlin', 'android', 'jvm', 'jetbrains', 'multiplatform']
+  },
+
+  // Web Technologies
   'html': {
     name: 'html',
     displayName: 'HTML5',
@@ -192,6 +292,275 @@ export const LANGUAGE_COLORS: Record<string, LanguageColor> = {
     description: 'Linguagem de estilos para web',
     keywords: ['css', 'css3', 'styles', 'web', 'responsive', 'animation']
   },
+  'sass': {
+    name: 'sass',
+    displayName: 'Sass',
+    color: '#CC6699',
+    bgColor: 'bg-pink-500',
+    textColor: 'text-pink-100',
+    gradient: 'from-pink-500 to-pink-600',
+    icon: SiSass,
+    category: 'frontend',
+    difficulty: 2,
+    trending: false,
+    popularity: 7,
+    description: 'Preprocessador CSS poderoso',
+    keywords: ['sass', 'scss', 'css', 'preprocessor', 'variables']
+  },
+  'tailwind': {
+    name: 'tailwind',
+    displayName: 'Tailwind CSS',
+    color: '#06B6D4',
+    bgColor: 'bg-cyan-500',
+    textColor: 'text-cyan-100',
+    gradient: 'from-cyan-500 to-cyan-600',
+    icon: SiTailwindcss,
+    category: 'frontend',
+    difficulty: 2,
+    trending: true,
+    popularity: 9,
+    description: 'Framework CSS utility-first',
+    keywords: ['tailwind', 'css', 'utility', 'framework', 'responsive']
+  },
+
+  // Databases
+  'postgresql': {
+    name: 'postgresql',
+    displayName: 'PostgreSQL',
+    color: '#336791',
+    bgColor: 'bg-blue-700',
+    textColor: 'text-blue-100',
+    gradient: 'from-blue-700 to-blue-800',
+    icon: SiPostgresql,
+    category: 'database',
+    difficulty: 3,
+    trending: true,
+    popularity: 9,
+    description: 'Banco de dados relacional avançado',
+    keywords: ['postgresql', 'postgres', 'sql', 'database', 'relational']
+  },
+  'mysql': {
+    name: 'mysql',
+    displayName: 'MySQL',
+    color: '#4479A1',
+    bgColor: 'bg-blue-600',
+    textColor: 'text-blue-100',
+    gradient: 'from-blue-600 to-blue-700',
+    icon: SiMysql,
+    category: 'database',
+    difficulty: 2,
+    trending: false,
+    popularity: 8,
+    description: 'Sistema de banco de dados popular',
+    keywords: ['mysql', 'sql', 'database', 'relational', 'oracle']
+  },
+  'mongodb': {
+    name: 'mongodb',
+    displayName: 'MongoDB',
+    color: '#47A248',
+    bgColor: 'bg-green-600',
+    textColor: 'text-green-100',
+    gradient: 'from-green-600 to-green-700',
+    icon: SiMongodb,
+    category: 'database',
+    difficulty: 2,
+    trending: true,
+    popularity: 8,
+    description: 'Banco de dados NoSQL flexível',
+    keywords: ['mongodb', 'nosql', 'document', 'database', 'json']
+  },
+  'redis': {
+    name: 'redis',
+    displayName: 'Redis',
+    color: '#DC382D',
+    bgColor: 'bg-red-600',
+    textColor: 'text-red-100',
+    gradient: 'from-red-600 to-red-700',
+    icon: SiRedis,
+    category: 'database',
+    difficulty: 2,
+    trending: true,
+    popularity: 7,
+    description: 'Estrutura de dados em memória',
+    keywords: ['redis', 'cache', 'memory', 'key-value', 'nosql']
+  },
+
+  // Cloud & Services
+  'firebase': {
+    name: 'firebase',
+    displayName: 'Firebase',
+    color: '#FFCA28',
+    bgColor: 'bg-yellow-400',
+    textColor: 'text-yellow-900',
+    gradient: 'from-yellow-400 to-orange-500',
+    icon: SiFirebase,
+    category: 'cloud',
+    difficulty: 2,
+    trending: true,
+    popularity: 8,
+    description: 'Plataforma de desenvolvimento Google',
+    keywords: ['firebase', 'google', 'baas', 'realtime', 'hosting']
+  },
+  'supabase': {
+    name: 'supabase',
+    displayName: 'Supabase',
+    color: '#3ECF8E',
+    bgColor: 'bg-green-500',
+    textColor: 'text-green-100',
+    gradient: 'from-green-500 to-green-600',
+    icon: SiSupabase,
+    category: 'cloud',
+    difficulty: 2,
+    trending: true,
+    popularity: 7,
+    description: 'Alternativa open source ao Firebase',
+    keywords: ['supabase', 'postgresql', 'baas', 'realtime', 'auth']
+  },
+  'aws': {
+    name: 'aws',
+    displayName: 'AWS',
+    color: '#FF9900',
+    bgColor: 'bg-orange-500',
+    textColor: 'text-orange-100',
+    gradient: 'from-orange-500 to-orange-600',
+    icon: SiAmazonwebservices,
+    category: 'cloud',
+    difficulty: 4,
+    trending: true,
+    popularity: 10,
+    description: 'Serviços de nuvem da Amazon',
+    keywords: ['aws', 'amazon', 'cloud', 'ec2', 's3', 'lambda']
+  },
+
+  // DevOps
+  'docker': {
+    name: 'docker',
+    displayName: 'Docker',
+    color: '#2496ED',
+    bgColor: 'bg-blue-500',
+    textColor: 'text-blue-100',
+    gradient: 'from-blue-500 to-cyan-500',
+    icon: SiDocker,
+    category: 'devops',
+    difficulty: 3,
+    trending: true,
+    popularity: 9,
+    description: 'Plataforma de containerização',
+    keywords: ['docker', 'container', 'virtualization', 'devops', 'microservices']
+  },
+  'kubernetes': {
+    name: 'kubernetes',
+    displayName: 'Kubernetes',
+    color: '#326CE5',
+    bgColor: 'bg-blue-600',
+    textColor: 'text-blue-100',
+    gradient: 'from-blue-600 to-blue-700',
+    icon: SiKubernetes,
+    category: 'devops',
+    difficulty: 5,
+    trending: true,
+    popularity: 8,
+    description: 'Orquestração de containers',
+    keywords: ['kubernetes', 'k8s', 'orchestration', 'containers', 'devops']
+  },
+
+  // AI/ML
+  'tensorflow': {
+    name: 'tensorflow',
+    displayName: 'TensorFlow',
+    color: '#FF6F00',
+    bgColor: 'bg-orange-600',
+    textColor: 'text-orange-100',
+    gradient: 'from-orange-600 to-red-600',
+    icon: SiTensorflow,
+    category: 'ai',
+    difficulty: 4,
+    trending: true,
+    popularity: 9,
+    description: 'Biblioteca de machine learning',
+    keywords: ['tensorflow', 'ml', 'ai', 'neural networks', 'google']
+  },
+  'pytorch': {
+    name: 'pytorch',
+    displayName: 'PyTorch',
+    color: '#EE4C2C',
+    bgColor: 'bg-red-600',
+    textColor: 'text-red-100',
+    gradient: 'from-red-600 to-orange-600',
+    icon: SiPytorch,
+    category: 'ai',
+    difficulty: 4,
+    trending: true,
+    popularity: 8,
+    description: 'Framework de deep learning',
+    keywords: ['pytorch', 'ml', 'ai', 'deep learning', 'facebook']
+  },
+
+  // Frameworks Backend
+  'django': {
+    name: 'django',
+    displayName: 'Django',
+    color: '#092E20',
+    bgColor: 'bg-green-800',
+    textColor: 'text-green-100',
+    gradient: 'from-green-800 to-green-900',
+    icon: SiDjango,
+    category: 'backend',
+    difficulty: 3,
+    trending: true,
+    popularity: 8,
+    description: 'Framework web Python robusto',
+    keywords: ['django', 'python', 'web', 'framework', 'orm', 'mvc']
+  },
+  'fastapi': {
+    name: 'fastapi',
+    displayName: 'FastAPI',
+    color: '#009688',
+    bgColor: 'bg-teal-600',
+    textColor: 'text-teal-100',
+    gradient: 'from-teal-600 to-teal-700',
+    icon: SiFastapi,
+    category: 'backend',
+    difficulty: 3,
+    trending: true,
+    popularity: 7,
+    description: 'Framework Python moderno e rápido',
+    keywords: ['fastapi', 'python', 'api', 'async', 'openapi']
+  },
+  'laravel': {
+    name: 'laravel',
+    displayName: 'Laravel',
+    color: '#FF2D20',
+    bgColor: 'bg-red-500',
+    textColor: 'text-red-100',
+    gradient: 'from-red-500 to-red-600',
+    icon: SiLaravel,
+    category: 'backend',
+    difficulty: 3,
+    trending: true,
+    popularity: 7,
+    description: 'Framework PHP elegante',
+    keywords: ['laravel', 'php', 'artisan', 'eloquent', 'mvc']
+  },
+
+  // Testing
+  'jest': {
+    name: 'jest',
+    displayName: 'Jest',
+    color: '#C21325',
+    bgColor: 'bg-red-700',
+    textColor: 'text-red-100',
+    gradient: 'from-red-700 to-red-800',
+    icon: SiJest,
+    category: 'testing',
+    difficulty: 2,
+    trending: true,
+    popularity: 8,
+    description: 'Framework de testes JavaScript',
+    keywords: ['jest', 'testing', 'unit test', 'javascript', 'facebook']
+  },
+
+  // Default
   'default': {
     name: 'default',
     displayName: 'Projeto',

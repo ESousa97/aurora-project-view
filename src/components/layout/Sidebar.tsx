@@ -1,14 +1,11 @@
-
-// src/components/layout/Sidebar.tsx - Sidebar com ícones corretos
+// src/components/layout/Sidebar.tsx - Sidebar com ícones do sistema languageColors
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Home, FolderOpen, Compass, BarChart3, 
-  ChevronRight, Rocket, Globe, Code2, Database, 
-  Palette, Cpu, Layers, Shield, Brain, LucideIcon
+  ChevronRight, FolderOpen
 } from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import { useCategories } from '@/hooks/useProjects';
@@ -16,25 +13,30 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getCategoryColor } from '@/lib/languageColors';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Importar ícones do sistema languageColors
+import { 
+  SiRocket, SiCompass, SiBarChart, SiGlobe 
+} from '@/lib/languageColors/icons';
+
 const navigationItems = [
   { 
     name: 'Base de Operações', 
     href: '/', 
-    icon: Rocket,
+    icon: SiRocket,
     description: 'Central de comando',
     color: 'text-blue-600'
   },
   { 
     name: 'Explorar Territórios', 
     href: '/projects', 
-    icon: Compass,
+    icon: SiCompass,
     description: 'Descobrir projetos',
     color: 'text-green-600'
   },
   { 
     name: 'Centro de Comando', 
     href: '/dashboard', 
-    icon: BarChart3,
+    icon: SiBarChart,
     description: 'Analytics e métricas',
     color: 'text-purple-600'
   },
@@ -75,7 +77,7 @@ export const Sidebar = () => {
         {/* Navigation */}
         <div className="space-y-2 mb-8">
           <h2 className="mb-4 px-4 text-sm font-semibold tracking-tight text-muted-foreground uppercase flex items-center gap-2">
-            <Rocket className="h-4 w-4" />
+            <SiRocket className="h-4 w-4" />
             Navegação
           </h2>
           <div className="space-y-1">
@@ -126,7 +128,7 @@ export const Sidebar = () => {
         <div className="space-y-2">
           <div className="flex items-center justify-between px-4 mb-4">
             <h3 className="text-sm font-semibold tracking-tight text-muted-foreground uppercase flex items-center gap-2">
-              <Globe className="h-4 w-4" />
+              <SiGlobe className="h-4 w-4" />
               Territórios
               <Badge variant="outline" className="text-xs">
                 {categories?.length || 0}
@@ -251,7 +253,7 @@ export const Sidebar = () => {
               <div className="px-4 py-6 text-center">
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                    <Globe className="h-6 w-6 text-muted-foreground" />
+                    <SiGlobe className="h-6 w-6 text-muted-foreground" />
                   </div>
                   <div>
                     <h4 className="text-sm font-medium mb-1">Explorando Territórios</h4>

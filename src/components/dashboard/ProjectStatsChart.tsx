@@ -1,9 +1,12 @@
-// src/components/dashboard/ProjectStatsChart.tsx
+// src/components/dashboard/ProjectStatsChart.tsx - Gráfico com ícones do sistema
 import React from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProjectStats } from '@/hooks/useProjects';
 import { Skeleton } from '@/components/ui/skeleton';
+
+// Usar ícone do sistema languageColors
+import { FaBolt } from '@/lib/languageColors/icons';
 
 export const ProjectStatsChart = () => {
   const { projectsByMonth, isLoading } = useProjectStats();
@@ -25,7 +28,10 @@ export const ProjectStatsChart = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Atividade de Projetos</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <FaBolt className="h-5 w-5 text-primary" />
+          Atividade de Projetos
+        </CardTitle>
         <CardDescription>Projetos modificados nos últimos 6 meses</CardDescription>
       </CardHeader>
       <CardContent>

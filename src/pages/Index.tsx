@@ -7,22 +7,20 @@ import { ProjectCard } from '@/components/project/ProjectCard';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
 import { 
   ArrowRight, 
-  Compass, 
-  Star, 
-  Zap, 
-  Eye, 
-  Sparkles, 
-  Target, 
-  Telescope, 
-  Crown, 
-  MousePointer, 
   ChevronDown, 
-  TrendingUp 
+  Eye,
+  MousePointer
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { getCategoryColor, detectLanguage } from '@/lib/languageColors';
 import { isWithinInterval, subDays } from 'date-fns';
+
+// Usar ícones do sistema languageColors
+import { 
+  FaCompass, FaRocket, FaEye, FaBolt, FaTarget, FaTrendingUp,
+  FaSearch, FaGem, FaCrown, FaAtom
+} from '@/lib/languageColors/icons';
 
 const Index = () => {
   // Usar o hook atualizado para ter projetos com linguagem detectada
@@ -127,9 +125,9 @@ const Index = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full border border-primary/30">
-                <Telescope className="h-5 w-5 text-primary" />
+                <FaSearch className="h-5 w-5 text-primary" />
                 <span className="text-primary font-semibold">Sua jornada de descoberta começa aqui</span>
-                <Sparkles className="h-4 w-4 text-purple-500" />
+                <FaAtom className="h-4 w-4 text-purple-500" />
               </div>
               
               <h1 className="text-6xl md:text-8xl font-bold tracking-tight leading-tight">
@@ -157,7 +155,7 @@ const Index = () => {
             >
               <Button asChild size="lg" className="text-lg px-10 py-8 rounded-2xl group bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90">
                 <Link to="/projects">
-                  <Compass className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform" />
+                  <FaCompass className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform" />
                   Começar a Explorar
                   <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -194,7 +192,7 @@ const Index = () => {
           >
             {[
               {
-                icon: Target,
+                icon: FaTarget,
                 value: stats.total,
                 label: "Projetos Únicos",
                 gradient: "from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900",
@@ -204,7 +202,7 @@ const Index = () => {
                 bgAccent: "bg-blue-500/20"
               },
               {
-                icon: Compass,
+                icon: FaCompass,
                 value: stats.categories,
                 label: "Territórios",
                 gradient: "from-green-50 to-green-100 dark:from-green-950 dark:to-green-900",
@@ -214,7 +212,7 @@ const Index = () => {
                 bgAccent: "bg-green-500/20"
               },
               {
-                icon: Zap,
+                icon: FaBolt,
                 value: stats.languages,
                 label: "Linguagens",
                 gradient: "from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900",
@@ -224,7 +222,7 @@ const Index = () => {
                 bgAccent: "bg-purple-500/20"
               },
               {
-                icon: TrendingUp,
+                icon: FaTrendingUp,
                 value: stats.recent,
                 label: "Novos (7 dias)",
                 gradient: "from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900",
@@ -267,7 +265,7 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-full">
-              <Star className="h-4 w-4 text-orange-600" />
+              <FaGem className="h-4 w-4 text-orange-600" />
               <span className="text-orange-600 dark:text-orange-400 font-medium text-sm">Descobertas Recentes</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">Projetos que Merecem Sua Atenção</h2>
@@ -300,7 +298,7 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full">
-              <Crown className="h-4 w-4 text-purple-600" />
+              <FaCrown className="h-4 w-4 text-purple-600" />
               <span className="text-purple-600 dark:text-purple-400 font-medium text-sm">Câmara dos Mistérios</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">O que Está Escondido?</h2>
@@ -335,7 +333,7 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-full">
-              <Compass className="h-4 w-4 text-blue-600" />
+              <FaCompass className="h-4 w-4 text-blue-600" />
               <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">Caminhos de Exploração</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold">Escolha Sua Aventura</h2>
@@ -442,7 +440,7 @@ const Index = () => {
                 asChild
               >
                 <Link to="/projects">
-                  <Zap className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform" />
+                  <FaBolt className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform" />
                   Iniciar Minha Jornada
                   <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
@@ -451,15 +449,15 @@ const Index = () => {
 
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Eye className="h-4 w-4" />
+                <FaEye className="h-4 w-4" />
                 <span>Sem necessidade de busca</span>
               </div>
               <div className="flex items-center gap-2">
-                <Compass className="h-4 w-4" />
+                <FaCompass className="h-4 w-4" />
                 <span>Navegação intuitiva</span>
               </div>
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
+                <FaAtom className="h-4 w-4" />
                 <span>Surpresas garantidas</span>
               </div>
             </div>
