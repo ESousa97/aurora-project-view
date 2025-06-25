@@ -6,7 +6,7 @@ import { Target, ChevronRight, HelpCircle } from 'lucide-react';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { detectLanguage } from '@/lib/languageColors';
+import { detectLanguage, LanguageColor, LANGUAGE_COLORS } from '@/lib/languageColors';
 import { toast } from '@/components/ui/sonner';
 import { ProjectCardContent } from './ProjectCardContent';
 import { ProjectCardImage } from './ProjectCardImage';
@@ -32,18 +32,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [isHovered, setIsHovered] = React.useState(false);
   const [viewProgress, setViewProgress] = React.useState(0);
 
-  const languageConfig = React.useMemo(() => {
-    if (!project) return { 
-      color: '#6B7280', 
-      gradient: 'from-gray-400 to-gray-600', 
-      textColor: 'text-white',
-      category: 'Unknown',
-      difficulty: 1,
-      name: 'default',
-      displayName: 'Unknown',
-      icon: Target
-    };
+  const languageConfig: LanguageColor = React.useMemo(() => {
+    if (!project) {
+      return LANGUAGE_COLORS.default;
+    }
     
+    // Usar a função detectLanguage que já retorna LanguageColor completo
     return detectLanguage(project);
   }, [project]);
 
