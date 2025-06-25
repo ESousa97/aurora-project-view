@@ -1,7 +1,7 @@
-// src/lib/languageColors/icons.ts - Sistema completo de ícones
+// src/lib/languageColors/icons.ts - Sistema completo de ícones CORRIGIDO
 import React from 'react';
 
-// Simple Icons para tecnologias
+// Simple Icons para tecnologias (apenas os que existem)
 import { 
   SiJavascript, SiTypescript, SiReact, SiVuedotjs, SiAngular, SiNodedotjs, SiNextdotjs,
   SiNuxtdotjs, SiSvelte, SiSolid, SiHtml5, SiCss3, SiSass, SiTailwindcss,
@@ -9,12 +9,10 @@ import {
   SiGo, SiRust, SiSwift, SiKotlin, SiFlutter, SiDart, SiPostgresql,
   SiMysql, SiMongodb, SiRedis, SiFirebase, SiSupabase, SiDocker,
   SiKubernetes, SiAmazonwebservices, SiGooglecloud, SiJest, SiCypress,
-  SiSolidity, SiEthereum, SiTensorflow, SiPytorch,
-  // Ícones adicionais para UI
-  SiRocket, SiCompass, SiBarChart, SiGlobe
+  SiSolidity, SiEthereum, SiTensorflow, SiPytorch
 } from 'react-icons/si';
 
-// Font Awesome Icons para UI e categorias
+// Font Awesome Icons para UI e categorias (apenas os que existem)
 import { 
   FaDatabase, FaServer, FaCode, FaMobile, FaDesktop, FaCloud, 
   FaCogs, FaShieldAlt, FaRocket, FaLightbulb, FaGem, FaBolt,
@@ -24,8 +22,18 @@ import {
   FaLink, FaCoins, FaLock, FaEye, FaFingerprint, FaUserShield,
   FaJava, FaCoffee, FaTerminal, FaCodeBranch, FaFileCode,
   // Ícones específicos para navegação e UI
-  FaHome, FaCompass, FaChartLine, FaGlobe, FaFolder
+  FaHome, FaCompass, FaChartLine, FaGlobe, FaFolder,
+  // Ícones que realmente existem no FA
+  FaBullseye, FaCrown
 } from 'react-icons/fa';
+
+// Definir aliases para ícones usando os que realmente existem
+const SiRocket = FaRocket; // Usar FA para rocket
+const SiCompass = FaCompass; // Usar FA ao invés de SI que não existe
+const SiBarChart = FaChartBar; // Usar FA ao invés de SI que não existe
+const SiGlobe = FaGlobe; // Usar FA ao invés de SI que não existe  
+const FaTrendingUp = FaChartLine; // Alias para ícone similar que existe
+const FaTarget = FaBullseye; // Alias para ícone similar que existe
 
 // Export all technology icons
 export {
@@ -61,7 +69,7 @@ export {
   // AI/ML
   SiTensorflow, SiPytorch,
   
-  // UI Navigation Icons
+  // UI Navigation Icons (usando aliases corretos)
   SiRocket, SiCompass, SiBarChart, SiGlobe,
   
   // Font Awesome Icons for categories and general use
@@ -72,7 +80,9 @@ export {
   FaTools, FaFlask, FaMagic, FaCubes, FaGamepad, FaVrCardboard,
   FaLink, FaCoins, FaLock, FaEye, FaFingerprint, FaUserShield,
   FaJava, FaCoffee, FaTerminal, FaCodeBranch, FaFileCode,
-  FaHome, FaCompass, FaChartLine, FaGlobe, FaFolder
+  FaHome, FaCompass, FaChartLine, FaGlobe, FaFolder,
+  // Ícones com aliases corretos
+  FaTrendingUp, FaTarget, FaCrown, FaBullseye
 };
 
 // Mapeamento de categorias para ícones específicos

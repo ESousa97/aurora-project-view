@@ -1,4 +1,4 @@
-// src/pages/Dashboard.tsx - Dashboard com ícones do sistema
+// src/pages/Dashboard.tsx - Dashboard com ícones do sistema corrigidos
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +6,7 @@ import { useProjectStats, useCategories } from '@/hooks/useProjects';
 import { Badge } from '@/components/ui/badge';
 import { ProjectStatsChart } from '@/components/dashboard/ProjectStatsChart';
 
-// Usar ícones do sistema languageColors
+// Usar ícones do sistema languageColors (agora corrigidos)
 import { 
   FaChartBar, FaTrendingUp, FaTarget, FaBolt 
 } from '@/lib/languageColors/icons';
@@ -71,7 +71,6 @@ export const Dashboard = () => {
 
         {/* Charts and Lists */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* AQUI ESTÁ A MUDANÇA: Adicionando o gráfico */}
           <div className="lg:col-span-2">
             <ProjectStatsChart />
           </div>

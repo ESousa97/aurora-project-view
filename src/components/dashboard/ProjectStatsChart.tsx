@@ -1,11 +1,11 @@
-// src/components/dashboard/ProjectStatsChart.tsx - Gráfico com ícones do sistema
+// src/components/dashboard/ProjectStatsChart.tsx - Gráfico com ícones do sistema corrigidos
 import React from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProjectStats } from '@/hooks/useProjects';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Usar ícone do sistema languageColors
+// Usar ícone do sistema languageColors (agora corrigido)
 import { FaBolt } from '@/lib/languageColors/icons';
 
 export const ProjectStatsChart = () => {

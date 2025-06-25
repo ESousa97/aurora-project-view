@@ -9,7 +9,7 @@ export interface LanguageColor {
   textColor: string;
   gradient: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  category: 'frontend' | 'backend' | 'mobile' | 'database' | 'devops' | 'design' | 'ai' | 'game' | 'blockchain' | 'testing' | 'other';
+  category: 'frontend' | 'backend' | 'mobile' | 'database' | 'devops' | 'design' | 'ai' | 'game' | 'blockchain' | 'testing' | 'cloud' | 'other';
   difficulty: 1 | 2 | 3 | 4 | 5;
   trending: boolean;
   popularity: number; // 1-10 scale
