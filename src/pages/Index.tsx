@@ -311,17 +311,14 @@ const Index = () => {
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {mysteryProjects.map((project, index) => (
-                <div 
+                <ProjectCard 
                   key={project.id} 
-                  onClick={() => handleProjectReveal(project.id)}
-                  className="cursor-pointer"
-                >
-                  <ProjectCard 
-                    project={project}
-                    variant="mystery"
-                    index={index}
-                  />
-                </div>
+                  project={project}
+                  variant="mystery"
+                  index={index}
+                  onDiscover={handleProjectReveal}
+                  isDiscovered={discoveredProjects.has(project.id)}
+                />
               ))}
             </div>
           </div>
