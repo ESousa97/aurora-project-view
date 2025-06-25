@@ -50,58 +50,11 @@ api.interceptors.response.use(
   }
 );
 
-// Função para processar dados de categorias do servidor
-const processCategoriesFromServer = (serverData: Array<{id: number, titulo: string, categoria: string}>): Category[] => {
-  console.log('📂 Processing categories from server data...');
-  console.log('📊 Server data sample:', serverData.slice(0, 3));
-  
-  const categoryMap = new Map<string, Array<{id: number, titulo: string, categoria: string}>>();
-  
-  // Agrupar projetos por categoria
-  serverData.forEach(project => {
-    const categoryName = project.categoria?.trim();
-    if (categoryName) {
-      if (!categoryMap.has(categoryName)) {
-        categoryMap.set(categoryName, []);
-      }
-      categoryMap.get(categoryName)?.push(project);
-    }
-  });
-  
-  // Converter para formato Category
-  const categories = Array.from(categoryMap.entries()).map(([name, projects]) => ({
-    name,
-    count: projects.length,
-    projects: projects.map(p => {
-      const baseProject = {
-        id: p.id,
-        titulo: p.titulo,
-        categoria: p.categoria, // Categoria já vem do banco
-        descricao: '',
-        imageurl: '',
-        data_criacao: '',
-        data_modificacao: '',
-        conteudo: ''
-      } as ProjectCard;
-      
-      return baseProject;
-    })
-  }));
-  
-  // Ordenar categorias por quantidade de projetos (decrescente)
-  categories.sort((a, b) => b.count - a.count);
-  
-  console.log(`📂 Processed ${categories.length} categories:`, 
-    categories.map(c => `${c.name} (${c.count} projetos)`));
-  
-  return categories;
-};
-
 // Função para gerar categorias a partir dos projetos completos (fallback)
 const generateCategoriesFromProjects = (projects: ProjectCard[]): Category[] => {
   console.log('📂 Generating categories from full projects (fallback)...');
   
-  const categoryMap = new Map<String, ProjectCard[]>();
+  const categoryMap = new Map<string, ProjectCard[]>();
   
   projects.forEach(project => {
     const categoryName = project.categoria?.trim();
@@ -226,7 +179,7 @@ export const apiService = {
         
         // Converter para formato Category
         const categories = Array.from(categoryMap.entries()).map(([name, projects]) => ({
-          name,
+          name: name as string, // Fix: convert String to string
           count: projects.length,
           projects: projects
         }));

@@ -1,4 +1,5 @@
-// src/components/layout/Sidebar.tsx - Sidebar Simplificado
+
+// src/components/layout/Sidebar.tsx - Sidebar com ícones corretos
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -38,20 +39,6 @@ const navigationItems = [
     color: 'text-purple-600'
   },
 ];
-
-// Icons for different technology categories
-const categoryIcons: Record<string, LucideIcon> = {
-  'frontend': Palette,
-  'backend': Database,
-  'mobile': Cpu,
-  'database': Database,
-  'devops': Shield,
-  'ai': Brain,
-  'design': Palette,
-  'other': Code2,
-  'fullstack': Layers,
-  'web': Globe
-};
 
 export const Sidebar = () => {
   const location = useLocation();
@@ -195,7 +182,7 @@ export const Sidebar = () => {
               <AnimatePresence>
                 {categories.slice(0, 12).map((category, index) => {
                   const colorConfig = getCategoryColor(category.name);
-                  const CategoryIcon = categoryIcons[colorConfig.category] || Code2;
+                  const CategoryIcon = colorConfig.icon;
                   const isSelected = selectedCategory === category.name;
                   
                   return (

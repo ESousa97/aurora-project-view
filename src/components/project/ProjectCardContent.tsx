@@ -68,13 +68,6 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
                   <mainLanguage.icon className="h-2 w-2 mr-0.5" />
                   {mainLanguage.displayName}
                 </Badge>
-                
-                {/* Indicador de confiança se disponível */}
-                {'languageMetadata' in project && project.languageMetadata.confidence < 70 && (
-                  <Badge variant="outline" className="text-[10px] px-1 py-0.5 h-5 text-yellow-600 border-yellow-300">
-                    ?
-                  </Badge>
-                )}
               </div>
             )}
             <ProjectCardEngagement project={project} variant="compact" />
@@ -145,16 +138,6 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
                 </Badge>
               )}
             </div>
-            
-            {/* Metadata de confiança na detecção */}
-            {'languageMetadata' in project && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                Confiança na detecção: {project.languageMetadata.confidence}%
-                {project.languageMetadata.confidence < 70 && (
-                  <span className="text-yellow-600 ml-1">⚠️ Baixa confiança</span>
-                )}
-              </div>
-            )}
           </div>
         )}
 
