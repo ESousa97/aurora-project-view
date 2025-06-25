@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from '@/components/ui/sonner';
 import { EnhancedProjectCard as EnhancedProjectCardType } from '@/types/enhanced';
+import { LanguageColor, LANGUAGE_COLORS } from '@/lib/languageColors';
 import { ProjectCardContent } from './ProjectCardContent';
 import { ProjectCardImage } from './ProjectCardImage';
 import { ProjectCardFooter } from './ProjectCardFooter';
@@ -32,24 +33,17 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
 
   const engagement = useProjectEngagement(project);
 
-  // Usar a linguagem já detectada do projeto
-  const languageConfig = React.useMemo(() => {
+  // Usar a linguagem já detectada do projeto com fallback seguro
+  const languageConfig: LanguageColor = React.useMemo(() => {
     if (!project?.detectedLanguage) {
-      return { 
-        color: '#6B7280', 
-        gradient: 'from-gray-400 to-gray-600', 
-        textColor: 'text-white',
-        category: 'Unknown',
-        difficulty: 1,
-        name: 'default',
-        displayName: 'Desconhecido',
-        icon: () => <span>?</span>
-      };
+      return LANGUAGE_COLORS.default;
     }
     
+    // Garantir que o objeto tem todas as propriedades necessárias
     return {
+      ...LANGUAGE_COLORS.default,
       ...project.detectedLanguage,
-      category: project.detectedLanguage.category || project.categoria || 'Web',
+      category: project.detectedLanguage.category || project.categoria || 'other',
     };
   }, [project]);
 
@@ -65,7 +59,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
             <Target className="h-6 w-6 text-muted-foreground" />
           </div>
           <p className="text-muted-foreground font-medium">Projeto não disponível</p>
-          <p className="text-xs text-muted-foreground">Este território ainda está being mapeado</p>
+          <p className="text-xs text-muted-foreground">Este território ainda está sendo mapeado</p>
         </div>
       </div>
     );

@@ -1,22 +1,23 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Calendar, Eye, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { ProjectCard as ProjectCardType } from '@/types';
+import { LanguageColor } from '@/lib/languageColors';
 import { formatProjectDate } from '@/utils/projectHelpers';
-import { detectLanguage } from '@/lib/languageColors';
 
 interface ProjectCardFooterProps {
   project: ProjectCardType;
   isRevealed: boolean;
+  enhancedLanguage?: LanguageColor;
 }
 
 export const ProjectCardFooter: React.FC<ProjectCardFooterProps> = ({
   project,
-  isRevealed
+  isRevealed,
+  enhancedLanguage
 }) => {
-  const languageConfig = detectLanguage(project);
-
   return (
     <div className="p-4 pt-0 space-y-3">
       {/* Linha superior com informações */}
@@ -33,9 +34,9 @@ export const ProjectCardFooter: React.FC<ProjectCardFooterProps> = ({
         asChild 
         size="sm" 
         className="w-full group/btn transition-all"
-        style={isRevealed ? { 
-          backgroundColor: languageConfig.color,
-          color: languageConfig.textColor.includes('yellow-900') ? '#000' : '#fff'
+        style={isRevealed && enhancedLanguage ? { 
+          backgroundColor: enhancedLanguage.color,
+          color: enhancedLanguage.textColor.includes('yellow-900') ? '#000' : '#fff'
         } : undefined}
         disabled={!isRevealed}
       >
