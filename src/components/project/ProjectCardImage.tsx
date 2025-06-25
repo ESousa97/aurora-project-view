@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Sparkles } from 'lucide-react';
@@ -29,7 +30,7 @@ export const ProjectCardImage: React.FC<ProjectCardImageProps> = ({
         {isRevealed ? (
           <div className="text-center space-y-4">
             <div className="text-6xl opacity-30">
-              {enhancedLanguage && <enhancedLanguage.icon />}
+              {enhancedLanguage && React.createElement(enhancedLanguage.icon, { className: "w-16 h-16 mx-auto" })}
             </div>
             <p className="text-sm text-muted-foreground font-medium">
               {project.titulo || 'Projeto'}

@@ -7,7 +7,7 @@ export interface EnhancedProjectCard extends ProjectCard {
   detectedLanguage: LanguageColor;
   languageMetadata: {
     detectedAt: string;
-    confidence: number;
+    confidence: number; // Sempre 100 pois vem do banco
   };
 }
 

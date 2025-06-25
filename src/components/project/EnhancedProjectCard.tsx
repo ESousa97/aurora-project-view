@@ -40,10 +40,21 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
     }
     
     // Garantir que o objeto tem todas as propriedades necessárias
+    const detectedLang = project.detectedLanguage;
     return {
-      ...LANGUAGE_COLORS.default,
-      ...project.detectedLanguage,
-      category: project.detectedLanguage.category || project.categoria || 'other',
+      name: detectedLang.name || 'default',
+      displayName: detectedLang.displayName || 'Unknown',
+      color: detectedLang.color || '#64748b',
+      bgColor: detectedLang.bgColor || '#f1f5f9',
+      textColor: detectedLang.textColor || 'text-slate-700',
+      gradient: detectedLang.gradient || 'from-slate-500 to-slate-600',
+      icon: detectedLang.icon || LANGUAGE_COLORS.default.icon,
+      category: detectedLang.category as any || 'other',
+      difficulty: detectedLang.difficulty || 1,
+      popularity: detectedLang.popularity || 50,
+      trending: detectedLang.trending || false,
+      description: detectedLang.description || 'Tecnologia de desenvolvimento',
+      keywords: detectedLang.keywords || []
     };
   }, [project]);
 
@@ -104,7 +115,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
               </div>
               
               {/* Indicador de confiança na detecção */}
-              {project.languageMetadata && project.languageMetadata.confidence > 80 && (
+              {project.languageMetadata && project.languageMetadata.confidence === 100 && (
                 <div className="flex gap-0.5">
                   {[...Array(Math.min(languageConfig.difficulty, 3))].map((_, i) => (
                     <div 
@@ -184,7 +195,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
             <div 
               className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center backdrop-blur-sm`}
               style={{ backgroundColor: `${languageConfig.color}90` }}
-              title={`${languageConfig.displayName} - Confiança: ${project.languageMetadata?.confidence || 0}%`}
+              title={`${languageConfig.displayName} - Confiança: ${project.languageMetadata?.confidence || 100}%`}
             >
               <ProjectIcon className="w-6 h-6 text-white" />
             </div>

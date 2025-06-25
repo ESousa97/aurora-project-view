@@ -12,17 +12,21 @@ export const useCategories = () => {
       const categories = await apiService.getCategories();
       console.log(`✅ useCategories: Retrieved ${categories?.length || 0} categories`);
       
-      // Enriquecer categorias com informações de linguagem
-      const enrichedCategories = categories.map(category => ({
-        ...category,
-        languageConfig: category.projects.length > 0 
-          ? detectLanguage(category.projects[0])
-          : null,
-        projects: category.projects.map(project => ({
-          ...project,
-          detectedLanguage: detectLanguage(project)
-        }))
-      }));
+      // Enriquecer categorias com informações de linguagem baseadas nos dados reais do banco
+      const enrichedCategories = categories.map(category => {
+        // Usar o primeiro projeto da categoria para detectar linguagem
+        const sampleProject = category.projects[0];
+        const languageConfig = sampleProject ? detectLanguage(sampleProject) : null;
+        
+        return {
+          ...category,
+          languageConfig,
+          projects: category.projects.map(project => ({
+            ...project,
+            detectedLanguage: detectLanguage(project) // Linguagem baseada na categoria do banco
+          }))
+        };
+      });
       
       console.log('📂 Categories with language info:', 
         enrichedCategories.map(c => `${c.name} (${c.count} projetos) - ${c.languageConfig?.displayName || 'Unknown'}`));
@@ -36,24 +40,41 @@ export const useCategories = () => {
   });
 };
 
-// Hook específico para obter projetos com linguagem detectada
+// Hook específico para obter projetos com linguagem detectada baseada nos dados do banco
 export const useProjectsWithLanguage = () => {
   return useQuery({
     queryKey: ['projects-with-language'],
     queryFn: async () => {
       console.log('🔄 useProjectsWithLanguage: Starting fetch...');
+      
+      // Buscar categorias para ter mapeamento ID -> Categoria correto
+      const categories = await apiService.getCategories();
       const projects = await apiService.getCards();
       
-      const enrichedProjects = projects.map(project => ({
-        ...project,
-        detectedLanguage: detectLanguage(project),
-        languageMetadata: {
-          detectedAt: new Date().toISOString(),
-          confidence: calculateLanguageConfidence(project)
-        }
-      }));
+      // Criar mapa de categoria por ID do projeto
+      const categoryMap = new Map<number, string>();
+      categories.forEach(category => {
+        category.projects.forEach(project => {
+          categoryMap.set(project.id, project.categoria);
+        });
+      });
       
-      console.log(`✅ useProjectsWithLanguage: Enriched ${enrichedProjects.length} projects with language data`);
+      const enrichedProjects = projects.map(project => {
+        // Usar categoria do banco se disponível, senão usar a do projeto
+        const correctCategory = categoryMap.get(project.id) || project.categoria;
+        const projectWithCorrectCategory = { ...project, categoria: correctCategory };
+        
+        return {
+          ...projectWithCorrectCategory,
+          detectedLanguage: detectLanguage(projectWithCorrectCategory),
+          languageMetadata: {
+            detectedAt: new Date().toISOString(),
+            confidence: 100 // 100% pois vem do banco de dados
+          }
+        };
+      });
+      
+      console.log(`✅ useProjectsWithLanguage: Enriched ${enrichedProjects.length} projects with 100% confidence language data`);
       return enrichedProjects;
     },
     staleTime: 5 * 60 * 1000,
@@ -62,21 +83,3 @@ export const useProjectsWithLanguage = () => {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
-
-// Função para calcular confiança na detecção de linguagem
-function calculateLanguageConfidence(project: ProjectCard): number {
-  if (!project) return 0;
-  
-  const hasTitle = Boolean(project.titulo?.trim());
-  const hasDescription = Boolean(project.descricao?.trim());
-  const hasCategory = Boolean(project.categoria?.trim());
-  const hasContent = Boolean(project.conteudo?.trim());
-  
-  let confidence = 0;
-  if (hasTitle) confidence += 25;
-  if (hasDescription) confidence += 35;
-  if (hasCategory) confidence += 25;
-  if (hasContent) confidence += 15;
-  
-  return Math.min(confidence, 100);
-}

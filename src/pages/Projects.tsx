@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { EnhancedProjectCard } from '@/components/project/EnhancedProjectCard';
@@ -86,6 +87,7 @@ const Projects = () => {
       const language = project.detectedLanguage;
       uniqueLanguages.add(language.name);
       
+      // Como vem do banco, sempre 100% de confiança
       if (project.languageMetadata?.confidence >= 80) {
         highConfidenceCount++;
       }
@@ -145,7 +147,7 @@ const Projects = () => {
                         className="border-0"
                         style={{ backgroundColor: `${categoryColor?.color}20`, color: categoryColor?.color }}
                       >
-                        {categoryColor?.icon} {selectedCategory}
+                        {React.createElement(categoryColor?.icon || Target, { className: "w-3 h-3 mr-1" })} {selectedCategory}
                       </Badge>
                     </div>
                   )}
@@ -220,7 +222,7 @@ const Projects = () => {
           {/* Quick Stats com métricas de linguagem */}
           {!isLoading && processedProjects.length > 0 && (
             <motion.div 
-              className="grid grid-cols-2 md:grid-cols-5 gap-4"
+              className="grid grid-cols-2 md:grid-cols-4 gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -255,7 +257,7 @@ const Projects = () => {
                     {stats.highConfidence}
                   </div>
                   <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-                    Alta Confiança
+                    100% Confiança
                   </p>
                 </CardContent>
               </Card>
