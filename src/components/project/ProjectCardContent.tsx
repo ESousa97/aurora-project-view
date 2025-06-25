@@ -1,12 +1,10 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ProjectCard as ProjectCardType } from '@/types';
 import { EnhancedProjectCard } from '@/types/enhanced';
-import { LanguageColor } from '@/lib/languageColors';
+import { LanguageColor, detectLanguage } from '@/lib/languageColors';
 import { ProjectCardEngagement } from './ProjectCardEngagement';
-import { detectProjectTechnologies } from '@/utils/projectHelpers';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
 import { HelpCircle } from 'lucide-react';
 
@@ -23,17 +21,22 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
   variant = 'default',
   enhancedLanguage
 }) => {
-  // Usar linguagem detectada se disponível, senão fazer detecção
-  const detectedTechnologies = React.useMemo(() => {
+  // SINCRONIZAÇÃO: Usar a linguagem passada ou detectar de forma consistente
+  const detectedLanguage = React.useMemo(() => {
     if (enhancedLanguage) {
-      return [enhancedLanguage];
+      return enhancedLanguage;
     }
-    return detectProjectTechnologies(project);
+
+    // Se é um EnhancedProjectCard, usar a linguagem já detectada
+    if ('detectedLanguage' in project && project.detectedLanguage) {
+      return project.detectedLanguage;
+    }
+
+    // Senão, detectar usando a função padrão
+    return detectLanguage(project);
   }, [project, enhancedLanguage]);
 
   const engagement = useProjectEngagement(project);
-  const isMultiTech = detectedTechnologies.length > 1;
-  const mainLanguage = enhancedLanguage || detectedTechnologies[0];
 
   if (variant === 'compact') {
     return (
@@ -57,23 +60,23 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           
           {/* Tecnologias e Engagement na mesma linha */}
           <div className="flex items-center justify-between gap-2">
-            {isRevealed && mainLanguage ? (
+            {isRevealed ? (
               <div className="flex gap-1">
                 <Badge 
                   variant="outline"
                   className="text-[10px] px-1 py-0.5 h-5"
                   style={{ 
-                    color: mainLanguage.color, 
-                    borderColor: mainLanguage.color + '40',
-                    backgroundColor: mainLanguage.color + '08'
+                    color: detectedLanguage.color, 
+                    borderColor: detectedLanguage.color + '40',
+                    backgroundColor: detectedLanguage.color + '08'
                   }}
-                  title={`${mainLanguage.description} - ${mainLanguage.category}`}
+                  title={`${detectedLanguage.description} - ${detectedLanguage.category}`}
                 >
-                  <mainLanguage.icon className="h-2 w-2 mr-0.5" />
-                  {mainLanguage.displayName}
+                  <detectedLanguage.icon className="h-2 w-2 mr-0.5" />
+                  {detectedLanguage.displayName}
                 </Badge>
               </div>
-            ) : !isRevealed ? (
+            ) : (
               <div className="flex gap-1">
                 <Badge 
                   variant="outline"
@@ -83,7 +86,7 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
                   ???
                 </Badge>
               </div>
-            ) : null}
+            )}
             
             {isRevealed && (
               <ProjectCardEngagement project={project} variant="compact" />
@@ -112,46 +115,33 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           }
         </p>
 
-        {/* Tecnologias com linguagem principal destacada - SOMENTE se revelado */}
-        {isRevealed && mainLanguage && (
+        {/* SINCRONIZAÇÃO: Tecnologias com linguagem principal destacada - SOMENTE se revelado */}
+        {isRevealed && (
           <div className="mb-3">
             <div className="flex flex-wrap gap-1">
               <Badge 
                 variant="outline"
                 className="text-xs px-2 py-1 h-7 border-current font-medium"
                 style={{ 
-                  color: mainLanguage.color,
-                  borderColor: mainLanguage.color + '40',
-                  backgroundColor: mainLanguage.color + '10'
+                  color: detectedLanguage.color,
+                  borderColor: detectedLanguage.color + '40',
+                  backgroundColor: detectedLanguage.color + '10'
                 }}
-                title={`${mainLanguage.description} | Categoria: ${mainLanguage.category} | Dificuldade: ${mainLanguage.difficulty}/5`}
+                title={`${detectedLanguage.description} | Categoria: ${detectedLanguage.category} | Dificuldade: ${detectedLanguage.difficulty}/5`}
               >
-                <mainLanguage.icon className="h-3 w-3 mr-1" />
-                {mainLanguage.displayName}
-                {mainLanguage.trending && <span className="ml-1">🔥</span>}
+                <detectedLanguage.icon className="h-3 w-3 mr-1" />
+                {detectedLanguage.displayName}
+                {detectedLanguage.trending && <span className="ml-1">🔥</span>}
               </Badge>
               
-              {/* Badges adicionais para múltiplas tecnologias */}
-              {isMultiTech && detectedTechnologies.slice(1, 3).map((tech) => (
+              {/* Badge adicional se houver categoria diferente */}
+              {project.categoria && project.categoria !== detectedLanguage.displayName && (
                 <Badge 
-                  key={tech.name}
                   variant="outline"
-                  className="text-xs px-1.5 py-0.5 h-6 border-current"
-                  style={{ 
-                    color: tech.color,
-                    borderColor: tech.color + '30',
-                    backgroundColor: tech.color + '08'
-                  }}
-                  title={tech.description}
+                  className="text-xs px-1.5 py-0.5 h-6"
+                  title={`Categoria: ${project.categoria}`}
                 >
-                  <tech.icon className="h-2.5 w-2.5 mr-1" />
-                  {tech.displayName}
-                </Badge>
-              ))}
-              
-              {detectedTechnologies.length > 3 && (
-                <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-6 text-muted-foreground">
-                  +{detectedTechnologies.length - 3}
+                  {project.categoria}
                 </Badge>
               )}
             </div>

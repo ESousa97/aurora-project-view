@@ -1,9 +1,9 @@
-
 // src/components/project/ProjectCard.tsx
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Target, ChevronRight, HelpCircle } from 'lucide-react';
 import { ProjectCard as ProjectCardType } from '@/types';
+import { EnhancedProjectCard } from '@/types/enhanced';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { detectLanguage, LanguageColor, LANGUAGE_COLORS } from '@/lib/languageColors';
@@ -14,7 +14,7 @@ import { ProjectCardFooter } from './ProjectCardFooter';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
 
 interface ProjectCardProps {
-  project: ProjectCardType | null | undefined;
+  project: ProjectCardType | EnhancedProjectCard | null | undefined;
   variant?: 'default' | 'compact' | 'mystery' | 'featured';
   index?: number;
   onDiscover?: (id: number) => void;
@@ -32,12 +32,19 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   const [isHovered, setIsHovered] = React.useState(false);
   const [viewProgress, setViewProgress] = React.useState(0);
 
+  // SINCRONIZAÇÃO: Usar a linguagem já detectada se disponível (EnhancedProjectCard)
+  // Senão fazer detecção local com fallback consistente
   const languageConfig: LanguageColor = React.useMemo(() => {
     if (!project) {
       return LANGUAGE_COLORS.default;
     }
     
-    // Usar a função detectLanguage que já retorna LanguageColor completo
+    // Se é um EnhancedProjectCard (vem do useProjectsWithLanguage), usar a linguagem já detectada
+    if ('detectedLanguage' in project && project.detectedLanguage) {
+      return project.detectedLanguage;
+    }
+    
+    // Senão, usar a função detectLanguage padrão
     return detectLanguage(project);
   }, [project]);
 
@@ -97,7 +104,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           } opacity-5`} />
           
           <CardContent className="p-4 flex items-center gap-4 relative z-10">
-            {/* Ícone do projeto e indicadores */}
+            {/* Ícone do projeto - SINCRONIZADO */}
             <div className="flex flex-col items-center gap-2 shrink-0">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
                 isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
@@ -185,7 +192,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
             enhancedLanguage={isRevealed ? languageConfig : undefined}
           />
           
-          {/* Ícone da tecnologia sobreposto na imagem - SOMENTE se revelado */}
+          {/* SINCRONIZAÇÃO: Ícone da tecnologia sobreposto na imagem - SOMENTE se revelado */}
           {isRevealed && (
             <div className="absolute top-4 left-4 z-20">
               <div 
@@ -193,7 +200,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 style={{ 
                   backgroundColor: `${languageConfig.color}90`
                 }}
-                title={`${languageConfig.displayName}`}
+                title={`${languageConfig.displayName} - ${languageConfig.description}`}
               >
                 <ProjectIcon className="w-6 h-6 text-white" />
               </div>

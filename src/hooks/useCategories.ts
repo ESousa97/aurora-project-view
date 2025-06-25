@@ -1,8 +1,7 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { apiService } from '@/services/api';
 import { Category, ProjectCard } from '@/types';
-import { detectLanguage } from '@/lib/languageColors';
+import { detectLanguage, getCategoryColor } from '@/lib/languageColors';
 
 export const useCategories = () => {
   return useQuery({
@@ -12,23 +11,27 @@ export const useCategories = () => {
       const categories = await apiService.getCategories();
       console.log(`✅ useCategories: Retrieved ${categories?.length || 0} categories`);
       
-      // Enriquecer categorias com informações de linguagem baseadas nos dados reais do banco
+      // SINCRONIZAÇÃO: Enriquecer categorias com informações de linguagem consistentes
       const enrichedCategories = categories.map(category => {
-        // Usar o primeiro projeto da categoria para detectar linguagem
+        // Buscar um projeto representativo da categoria para detectar linguagem
         const sampleProject = category.projects[0];
-        const languageConfig = sampleProject ? detectLanguage(sampleProject) : null;
+        
+        // Usar detecção baseada no projeto real se disponível
+        const languageConfig = sampleProject 
+          ? detectLanguage(sampleProject) 
+          : getCategoryColor(category.name);
         
         return {
           ...category,
           languageConfig,
           projects: category.projects.map(project => ({
             ...project,
-            detectedLanguage: detectLanguage(project) // Linguagem baseada na categoria do banco
+            detectedLanguage: detectLanguage(project) // Garantir que cada projeto tenha linguagem detectada
           }))
         };
       });
       
-      console.log('📂 Categories with language info:', 
+      console.log('📂 Categories with synchronized language info:', 
         enrichedCategories.map(c => `${c.name} (${c.count} projetos) - ${c.languageConfig?.displayName || 'Unknown'}`));
       
       return enrichedCategories;
@@ -64,9 +67,12 @@ export const useProjectsWithLanguage = () => {
         const correctCategory = categoryMap.get(project.id) || project.categoria;
         const projectWithCorrectCategory = { ...project, categoria: correctCategory };
         
+        // SINCRONIZAÇÃO: Garantir detecção consistente da linguagem
+        const detectedLanguage = detectLanguage(projectWithCorrectCategory);
+        
         return {
           ...projectWithCorrectCategory,
-          detectedLanguage: detectLanguage(projectWithCorrectCategory),
+          detectedLanguage,
           languageMetadata: {
             detectedAt: new Date().toISOString(),
             confidence: 100 // 100% pois vem do banco de dados
@@ -74,7 +80,21 @@ export const useProjectsWithLanguage = () => {
         };
       });
       
-      console.log(`✅ useProjectsWithLanguage: Enriched ${enrichedProjects.length} projects with 100% confidence language data`);
+      console.log(`✅ useProjectsWithLanguage: Enriched ${enrichedProjects.length} projects with synchronized language data`);
+      
+      // Log de exemplo das linguagens detectadas
+      const languageCounts = enrichedProjects.reduce((acc, project) => {
+        const lang = project.detectedLanguage.displayName;
+        acc[lang] = (acc[lang] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      console.log('🔧 Language distribution:', Object.entries(languageCounts)
+        .sort(([,a], [,b]) => b - a)
+        .slice(0, 5)
+        .map(([lang, count]) => `${lang}: ${count}`)
+        .join(', '));
+      
       return enrichedProjects;
     },
     staleTime: 5 * 60 * 1000,

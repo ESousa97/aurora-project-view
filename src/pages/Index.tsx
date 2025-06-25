@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProjectCard } from '@/components/project/ProjectCard';
-import { useProjects, useCategories } from '@/hooks/useProjects';
+import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
 import { 
   ArrowRight, 
   Compass, 
@@ -25,7 +25,8 @@ import { getCategoryColor, detectLanguage } from '@/lib/languageColors';
 import { isWithinInterval, subDays } from 'date-fns';
 
 const Index = () => {
-  const { data: projects, isLoading: projectsLoading } = useProjects();
+  // Usar o hook atualizado para ter projetos com linguagem detectada
+  const { data: projects, isLoading: projectsLoading } = useProjectsWithLanguage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { scrollYProgress } = useScroll();
   const [discoveredProjects, setDiscoveredProjects] = React.useState<Set<number>>(new Set());
@@ -65,7 +66,7 @@ const Index = () => {
     setDiscoveredProjects(prev => new Set([...prev, projectId]));
   }, []);
 
-  // Estatísticas dinâmicas
+  // Estatísticas dinâmicas baseadas nos projetos com linguagem detectada
   const stats = React.useMemo(() => {
     if (!projects || !categories) {
       return { total: 0, categories: 0, languages: 0, recent: 0 };
@@ -75,7 +76,8 @@ const Index = () => {
     let recentCount = 0;
 
     projects.forEach(project => {
-      const language = detectLanguage(project);
+      // Usar a linguagem já detectada do projeto
+      const language = project.detectedLanguage;
       uniqueLanguages.add(language.name);
       
       if (project.data_modificacao && isWithinInterval(new Date(project.data_modificacao), {
@@ -324,7 +326,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Categorias como Caminhos de Exploração */}
+        {/* Categorias como Caminhos de Exploração - SINCRONIZADO */}
         <section className="space-y-12 px-4">
           <motion.div 
             className="text-center space-y-6"
@@ -345,7 +347,10 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {categories?.slice(0, 9).map((category, index) => {
-              const colorConfig = getCategoryColor(category.name);
+              // SINCRONIZAÇÃO: Usar o mesmo sistema de detecção dos projetos
+              // Buscar um projeto da categoria para ter a linguagem consistente
+              const sampleProject = category.projects[0];
+              const colorConfig = sampleProject?.detectedLanguage || getCategoryColor(category.name);
               
               return (
                 <motion.div
@@ -360,8 +365,15 @@ const Index = () => {
                     <Card className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 relative h-full">
                       <div className={`h-3 bg-gradient-to-r ${colorConfig.gradient}`} />
                       <CardContent className="p-6 relative">
-                        <div className="absolute top-2 right-2 text-3xl opacity-20 group-hover:opacity-40 transition-opacity">
-                          {React.createElement(colorConfig.icon)}
+                        {/* SINCRONIZAÇÃO: Usar o mesmo ícone do sistema de linguagens */}
+                        <div 
+                          className="absolute top-2 right-2 w-8 h-8 rounded-lg flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity"
+                          style={{ backgroundColor: `${colorConfig.color}20` }}
+                        >
+                          {React.createElement(colorConfig.icon, { 
+                            className: "w-5 h-5",
+                            style: { color: colorConfig.color }
+                          })}
                         </div>
                         
                         <div className="space-y-4">
