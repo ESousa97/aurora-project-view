@@ -1,0 +1,107 @@
+
+/* src/lib/colors/styles.css - Classes CSS para o sistema de cores */
+
+/* ===== GRADIENTES ===== */
+.vercel-gradient {
+  background: linear-gradient(to right, hsl(var(--gradient-start)), hsl(var(--gradient-middle)));
+}
+
+.vercel-gradient-subtle {
+  background: linear-gradient(135deg, hsl(var(--gradient-start)) 0%, hsl(var(--gradient-middle)) 50%, hsl(var(--gradient-end)) 100%);
+}
+
+/* ===== EFEITOS ===== */
+.glow-effect {
+  box-shadow: 0 0 20px hsl(var(--overlay-medium));
+}
+
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== CARDS ===== */
+.modern-card {
+  background: hsl(var(--overlay-light));
+  border: 1px solid hsl(var(--border-card));
+  border-radius: 0.75rem;
+  backdrop-filter: blur(12px);
+}
+
+.modern-card:hover {
+  background: hsl(var(--hover-card));
+  border-color: hsl(var(--hover-border));
+}
+
+/* ===== BOTÕES ===== */
+.vercel-button {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vercel-button:hover {
+  background: hsl(var(--hover-button));
+}
+
+.vercel-button-secondary {
+  background: transparent;
+  border: 1px solid hsl(var(--border-input));
+  color: hsl(var(--text-white));
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vercel-button-secondary:hover {
+  border-color: hsl(var(--border-focus));
+  background: hsl(var(--overlay-medium));
+}
+
+/* ===== INPUTS ===== */
+.custom-input {
+  background: hsl(var(--bg-input));
+  border: 1px solid hsl(var(--border-input));
+  color: hsl(var(--text-white));
+}
+
+.custom-input:focus {
+  border-color: hsl(var(--border-focus));
+}
+
+.custom-input::placeholder {
+  color: hsl(var(--text-gray-500));
+}
+
+/* ===== TEXTO ===== */
+.text-white-primary { color: hsl(var(--text-white)); }
+.text-gray-light { color: hsl(var(--text-gray-400)); }
+.text-gray-medium { color: hsl(var(--text-gray-500)); }
+
+/* ===== BACKGROUNDS ===== */
+.bg-dark-primary { background: hsl(var(--bg-dark)); }
+.bg-black-pure { background: hsl(var(--bg-black)); }
+
+/* ===== STATUS COLORS ===== */
+.status-active { background: hsl(var(--status-active)); }
+.status-completed { background: hsl(var(--status-completed)); }
+.status-draft { background: hsl(var(--status-draft)); }
+.status-paused { background: hsl(var(--status-paused)); }
+
+/* ===== ICON COLORS ===== */
+.icon-blue { color: hsl(var(--icon-blue)); }
+.icon-green { color: hsl(var(--icon-green)); }
+.icon-purple { color: hsl(var(--icon-purple)); }
+.icon-yellow { color: hsl(var(--icon-yellow)); }
+.icon-red { color: hsl(var(--icon-red)); }
+
+/* ===== STATES ===== */
+.success-color { color: hsl(var(--success)); }
+.warning-color { color: hsl(var(--warning)); }
+.error-color { color: hsl(var(--error)); }
+.info-color { color: hsl(var(--info)); }
+
+/* ===== LOADING STATES ===== */
+.loading-skeleton {
+  background: hsl(var(--loading-bg));
+  color: hsl(var(--loading-text));
+}
