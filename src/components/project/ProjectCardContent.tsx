@@ -8,6 +8,7 @@ import { LanguageColor } from '@/lib/languageColors';
 import { ProjectCardEngagement } from './ProjectCardEngagement';
 import { detectProjectTechnologies } from '@/utils/projectHelpers';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
+import { HelpCircle } from 'lucide-react';
 
 interface ProjectCardContentProps {
   project: ProjectCardType | EnhancedProjectCard;
@@ -41,19 +42,22 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           <div className="flex items-start justify-between gap-3 mb-1">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate mb-1">
-                {project.titulo || 'Projeto sem título'}
+                {isRevealed ? (project.titulo || 'Projeto sem título') : 'Projeto Misterioso'}
               </h3>
               <p className="text-xs text-muted-foreground line-clamp-2 leading-[1.3] mb-2">
-                {project.descricao && project.descricao.length > 75 
-                  ? `${project.descricao.substring(0, 75)}...` 
-                  : project.descricao || 'Sem descrição disponível'}
+                {isRevealed 
+                  ? (project.descricao && project.descricao.length > 75 
+                      ? `${project.descricao.substring(0, 75)}...` 
+                      : project.descricao || 'Sem descrição disponível')
+                  : 'Clique para revelar as tecnologias utilizadas neste projeto...'
+                }
               </p>
             </div>
           </div>
           
           {/* Tecnologias e Engagement na mesma linha */}
           <div className="flex items-center justify-between gap-2">
-            {mainLanguage && (
+            {isRevealed && mainLanguage ? (
               <div className="flex gap-1">
                 <Badge 
                   variant="outline"
@@ -69,8 +73,21 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
                   {mainLanguage.displayName}
                 </Badge>
               </div>
+            ) : !isRevealed ? (
+              <div className="flex gap-1">
+                <Badge 
+                  variant="outline"
+                  className="text-[10px] px-1 py-0.5 h-5 border-dashed"
+                >
+                  <HelpCircle className="h-2 w-2 mr-0.5" />
+                  ???
+                </Badge>
+              </div>
+            ) : null}
+            
+            {isRevealed && (
+              <ProjectCardEngagement project={project} variant="compact" />
             )}
-            <ProjectCardEngagement project={project} variant="compact" />
           </div>
         </Link>
       </div>
@@ -95,7 +112,7 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           }
         </p>
 
-        {/* Tecnologias com linguagem principal destacada */}
+        {/* Tecnologias com linguagem principal destacada - SOMENTE se revelado */}
         {isRevealed && mainLanguage && (
           <div className="mb-3">
             <div className="flex flex-wrap gap-1">
@@ -141,7 +158,28 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           </div>
         )}
 
-        {/* Engagement no final */}
+        {/* Mostrar badge de mistério quando não revelado */}
+        {!isRevealed && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-1">
+              <Badge 
+                variant="outline"
+                className="text-xs px-2 py-1 h-7 border-dashed border-muted-foreground/50 text-muted-foreground"
+              >
+                <HelpCircle className="h-3 w-3 mr-1" />
+                Tecnologia Oculta
+              </Badge>
+              <Badge 
+                variant="outline"
+                className="text-xs px-1.5 py-0.5 h-6 border-dashed border-muted-foreground/30 text-muted-foreground/70"
+              >
+                ???
+              </Badge>
+            </div>
+          </div>
+        )}
+
+        {/* Engagement no final - SOMENTE se revelado */}
         {isRevealed && (
           <div className="mt-auto">
             <ProjectCardEngagement project={project} variant="default" />

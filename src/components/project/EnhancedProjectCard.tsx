@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Target, ChevronRight } from 'lucide-react';
+import { Target, ChevronRight, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from '@/components/ui/sonner';
@@ -102,20 +102,30 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
         onHoverEnd={() => setIsHovered(false)}
       >
         <Card className="group cursor-pointer border-l-4 relative overflow-hidden transition-all duration-300 hover:shadow-lg"
-              style={{ borderLeftColor: languageConfig.color }}>
+              style={{ 
+                borderLeftColor: isRevealed ? languageConfig.color : '#94a3b8'
+              }}>
           
           {/* Background gradient sutil */}
-          <div className={`absolute inset-0 bg-gradient-to-r ${languageConfig.gradient} opacity-5`} />
+          <div className={`absolute inset-0 bg-gradient-to-r ${
+            isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
+          } opacity-5`} />
           
           <CardContent className="p-4 flex items-center gap-4 relative z-10">
             {/* Ícone do projeto e indicadores */}
             <div className="flex flex-col items-center gap-2 shrink-0">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <ProjectIcon className="w-6 h-6 text-white" />
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
+                isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
+              } shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                {isRevealed ? (
+                  <ProjectIcon className="w-6 h-6 text-white" />
+                ) : (
+                  <HelpCircle className="w-6 h-6 text-white" />
+                )}
               </div>
               
-              {/* Indicador de confiança na detecção */}
-              {project.languageMetadata && project.languageMetadata.confidence === 100 && (
+              {/* Indicador de confiança na detecção - só mostrar se revelado */}
+              {isRevealed && project.languageMetadata && project.languageMetadata.confidence === 100 && (
                 <div className="flex gap-0.5">
                   {[...Array(Math.min(languageConfig.difficulty, 3))].map((_, i) => (
                     <div 
@@ -134,7 +144,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
                 project={project} 
                 isRevealed={isRevealed} 
                 variant="compact"
-                enhancedLanguage={languageConfig}
+                enhancedLanguage={isRevealed ? languageConfig : undefined}
               />
             </div>
 
@@ -187,17 +197,25 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
             project={project}
             isRevealed={isRevealed}
             viewProgress={viewProgress}
-            enhancedLanguage={languageConfig}
+            enhancedLanguage={isRevealed ? languageConfig : undefined}
           />
           
-          {/* Ícone da tecnologia sobreposto na imagem */}
+          {/* Ícone da tecnologia sobreposto na imagem - só mostrar se revelado */}
           <div className="absolute top-4 left-4 z-20">
             <div 
-              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center backdrop-blur-sm`}
-              style={{ backgroundColor: `${languageConfig.color}90` }}
-              title={`${languageConfig.displayName} - Confiança: ${project.languageMetadata?.confidence || 100}%`}
+              className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
+                isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
+              } shadow-lg flex items-center justify-center backdrop-blur-sm`}
+              style={{ 
+                backgroundColor: isRevealed ? `${languageConfig.color}90` : '#64748b90'
+              }}
+              title={isRevealed ? `${languageConfig.displayName}` : 'Tecnologia oculta'}
             >
-              <ProjectIcon className="w-6 h-6 text-white" />
+              {isRevealed ? (
+                <ProjectIcon className="w-6 h-6 text-white" />
+              ) : (
+                <HelpCircle className="w-6 h-6 text-white" />
+              )}
             </div>
           </div>
         </div>
@@ -208,7 +226,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
             project={project} 
             isRevealed={isRevealed} 
             variant="default"
-            enhancedLanguage={languageConfig}
+            enhancedLanguage={isRevealed ? languageConfig : undefined}
           />
         </CardContent>
 
@@ -217,7 +235,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
           <ProjectCardFooter 
             project={project} 
             isRevealed={isRevealed}
-            enhancedLanguage={languageConfig}
+            enhancedLanguage={isRevealed ? languageConfig : undefined}
           />
         </CardFooter>
       </Card>

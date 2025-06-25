@@ -8,13 +8,42 @@ import { ptBR } from 'date-fns/locale';
 
 interface ProjectTimelineProps {
   projects: ProjectCard[];
+  isLoading?: boolean;
 }
 
-export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projects }) => {
+export const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projects, isLoading = false }) => {
   const sortedProjects = [...projects]
     .filter(p => p.data_modificacao)
     .sort((a, b) => new Date(b.data_modificacao).getTime() - new Date(a.data_modificacao).getTime())
     .slice(0, 10);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Clock className="h-5 w-5" />
+          Timeline de Projetos
+        </h3>
+        <div className="space-y-3">
+          {[...Array(5)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="flex items-center gap-4 p-3 rounded-lg bg-muted/50 animate-pulse"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <div className="w-2 h-2 bg-muted rounded-full flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-3/4" />
+                <div className="h-3 bg-muted rounded w-1/2" />
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
