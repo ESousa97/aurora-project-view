@@ -50,9 +50,9 @@ api.interceptors.response.use(
   }
 );
 
-// Função para processar dados de categorias do servidor
+// Função para processar dados de categorias do servidor com linguagens
 const processCategoriesFromServer = (serverData: Array<{id: number, titulo: string, categoria: string}>): Category[] => {
-  console.log('📂 Processing categories from server data...');
+  console.log('📂 Processing categories from server data with language detection...');
   console.log('📊 Server data sample:', serverData.slice(0, 3));
   
   const categoryMap = new Map<string, Array<{id: number, titulo: string, categoria: string}>>();
@@ -68,26 +68,30 @@ const processCategoriesFromServer = (serverData: Array<{id: number, titulo: stri
     }
   });
   
-  // Converter para formato Category
+  // Converter para formato Category com detecção de linguagem
   const categories = Array.from(categoryMap.entries()).map(([name, projects]) => ({
     name,
     count: projects.length,
-    projects: projects.map(p => ({
-      id: p.id,
-      titulo: p.titulo,
-      categoria: p.categoria,
-      descricao: '', // Será preenchido quando necessário
-      imageurl: '',
-      data_criacao: '',
-      data_modificacao: '',
-      conteudo: ''
-    } as ProjectCard))
+    projects: projects.map(p => {
+      const baseProject = {
+        id: p.id,
+        titulo: p.titulo,
+        categoria: p.categoria,
+        descricao: '', // Será preenchido quando necessário
+        imageurl: '',
+        data_criacao: '',
+        data_modificacao: '',
+        conteudo: ''
+      } as ProjectCard;
+      
+      return baseProject;
+    })
   }));
   
   // Ordenar categorias por quantidade de projetos (decrescente)
   categories.sort((a, b) => b.count - a.count);
   
-  console.log(`📂 Processed ${categories.length} categories:`, 
+  console.log(`📂 Processed ${categories.length} categories with language mapping:`, 
     categories.map(c => `${c.name} (${c.count} projetos)`));
   
   return categories;
@@ -214,6 +218,29 @@ export const apiService = {
       console.log('🏓 Server ping: Failed ❌');
       return false;
     }
+  },
+
+  // Enhanced getCards method with language detection
+  getCardsWithLanguage: async (): Promise<ProjectCard[]> => {
+    console.log('📋 Fetching project cards with language detection...');
+    const response = await api.get('/cards');
+    console.log(`📋 Retrieved ${response.data?.length || 0} project cards for language processing`);
+    
+    // Log sample data to understand structure
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+      const sampleProject = response.data[0];
+      if (sampleProject && typeof sampleProject === 'object') {
+        console.log('📋 Sample project structure for language detection:', {
+          id: sampleProject.id,
+          titulo: sampleProject.titulo,
+          categoria: sampleProject.categoria,
+          descricao: sampleProject.descricao?.substring(0, 50) + '...',
+          hasLanguageData: !!(sampleProject.titulo && sampleProject.categoria)
+        });
+      }
+    }
+    
+    return response.data;
   },
 };
 

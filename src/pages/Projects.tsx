@@ -1,8 +1,8 @@
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { ProjectCard } from '@/components/project/ProjectCard';
+import { EnhancedProjectCard } from '@/components/project/EnhancedProjectCard';
 import { ProjectCardSkeleton, StatsLoading } from '@/components/ui/loading';
-import { useProjects, useCategories } from '@/hooks/useProjects';
+import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
 import { useUIStore } from '@/stores/uiStore';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,7 +15,7 @@ import { getCategoryColor, detectLanguage } from '@/lib/languageColors';
 import { isWithinInterval, subDays } from 'date-fns';
 
 const Projects = () => {
-  const { data: allProjects, isLoading: projectsLoading } = useProjects();
+  const { data: allProjects, isLoading: projectsLoading } = useProjectsWithLanguage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { viewMode, setViewMode, selectedCategory, setSelectedCategory } = useUIStore();
   
@@ -72,18 +72,23 @@ const Projects = () => {
     return 'default';
   };
 
-  // Estatísticas da página atual
+  // Estatísticas melhoradas com informações de linguagem
   const stats = React.useMemo(() => {
-    if (!processedProjects) return { total: 0, recent: 0, languages: 0 };
+    if (!processedProjects) return { total: 0, recent: 0, languages: 0, highConfidence: 0 };
 
     const uniqueLanguages = new Set();
     let recentCount = 0;
+    let highConfidenceCount = 0;
 
     processedProjects.forEach(project => {
       if (!project) return;
       
-      const language = detectLanguage(project);
+      const language = project.detectedLanguage;
       uniqueLanguages.add(language.name);
+      
+      if (project.languageMetadata?.confidence >= 80) {
+        highConfidenceCount++;
+      }
       
       if (project.data_modificacao && isWithinInterval(new Date(project.data_modificacao), {
         start: subDays(new Date(), 7),
@@ -95,8 +100,9 @@ const Projects = () => {
 
     return {
       total: processedProjects.length,
-      recent: recentCount,
-      languages: uniqueLanguages.size
+      recent: recentCount, 
+      languages: uniqueLanguages.size,
+      highConfidence: highConfidenceCount
     };
   }, [processedProjects]);
 
@@ -116,7 +122,7 @@ const Projects = () => {
   return (
     <AppLayout>
       <div className="space-y-8">
-        {/* Header Enhanced */}
+        {/* Header Enhanced com informações de linguagem */}
         <motion.div 
           className="space-y-6" 
           initial={{ opacity: 0, y: 20 }} 
@@ -211,10 +217,10 @@ const Projects = () => {
             )}
           </div>
 
-          {/* Quick Stats */}
+          {/* Quick Stats com métricas de linguagem */}
           {!isLoading && processedProjects.length > 0 && (
             <motion.div 
-              className="grid grid-cols-2 md:grid-cols-4 gap-4"
+              className="grid grid-cols-2 md:grid-cols-5 gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
@@ -243,13 +249,13 @@ const Projects = () => {
                 </Card>
               )}
 
-              <Card className="text-center bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900 border-0">
+              <Card className="text-center bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-950 dark:to-indigo-900 border-0">
                 <CardContent className="pt-4 pb-3">
-                  <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
-                    {stats.languages}
+                  <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">
+                    {stats.highConfidence}
                   </div>
-                  <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
-                    Linguagens
+                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                    Alta Confiança
                   </p>
                 </CardContent>
               </Card>
@@ -268,7 +274,7 @@ const Projects = () => {
           )}
         </motion.div>
 
-        {/* Projects Grid */}
+        {/* Projects Grid com Enhanced Cards */}
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div 
@@ -337,7 +343,7 @@ const Projects = () => {
             >
               {processedProjects.map((project, index) => (
                 <motion.div key={project.id} variants={itemVariants}>
-                  <ProjectCard 
+                  <EnhancedProjectCard 
                     project={project} 
                     variant={getCardVariant(index)} 
                     index={index} 

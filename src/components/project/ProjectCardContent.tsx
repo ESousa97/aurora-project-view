@@ -1,25 +1,38 @@
+
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { ProjectCard as ProjectCardType } from '@/types';
+import { EnhancedProjectCard } from '@/types/enhanced';
+import { LanguageColor } from '@/lib/languageColors';
 import { ProjectCardEngagement } from './ProjectCardEngagement';
 import { detectProjectTechnologies } from '@/utils/projectHelpers';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
 
 interface ProjectCardContentProps {
-  project: ProjectCardType;
+  project: ProjectCardType | EnhancedProjectCard;
   isRevealed: boolean;
   variant?: 'default' | 'compact';
+  enhancedLanguage?: LanguageColor;
 }
 
 export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
   project,
   isRevealed,
-  variant = 'default'
+  variant = 'default',
+  enhancedLanguage
 }) => {
-  const detectedTechnologies = detectProjectTechnologies(project);
+  // Usar linguagem detectada se disponível, senão fazer detecção
+  const detectedTechnologies = React.useMemo(() => {
+    if (enhancedLanguage) {
+      return [enhancedLanguage];
+    }
+    return detectProjectTechnologies(project);
+  }, [project, enhancedLanguage]);
+
   const engagement = useProjectEngagement(project);
   const isMultiTech = detectedTechnologies.length > 1;
+  const mainLanguage = enhancedLanguage || detectedTechnologies[0];
 
   if (variant === 'compact') {
     return (
@@ -38,29 +51,28 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
             </div>
           </div>
           
-          {/* Tecnologias e Engagement na mesma linha para economizar espaço */}
+          {/* Tecnologias e Engagement na mesma linha */}
           <div className="flex items-center justify-between gap-2">
-            {isMultiTech && detectedTechnologies.length > 0 && (
-              <div className="flex gap-1 flex-wrap">
-                {detectedTechnologies.slice(0, 2).map((tech) => (
-                  <Badge 
-                    key={tech.name}
-                    variant="outline"
-                    className="text-[10px] px-1 py-0.5 h-5"
-                    style={{ 
-                      color: tech.color, 
-                      borderColor: tech.color + '40',
-                      backgroundColor: tech.color + '08'
-                    }}
-                    title={tech.description}
-                  >
-                    <tech.icon className="h-2 w-2 mr-0.5" />
-                    {tech.displayName}
-                  </Badge>
-                ))}
-                {detectedTechnologies.length > 2 && (
-                  <Badge variant="outline" className="text-[10px] px-1 py-0.5 h-5 text-muted-foreground">
-                    +{detectedTechnologies.length - 2}
+            {mainLanguage && (
+              <div className="flex gap-1">
+                <Badge 
+                  variant="outline"
+                  className="text-[10px] px-1 py-0.5 h-5"
+                  style={{ 
+                    color: mainLanguage.color, 
+                    borderColor: mainLanguage.color + '40',
+                    backgroundColor: mainLanguage.color + '08'
+                  }}
+                  title={`${mainLanguage.description} - ${mainLanguage.category}`}
+                >
+                  <mainLanguage.icon className="h-2 w-2 mr-0.5" />
+                  {mainLanguage.displayName}
+                </Badge>
+                
+                {/* Indicador de confiança se disponível */}
+                {'languageMetadata' in project && project.languageMetadata.confidence < 70 && (
+                  <Badge variant="outline" className="text-[10px] px-1 py-0.5 h-5 text-yellow-600 border-yellow-300">
+                    ?
                   </Badge>
                 )}
               </div>
@@ -82,7 +94,7 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           </h3>
         </div>
         
-        {/* Descrição mais compacta */}
+        {/* Descrição */}
         <p className="text-muted-foreground line-clamp-2 text-sm leading-[1.4] mb-3">
           {isRevealed 
             ? (project.descricao || 'Sem descrição disponível')
@@ -90,11 +102,27 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
           }
         </p>
 
-        {/* Tecnologias otimizadas */}
-        {isRevealed && isMultiTech && detectedTechnologies.length > 0 && (
+        {/* Tecnologias com linguagem principal destacada */}
+        {isRevealed && mainLanguage && (
           <div className="mb-3">
             <div className="flex flex-wrap gap-1">
-              {detectedTechnologies.slice(0, 5).map((tech) => (
+              <Badge 
+                variant="outline"
+                className="text-xs px-2 py-1 h-7 border-current font-medium"
+                style={{ 
+                  color: mainLanguage.color,
+                  borderColor: mainLanguage.color + '40',
+                  backgroundColor: mainLanguage.color + '10'
+                }}
+                title={`${mainLanguage.description} | Categoria: ${mainLanguage.category} | Dificuldade: ${mainLanguage.difficulty}/5`}
+              >
+                <mainLanguage.icon className="h-3 w-3 mr-1" />
+                {mainLanguage.displayName}
+                {mainLanguage.trending && <span className="ml-1">🔥</span>}
+              </Badge>
+              
+              {/* Badges adicionais para múltiplas tecnologias */}
+              {isMultiTech && detectedTechnologies.slice(1, 3).map((tech) => (
                 <Badge 
                   key={tech.name}
                   variant="outline"
@@ -110,12 +138,23 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
                   {tech.displayName}
                 </Badge>
               ))}
-              {detectedTechnologies.length > 5 && (
+              
+              {detectedTechnologies.length > 3 && (
                 <Badge variant="outline" className="text-xs px-1.5 py-0.5 h-6 text-muted-foreground">
-                  +{detectedTechnologies.length - 5}
+                  +{detectedTechnologies.length - 3}
                 </Badge>
               )}
             </div>
+            
+            {/* Metadata de confiança na detecção */}
+            {'languageMetadata' in project && (
+              <div className="mt-2 text-xs text-muted-foreground">
+                Confiança na detecção: {project.languageMetadata.confidence}%
+                {project.languageMetadata.confidence < 70 && (
+                  <span className="text-yellow-600 ml-1">⚠️ Baixa confiança</span>
+                )}
+              </div>
+            )}
           </div>
         )}
 
