@@ -1,94 +1,151 @@
+/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* ========================================
+   SISTEMA DE CORES UNIFICADO - TEMA VERCEL
+   ======================================== */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* ===== CORES BASE ===== */
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    /* ===== CORES DE CARD ===== */
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    /* ===== CORES DE POPOVER ===== */
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* ===== CORES PRIMÁRIAS ===== */
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* ===== CORES SECUNDÁRIAS ===== */
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* ===== CORES SILENCIADAS ===== */
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 65.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* ===== CORES DE DESTAQUE ===== */
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* ===== CORES DESTRUTIVAS ===== */
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* ===== CORES DE INTERFACE ===== */
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --radius: 0.75rem;
 
-    --radius: 0.5rem;
+    /* ===== CORES DE SIDEBAR ===== */
+    --sidebar-background: 0 0% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 14.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 14.9%;
+    --sidebar-ring: 0 0% 83.1%;
 
-    --sidebar-background: 0 0% 98%;
+    /* ===== CORES CUSTOMIZADAS DO PROJETO ===== */
+    
+    /* Cores de Status */
+    --status-active: 142 76% 36%;      /* Verde para projetos ativos */
+    --status-completed: 221 83% 53%;   /* Azul para projetos concluídos */
+    --status-draft: 45 93% 47%;        /* Amarelo para rascunhos */
+    --status-paused: 0 0% 50%;         /* Cinza para pausados */
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Cores de Estado */
+    --success: 142 76% 36%;            /* Verde para sucesso */
+    --warning: 38 92% 50%;             /* Laranja para avisos */
+    --error: 0 84% 60%;                /* Vermelho para erros */
+    --info: 199 89% 48%;               /* Azul para informações */
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Cores de Gradiente */
+    --gradient-start: 0 0% 0%;         /* Preto puro */
+    --gradient-middle: 0 0% 10.2%;     /* Cinza muito escuro */
+    --gradient-end: 0 0% 6.3%;         /* Cinza escuro */
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Cores de Overlay */
+    --overlay-light: 0 0% 100% / 0.02; /* Branco 2% */
+    --overlay-medium: 0 0% 100% / 0.05; /* Branco 5% */
+    --overlay-strong: 0 0% 100% / 0.1;  /* Branco 10% */
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    /* Cores de Hover */
+    --hover-card: 0 0% 100% / 0.04;    /* Hover para cards */
+    --hover-border: 0 0% 100% / 0.2;   /* Hover para bordas */
+    --hover-button: 0 0% 85%;          /* Hover para botões */
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    /* Cores de Texto Específicas */
+    --text-white: 0 0% 98%;            /* Texto branco principal */
+    --text-gray-100: 0 0% 95%;         /* Texto cinza claro */
+    --text-gray-200: 0 0% 90%;         /* Texto cinza */
+    --text-gray-300: 0 0% 80%;         /* Texto cinza médio */
+    --text-gray-400: 0 0% 65.1%;       /* Texto cinza escuro */
+    --text-gray-500: 0 0% 55%;         /* Texto cinza mais escuro */
 
-    --sidebar-border: 220 13% 91%;
+    /* Cores de Background Específicas */
+    --bg-black: 0 0% 0%;               /* Preto puro */
+    --bg-dark: 0 0% 3.9%;              /* Escuro principal */
+    --bg-input: 0 0% 100% / 0.05;      /* Background para inputs */
+    --bg-card-hover: 0 0% 100% / 0.04; /* Background hover cards */
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Cores de Bordas Específicas */
+    --border-default: 0 0% 14.9%;      /* Borda padrão */
+    --border-input: 0 0% 100% / 0.1;   /* Borda de inputs */
+    --border-focus: 0 0% 100% / 0.2;   /* Borda de foco */
+    --border-card: 0 0% 100% / 0.1;    /* Borda de cards */
+
+    /* Cores de Loading/Loading States */
+    --loading-bg: 0 0% 100% / 0.1;     /* Background de loading */
+    --loading-text: 0 0% 65.1%;        /* Texto de loading */
+
+    /* Cores de Ícones por Categoria */
+    --icon-blue: 199 89% 48%;          /* Azul para ícones */
+    --icon-green: 142 76% 36%;         /* Verde para ícones */
+    --icon-purple: 262 83% 58%;        /* Roxo para ícones */
+    --icon-yellow: 45 93% 47%;         /* Amarelo para ícones */
+    --icon-red: 0 84% 60%;             /* Vermelho para ícones */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 65.1%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 50.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --sidebar-background: 0 0% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 9%;
+    --sidebar-accent: 0 0% 14.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 14.9%;
+    --sidebar-ring: 0 0% 83.1%;
   }
 }
 
@@ -99,5 +156,177 @@
 
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* ========================================
+   CLASSES UTILITÁRIAS PERSONALIZADAS
+   ======================================== */
+
+@layer utilities {
+  /* ===== GRADIENTES ===== */
+  .vercel-gradient {
+    background: linear-gradient(to right, hsl(var(--gradient-start)), hsl(var(--gradient-middle)));
+  }
+
+  .vercel-gradient-subtle {
+    background: linear-gradient(135deg, hsl(var(--gradient-start)) 0%, hsl(var(--gradient-middle)) 50%, hsl(var(--gradient-end)) 100%);
+  }
+
+  /* ===== EFEITOS ===== */
+  .glow-effect {
+    box-shadow: 0 0 20px hsl(var(--overlay-medium));
+  }
+
+  .smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ===== CARDS ===== */
+  .modern-card {
+    @apply bg-card border rounded-xl backdrop-blur-sm;
+    background: hsl(var(--overlay-light));
+    border: 1px solid hsl(var(--border-card));
+  }
+
+  .modern-card:hover {
+    background: hsl(var(--hover-card));
+    border-color: hsl(var(--hover-border));
+  }
+
+  /* ===== BOTÕES ===== */
+  .vercel-button {
+    @apply font-medium;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .vercel-button:hover {
+    background: hsl(var(--hover-button));
+  }
+
+  .vercel-button-secondary {
+    @apply bg-transparent font-medium;
+    border: 1px solid hsl(var(--border-input));
+    color: hsl(var(--text-white));
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .vercel-button-secondary:hover {
+    border-color: hsl(var(--border-focus));
+    background: hsl(var(--overlay-medium));
+  }
+
+  /* ===== INPUTS CUSTOMIZADOS ===== */
+  .custom-input {
+    background: hsl(var(--bg-input));
+    border: 1px solid hsl(var(--border-input));
+    color: hsl(var(--text-white));
+  }
+
+  .custom-input:focus {
+    border-color: hsl(var(--border-focus));
+  }
+
+  .custom-input::placeholder {
+    color: hsl(var(--text-gray-500));
+  }
+
+  /* ===== TEXTO ===== */
+  .text-white-primary {
+    color: hsl(var(--text-white));
+  }
+
+  .text-gray-light {
+    color: hsl(var(--text-gray-400));
+  }
+
+  .text-gray-medium {
+    color: hsl(var(--text-gray-500));
+  }
+
+  /* ===== BACKGROUNDS ===== */
+  .bg-dark-primary {
+    background: hsl(var(--bg-dark));
+  }
+
+  .bg-black-pure {
+    background: hsl(var(--bg-black));
+  }
+
+  /* ===== STATUS COLORS ===== */
+  .status-active {
+    background: hsl(var(--status-active));
+  }
+
+  .status-completed {
+    background: hsl(var(--status-completed));
+  }
+
+  .status-draft {
+    background: hsl(var(--status-draft));
+  }
+
+  .status-paused {
+    background: hsl(var(--status-paused));
+  }
+
+  /* ===== ICON COLORS ===== */
+  .icon-blue {
+    color: hsl(var(--icon-blue));
+  }
+
+  .icon-green {
+    color: hsl(var(--icon-green));
+  }
+
+  .icon-purple {
+    color: hsl(var(--icon-purple));
+  }
+
+  .icon-yellow {
+    color: hsl(var(--icon-yellow));
+  }
+
+  .icon-red {
+    color: hsl(var(--icon-red));
+  }
+
+  /* ===== STATES ===== */
+  .success-color {
+    color: hsl(var(--success));
+  }
+
+  .warning-color {
+    color: hsl(var(--warning));
+  }
+
+  .error-color {
+    color: hsl(var(--error));
+  }
+
+  .info-color {
+    color: hsl(var(--info));
+  }
+
+  /* ===== LOADING STATES ===== */
+  .loading-skeleton {
+    background: hsl(var(--loading-bg));
+    color: hsl(var(--loading-text));
+  }
+
+  /* ===== HEADER MODERNO ===== */
+  .modern-header {
+    background: hsl(var(--bg-dark) / 0.5);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid hsl(var(--border-default));
+  }
+
+  /* ===== SIDEBAR MODERNO ===== */
+  .modern-sidebar {
+    background: hsl(var(--sidebar-background));
+    border-right: 1px solid hsl(var(--sidebar-border));
   }
 }
