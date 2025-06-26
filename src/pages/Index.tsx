@@ -1,3 +1,4 @@
+// src/pages/Index.tsx
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ModernButton } from '@/components/ui/modern-button';
@@ -129,15 +130,33 @@ const Index = () => {
     onDiscover, 
     isDiscovered 
   }) => {
-    const [revealed, setRevealed] = React.useState(variant !== 'mystery');
+    // Estado inicial: cards misteriosos começam não revelados
+    const [revealed, setRevealed] = React.useState(variant !== 'mystery' || isDiscovered);
 
-    const handleReveal = (e: React.MouseEvent) => {
-      if (variant === 'mystery' && !revealed) {
-        e.preventDefault();
+    // Atualizar o estado quando isDiscovered mudar
+    React.useEffect(() => {
+      if (variant === 'mystery' && isDiscovered) {
         setRevealed(true);
-        onDiscover?.(project.id);
       }
-    };
+    }, [variant, isDiscovered]);
+
+    // ✅ CORREÇÃO: handleReveal agora aceita union types para ser type-safe
+    const handleReveal = React.useCallback((e: React.MouseEvent | React.KeyboardEvent) => {
+      console.log('handleReveal chamado', { variant, revealed, projectId: project.id });
+      
+      if (variant === 'mystery' && !revealed) {
+        e.stopPropagation(); // Evita propagação do evento
+        
+        // Atualiza o estado local
+        setRevealed(true);
+        
+        // Chama o callback se existir
+        if (onDiscover) {
+          onDiscover(project.id);
+          console.log('onDiscover chamado para projeto:', project.id);
+        }
+      }
+    }, [variant, revealed, project.id, onDiscover]);
 
     const gradientClass = project.detectedLanguage?.gradient || 'from-blue-600 to-purple-600';
 
@@ -149,31 +168,37 @@ const Index = () => {
         transition={{ delay: index * 0.1 }}
         whileHover={{ scale: 1.02, y: -5 }}
         className="group h-full"
-        style={{
-          transform: revealed ? 'scale(1)' : 'scale(0.95)',
-          opacity: revealed ? 1 : 0.7,
-          transition: 'all 0.3s ease'
-        }}
       >
         {variant === 'mystery' && !revealed ? (
           <div 
             className="bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 overflow-hidden relative h-full"
             onClick={handleReveal}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleReveal(e); // ✅ CORREÇÃO: Removido o 'as any'
+              }
+            }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm flex items-center justify-center z-10">
+            {/* Overlay de mistério */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-sm flex items-center justify-center z-10 pointer-events-none">
               <div className="text-center text-white">
-                <Eye className="h-8 w-8 mx-auto mb-2" />
+                <Eye className="h-8 w-8 mx-auto mb-2 animate-pulse" />
                 <p className="font-semibold">Clique para Revelar</p>
+                <p className="text-sm opacity-80 mt-1">Descubra a tecnologia oculta</p>
               </div>
             </div>
             
-            <div className={`h-2 bg-gradient-to-r ${gradientClass}`} />
+            {/* Barra colorida no topo */}
+            <div className={`h-2 bg-gradient-to-r ${gradientClass} opacity-50`} />
             
+            {/* Conteúdo do card mistério */}
             <div className="p-6 h-full flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="font-bold text-lg text-gray-900 dark:text-white">
-                    ???
+                    Projeto Misterioso #???
                   </h3>
                   <span className="px-2 py-1 text-xs bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full">
                     ?
@@ -181,7 +206,7 @@ const Index = () => {
                 </div>
                 
                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
-                  Projeto misterioso esperando para ser descoberto...
+                  Este projeto esconde segredos tecnológicos esperando para serem descobertos. Que linguagem será utilizada? Qual framework foi escolhido?
                 </p>
               </div>
               
@@ -194,7 +219,13 @@ const Index = () => {
         ) : (
           <Link to={`/projects/${project.id}`} className="block h-full">
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-200 dark:border-gray-700 overflow-hidden relative h-full">
-              <div className={`h-2 bg-gradient-to-r ${gradientClass}`} />
+              {/* Animação de revelação */}
+              <motion.div
+                initial={variant === 'mystery' ? { scaleX: 0 } : { scaleX: 1 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className={`h-2 bg-gradient-to-r ${gradientClass} origin-left`}
+              />
               
               <div className="p-6 h-full flex flex-col justify-between">
                 <div>
@@ -202,9 +233,14 @@ const Index = () => {
                     <h3 className="font-bold text-lg text-gray-900 dark:text-white group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all">
                       {project.titulo || project.nome || 'Projeto sem título'}
                     </h3>
-                    <span className="px-2 py-1 text-xs bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                    <motion.span 
+                      initial={variant === 'mystery' ? { scale: 0, rotate: -180 } : { scale: 1 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ delay: 0.3, type: "spring" }}
+                      className="px-2 py-1 text-xs bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full"
+                    >
                       {project.detectedLanguage?.name || 'Unknown'}
-                    </span>
+                    </motion.span>
                   </div>
                   
                   <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">

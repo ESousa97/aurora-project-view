@@ -227,7 +227,7 @@ export const Sidebar = () => {
                             <div className="text-xs text-muted-foreground">
                               {category.count} projeto{category.count !== 1 ? 's' : ''}
                               {colorConfig.trending && (
-                                <span className="ml-1">🔥</span>
+                                <span className="ml-1"></span>
                               )}
                             </div>
                           </div>

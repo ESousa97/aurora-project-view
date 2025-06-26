@@ -1,4 +1,4 @@
-
+// src/components/project/EnhancedProjectCard.tsx
 import React from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Target, ChevronRight, HelpCircle } from 'lucide-react';
@@ -12,6 +12,9 @@ import { ProjectCardImage } from './ProjectCardImage';
 import { ProjectCardFooter } from './ProjectCardFooter';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
 
+// Tipos para as categorias de linguagem (baseado na interface LanguageColor)
+type LanguageCategory = 'frontend' | 'backend' | 'mobile' | 'other' | 'database' | 'devops' | 'design' | 'ai' | 'game' | 'blockchain' | 'testing' | 'cloud';
+
 interface EnhancedProjectCardProps {
   project: EnhancedProjectCardType | null | undefined;
   variant?: 'default' | 'compact' | 'mystery' | 'featured';
@@ -19,6 +22,20 @@ interface EnhancedProjectCardProps {
   onDiscover?: (id: number) => void;
   isDiscovered?: boolean;
 }
+
+// Função utilitária para validar a categoria
+const validateLanguageCategory = (category: unknown): LanguageCategory => {
+  const validCategories: LanguageCategory[] = [
+    'frontend', 'backend', 'mobile', 'other', 'database', 'devops', 
+    'design', 'ai', 'game', 'blockchain', 'testing', 'cloud'
+  ];
+  
+  if (typeof category === 'string' && validCategories.includes(category as LanguageCategory)) {
+    return category as LanguageCategory;
+  }
+  
+  return 'other';
+};
 
 export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({ 
   project, 
@@ -49,7 +66,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
       textColor: detectedLang.textColor || 'text-slate-700',
       gradient: detectedLang.gradient || 'from-slate-500 to-slate-600',
       icon: detectedLang.icon || LANGUAGE_COLORS.default.icon,
-      category: detectedLang.category as any || 'other',
+      category: validateLanguageCategory(detectedLang.category),
       difficulty: detectedLang.difficulty || 1,
       popularity: detectedLang.popularity || 50,
       trending: detectedLang.trending || false,
@@ -60,6 +77,25 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
 
   // Ícone da tecnologia baseado na linguagem detectada
   const ProjectIcon = languageConfig.icon;
+
+  // Handlers
+  const handleReveal = React.useCallback(() => {
+    if (!isRevealed && project?.id) {
+      setIsRevealed(true);
+      setViewProgress(100);
+      
+      if (onDiscover) {
+        onDiscover(project.id);
+        toast.success("Descoberta realizada!", {
+          description: `Você descobriu ${project.titulo}! Linguagem: ${languageConfig.displayName}`,
+          duration: 3000,
+        });
+      }
+    }
+  }, [isRevealed, project?.id, project?.titulo, onDiscover, languageConfig.displayName]);
+
+  const handleHoverStart = React.useCallback(() => setIsHovered(true), []);
+  const handleHoverEnd = React.useCallback(() => setIsHovered(false), []);
 
   // Renderização para projeto não disponível
   if (!project?.id) {
@@ -76,20 +112,6 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
     );
   }
 
-  const handleReveal = () => {
-    if (!isRevealed) {
-      setIsRevealed(true);
-      setViewProgress(100);
-      if (onDiscover && project.id) {
-        onDiscover(project.id);
-        toast.success("Descoberta realizada!", {
-          description: `Você descobriu ${project.titulo}! Linguagem: ${languageConfig.displayName}`,
-          duration: 3000,
-        });
-      }
-    }
-  };
-
   // Renderização da variante compact
   if (variant === 'compact') {
     return (
@@ -98,25 +120,30 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.05 }}
         whileHover={{ x: 4, scale: 1.01 }}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
+        onHoverStart={handleHoverStart}
+        onHoverEnd={handleHoverEnd}
       >
-        <Card className="group cursor-pointer border-l-4 relative overflow-hidden transition-all duration-300 hover:shadow-lg"
-              style={{ 
-                borderLeftColor: isRevealed ? languageConfig.color : '#94a3b8'
-              }}>
-          
+        <Card 
+          className="group cursor-pointer border-l-4 relative overflow-hidden transition-all duration-300 hover:shadow-lg"
+          style={{ 
+            borderLeftColor: isRevealed ? languageConfig.color : '#94a3b8'
+          }}
+        >
           {/* Background gradient sutil */}
-          <div className={`absolute inset-0 bg-gradient-to-r ${
-            isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-          } opacity-5`} />
+          <div 
+            className={`absolute inset-0 bg-gradient-to-r ${
+              isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
+            } opacity-5`} 
+          />
           
           <CardContent className="p-4 flex items-center gap-4 relative z-10">
             {/* Ícone do projeto e indicadores */}
             <div className="flex flex-col items-center gap-2 shrink-0">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
-                isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-              } shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+              <div 
+                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
+                  isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
+                } shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}
+              >
                 {isRevealed ? (
                   <ProjectIcon className="w-6 h-6 text-white" />
                 ) : (
@@ -125,9 +152,9 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
               </div>
               
               {/* Indicador de confiança na detecção - só mostrar se revelado */}
-              {isRevealed && project.languageMetadata && project.languageMetadata.confidence === 100 && (
+              {isRevealed && project.languageMetadata?.confidence === 100 && (
                 <div className="flex gap-0.5">
-                  {[...Array(Math.min(languageConfig.difficulty, 3))].map((_, i) => (
+                  {Array.from({ length: Math.min(languageConfig.difficulty, 3) }, (_, i) => (
                     <div 
                       key={`difficulty-${i}`}
                       className="w-1 h-1 rounded-full bg-current"
@@ -174,8 +201,8 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
       transition={{ delay: index * 0.05 }}
       whileHover={{ y: -4, scale: 1.02 }}
       className="h-full"
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
+      onHoverStart={handleHoverStart}
+      onHoverEnd={handleHoverEnd}
     >
       <Card 
         className="group hover:shadow-2xl transition-all duration-500 cursor-pointer h-full flex flex-col relative overflow-hidden border-0 shadow-lg" 
@@ -208,7 +235,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({
                 style={{ 
                   backgroundColor: `${languageConfig.color}90`
                 }}
-                title={`${languageConfig.displayName}`}
+                title={languageConfig.displayName}
               >
                 <ProjectIcon className="w-6 h-6 text-white" />
               </div>

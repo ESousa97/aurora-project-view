@@ -1,3 +1,4 @@
+// src/components/project/ProjectCardImage.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Eye, Sparkles, HelpCircle } from 'lucide-react';

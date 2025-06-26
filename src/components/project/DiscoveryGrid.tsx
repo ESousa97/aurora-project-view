@@ -277,7 +277,7 @@ export const DiscoveryGrid: React.FC<DiscoveryGridProps> = ({
                 <p className="text-muted-foreground">
                   Nível: <span className="font-semibold text-primary">{explorerLevel.level}</span>
                   {discoveryStats.streak > 0 && (
-                    <span className="ml-2">• Sequência: {discoveryStats.streak} 🔥</span>
+                    <span className="ml-2">• Sequência: {discoveryStats.streak}</span>
                   )}
                 </p>
               </div>
