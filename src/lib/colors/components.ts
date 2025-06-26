@@ -1,5 +1,5 @@
 
-// src/lib/colors/components.ts - Componentes de cor reutilizáveis
+// src/lib/colors/components.ts - Componentes de cor atualizados para a nova paleta
 import React from 'react';
 import { COLOR_VARIABLES } from './variables';
 import { hsl, hslWithOpacity } from './utilities';
@@ -14,131 +14,176 @@ export interface ColorComponentProps {
 }
 
 /**
- * Estilos para diferentes tipos de card
+ * Estilos para diferentes tipos de card usando a nova paleta
  */
 export const cardStyles = {
   modern: {
-    backgroundColor: hslWithOpacity(COLOR_VARIABLES.overlay.light, 1),
-    border: `1px solid ${hsl(COLOR_VARIABLES.border.card)}`,
+    backgroundColor: hsl(COLOR_VARIABLES.surface.primary),
+    border: `1px solid ${hsl(COLOR_VARIABLES.border.secondary)}`,
     borderRadius: '0.75rem',
-    backdropFilter: 'blur(12px)',
+    boxShadow: `0 2px 8px ${hsl(COLOR_VARIABLES.shadow.light)}`,
   },
   
   modernHover: {
-    backgroundColor: hsl(COLOR_VARIABLES.hover.card),
-    borderColor: hsl(COLOR_VARIABLES.hover.border),
+    backgroundColor: hsl(COLOR_VARIABLES.surface.secondary),
+    borderColor: hsl(COLOR_VARIABLES.border.primary),
+    boxShadow: `0 8px 32px ${hsl(COLOR_VARIABLES.shadow.medium)}`,
+  },
+  
+  glass: {
+    backgroundColor: `${hsl(COLOR_VARIABLES.surface.secondary)} / 0.9`,
+    border: `1px solid ${hsl(COLOR_VARIABLES.border.secondary)}`,
+    backdropFilter: 'blur(12px)',
+    borderRadius: '0.75rem',
+    boxShadow: `
+      0 2px 16px ${hsl(COLOR_VARIABLES.shadow.light)},
+      0 1px 4px ${hsl(COLOR_VARIABLES.shadow.medium)},
+      inset 0 1px 0 ${hsl(COLOR_VARIABLES.surface.primary)} / 0.8
+    `,
   },
   
   gradient: {
-    background: `linear-gradient(135deg, ${hslWithOpacity(COLOR_VARIABLES.gradient.start, 0.02)} 0%, ${hslWithOpacity(COLOR_VARIABLES.gradient.middle, 0.05)} 50%, ${hslWithOpacity(COLOR_VARIABLES.gradient.end, 0.02)} 100%)`,
+    background: `linear-gradient(135deg, ${hsl(COLOR_VARIABLES.surface.primary)} 0%, ${hsl(COLOR_VARIABLES.surface.secondary)} 100%)`,
+    border: `1px solid ${hsl(COLOR_VARIABLES.border.secondary)}`,
+    borderRadius: '0.75rem',
   },
 } as const;
 
 /**
- * Estilos para botões
+ * Estilos para botões usando a nova paleta
  */
 export const buttonStyles = {
-  vercel: {
-    primary: {
-      backgroundColor: hsl(COLOR_VARIABLES.primary.DEFAULT),
-      color: hsl(COLOR_VARIABLES.primary.foreground),
-      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      '&:hover': {
-        backgroundColor: hsl(COLOR_VARIABLES.hover.button),
-      },
+  primary: {
+    background: `linear-gradient(135deg, ${hsl(COLOR_VARIABLES.accent.color)} 0%, ${hsl(COLOR_VARIABLES.accent.hover)} 100%)`,
+    color: 'white',
+    fontWeight: '600',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    border: 'none',
+    boxShadow: `0 4px 16px ${hsl(COLOR_VARIABLES.accent.color)} / 0.3`,
+    transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    '&:hover': {
+      transform: 'translateY(-2px) scale(1.02)',
+      boxShadow: `0 8px 32px ${hsl(COLOR_VARIABLES.accent.color)} / 0.4`,
     },
-    
-    secondary: {
-      backgroundColor: 'transparent',
-      color: hsl(COLOR_VARIABLES.text.white),
-      border: `1px solid ${hsl(COLOR_VARIABLES.border.input)}`,
-      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-      '&:hover': {
-        borderColor: hsl(COLOR_VARIABLES.border.focus),
-        backgroundColor: hsl(COLOR_VARIABLES.overlay.medium),
-      },
+  },
+  
+  secondary: {
+    backgroundColor: hsl(COLOR_VARIABLES.surface.secondary),
+    color: hsl(COLOR_VARIABLES.text.primary),
+    fontWeight: '500',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    border: `1px solid ${hsl(COLOR_VARIABLES.border.secondary)}`,
+    transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    '&:hover': {
+      backgroundColor: hsl(COLOR_VARIABLES.surface.primary),
+      borderColor: hsl(COLOR_VARIABLES.border.primary),
+      transform: 'translateY(-2px) scale(1.02)',
+    },
+  },
+  
+  ghost: {
+    backgroundColor: 'transparent',
+    color: hsl(COLOR_VARIABLES.text.secondary),
+    fontWeight: '500',
+    padding: '12px 24px',
+    borderRadius: '8px',
+    border: 'none',
+    transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    '&:hover': {
+      backgroundColor: hsl(COLOR_VARIABLES.surface.secondary),
+      color: hsl(COLOR_VARIABLES.text.primary),
     },
   },
 } as const;
 
 /**
- * Estilos para inputs
+ * Estilos para inputs usando a nova paleta
  */
 export const inputStyles = {
-  custom: {
-    backgroundColor: hsl(COLOR_VARIABLES.bg.input),
-    border: `1px solid ${hsl(COLOR_VARIABLES.border.input)}`,
-    color: hsl(COLOR_VARIABLES.text.white),
+  modern: {
+    backgroundColor: hsl(COLOR_VARIABLES.surface.primary),
+    border: `1px solid ${hsl(COLOR_VARIABLES.border.secondary)}`,
+    color: hsl(COLOR_VARIABLES.text.primary),
+    borderRadius: '8px',
+    padding: '12px 16px',
+    fontSize: '14px',
+    transition: 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
     '&:focus': {
-      borderColor: hsl(COLOR_VARIABLES.border.focus),
       outline: 'none',
+      borderColor: hsl(COLOR_VARIABLES.accent.color),
+      boxShadow: `0 0 0 3px ${hsl(COLOR_VARIABLES.accent.color)} / 0.1`,
     },
     '&::placeholder': {
-      color: hsl(COLOR_VARIABLES.text['gray-500']),
+      color: hsl(COLOR_VARIABLES.text.tertiary),
     },
   },
 } as const;
 
 /**
- * Classes CSS reutilizáveis
+ * Classes CSS reutilizáveis atualizadas
  */
 export const colorClasses = {
   // Texto
   text: {
-    primary: 'text-white-primary',
-    secondary: 'text-gray-light',
-    muted: 'text-gray-medium',
-    success: 'success-color',
-    warning: 'warning-color',
-    error: 'error-color',
-    info: 'info-color',
+    primary: 'text-primary',
+    secondary: 'text-secondary',
+    tertiary: 'text-tertiary',
+    gradient: 'text-gradient',
   },
   
   // Backgrounds
   bg: {
-    dark: 'bg-dark-primary',
-    black: 'bg-black-pure',
-    card: 'modern-card',
+    primary: 'bg-primary',
+    secondary: 'bg-secondary',
+    tertiary: 'bg-tertiary',
+    gradient: 'bg-gradient-primary',
   },
   
-  // Gradientes
-  gradient: {
-    vercel: 'vercel-gradient',
-    subtle: 'vercel-gradient-subtle',
-  },
-  
-  // Efeitos
-  effects: {
-    glow: 'glow-effect',
-    transition: 'smooth-transition',
+  // Superfícies
+  surface: {
+    primary: 'surface-primary',
+    secondary: 'surface-secondary',
+    tertiary: 'surface-tertiary',
   },
   
   // Botões
   button: {
-    vercel: 'vercel-button',
-    secondary: 'vercel-button-secondary',
+    primary: 'btn-primary',
+    secondary: 'btn-secondary',
   },
   
-  // Inputs
-  input: {
-    custom: 'custom-input',
+  // Cards
+  card: {
+    glass: 'glass-card',
+    shadow: 'shadow-elegant',
   },
   
-  // Ícones por categoria
-  icon: {
-    blue: 'icon-blue',
-    green: 'icon-green',
-    purple: 'icon-purple',
-    yellow: 'icon-yellow',
-    red: 'icon-red',
+  // Navegação
+  nav: {
+    link: 'nav-link',
+  },
+  
+  // Badges e tags
+  badge: {
+    skill: 'skill-badge',
   },
   
   // Status
   status: {
-    active: 'status-active',
-    completed: 'status-completed',
-    draft: 'status-draft',
-    paused: 'status-paused',
+    success: 'success-bg',
+    warning: 'warning-bg',
+    error: 'error-bg',
+    info: 'accent-bg',
+  },
+  
+  // Efeitos
+  effects: {
+    hover: 'hover-scale',
+    fadeIn: 'animate-fade-in',
+    slideUp: 'animate-slide-up',
+    float: 'animate-float',
   },
 } as const;
 
@@ -147,23 +192,71 @@ export const colorClasses = {
  */
 export const contextColors = {
   technology: {
-    frontend: { color: COLOR_VARIABLES.icon.blue, gradient: 'from-blue-500 to-blue-600' },
-    backend: { color: COLOR_VARIABLES.icon.green, gradient: 'from-green-500 to-green-600' },
-    mobile: { color: COLOR_VARIABLES.icon.purple, gradient: 'from-purple-500 to-purple-600' },
-    database: { color: COLOR_VARIABLES.icon.yellow, gradient: 'from-yellow-500 to-yellow-600' },
-    devops: { color: COLOR_VARIABLES.icon.red, gradient: 'from-red-500 to-red-600' },
+    frontend: { 
+      color: COLOR_VARIABLES.technology.blue, 
+      gradient: 'from-blue-500 to-blue-600',
+      lightBg: COLOR_VARIABLES.accent.light,
+    },
+    backend: { 
+      color: COLOR_VARIABLES.technology.green, 
+      gradient: 'from-green-500 to-green-600',
+      lightBg: COLOR_VARIABLES.state['success-light'],
+    },
+    mobile: { 
+      color: COLOR_VARIABLES.technology.purple, 
+      gradient: 'from-purple-500 to-purple-600',
+      lightBg: '262 83% 95%',
+    },
+    database: { 
+      color: COLOR_VARIABLES.technology.yellow, 
+      gradient: 'from-yellow-500 to-yellow-600',
+      lightBg: COLOR_VARIABLES.state['warning-light'],
+    },
+    devops: { 
+      color: COLOR_VARIABLES.technology.red, 
+      gradient: 'from-red-500 to-red-600',
+      lightBg: COLOR_VARIABLES.state['error-light'],
+    },
   },
   
   priority: {
-    high: { color: COLOR_VARIABLES.state.error, className: 'error-color' },
-    medium: { color: COLOR_VARIABLES.state.warning, className: 'warning-color' },
-    low: { color: COLOR_VARIABLES.state.info, className: 'info-color' },
+    high: { 
+      color: COLOR_VARIABLES.state.error, 
+      lightBg: COLOR_VARIABLES.state['error-light'],
+      className: 'error-bg' 
+    },
+    medium: { 
+      color: COLOR_VARIABLES.state.warning, 
+      lightBg: COLOR_VARIABLES.state['warning-light'],
+      className: 'warning-bg' 
+    },
+    low: { 
+      color: COLOR_VARIABLES.accent.color, 
+      lightBg: COLOR_VARIABLES.accent.light,
+      className: 'accent-bg' 
+    },
   },
   
   completion: {
-    completed: { color: COLOR_VARIABLES.status.completed, className: 'status-completed' },
-    active: { color: COLOR_VARIABLES.status.active, className: 'status-active' },
-    draft: { color: COLOR_VARIABLES.status.draft, className: 'status-draft' },
-    paused: { color: COLOR_VARIABLES.status.paused, className: 'status-paused' },
+    completed: { 
+      color: COLOR_VARIABLES.state.success, 
+      lightBg: COLOR_VARIABLES.state['success-light'],
+      className: 'success-bg' 
+    },
+    active: { 
+      color: COLOR_VARIABLES.accent.color, 
+      lightBg: COLOR_VARIABLES.accent.light,
+      className: 'accent-bg' 
+    },
+    draft: { 
+      color: COLOR_VARIABLES.text.tertiary, 
+      lightBg: COLOR_VARIABLES.surface.tertiary,
+      className: 'surface-tertiary' 
+    },
+    paused: { 
+      color: COLOR_VARIABLES.state.warning, 
+      lightBg: COLOR_VARIABLES.state['warning-light'],
+      className: 'warning-bg' 
+    },
   },
 } as const;

@@ -4,150 +4,118 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ========================================
-   SISTEMA DE CORES UNIFICADO - TEMA VERCEL
-   ======================================== */
-
 @layer base {
   :root {
-    /* ===== CORES BASE ===== */
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    /* ===== CORES DE CARD ===== */
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
 
-    /* ===== CORES DE POPOVER ===== */
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
 
-    /* ===== CORES PRIMÁRIAS ===== */
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
 
-    /* ===== CORES SECUNDÁRIAS ===== */
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
 
-    /* ===== CORES SILENCIADAS ===== */
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 65.1%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* ===== CORES DE DESTAQUE ===== */
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
 
-    /* ===== CORES DESTRUTIVAS ===== */
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
 
-    /* ===== CORES DE INTERFACE ===== */
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --radius: 0.75rem;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
 
-    /* ===== CORES DE SIDEBAR ===== */
-    --sidebar-background: 0 0% 3.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 0 0% 14.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 14.9%;
-    --sidebar-ring: 0 0% 83.1%;
+    --radius: 0.5rem;
 
-    /* ===== CORES CUSTOMIZADAS DO PROJETO ===== */
-    
-    /* Cores de Status */
-    --status-active: 142 76% 36%;
-    --status-completed: 221 83% 53%;
-    --status-draft: 45 93% 47%;
-    --status-paused: 0 0% 50%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Cores de Estado */
-    --success: 142 76% 36%;
-    --warning: 38 92% 50%;
-    --error: 0 84% 60%;
-    --info: 199 89% 48%;
-
-    /* Cores de Gradiente */
-    --gradient-start: 0 0% 0%;
-    --gradient-middle: 0 0% 10.2%;
-    --gradient-end: 0 0% 6.3%;
-
-    /* Cores de Overlay */
-    --overlay-light: 0 0% 100% / 0.02;
-    --overlay-medium: 0 0% 100% / 0.05;
-    --overlay-strong: 0 0% 100% / 0.1;
-
-    /* Cores de Hover */
-    --hover-card: 0 0% 100% / 0.04;
-    --hover-border: 0 0% 100% / 0.2;
-    --hover-button: 0 0% 85%;
-
-    /* Cores de Texto Específicas */
-    --text-white: 0 0% 98%;
-    --text-gray-100: 0 0% 95%;
-    --text-gray-200: 0 0% 90%;
-    --text-gray-300: 0 0% 80%;
-    --text-gray-400: 0 0% 65.1%;
-    --text-gray-500: 0 0% 55%;
-
-    /* Cores de Background Específicas */
-    --bg-black: 0 0% 0%;
-    --bg-dark: 0 0% 3.9%;
-    --bg-input: 0 0% 100% / 0.05;
-    --bg-card-hover: 0 0% 100% / 0.04;
-
-    /* Cores de Bordas Específicas */
-    --border-default: 0 0% 14.9%;
-    --border-input: 0 0% 100% / 0.1;
-    --border-focus: 0 0% 100% / 0.2;
-    --border-card: 0 0% 100% / 0.1;
-
-    /* Cores de Loading/Loading States */
-    --loading-bg: 0 0% 100% / 0.1;
-    --loading-text: 0 0% 65.1%;
-
-    /* Cores de Ícones por Categoria */
-    --icon-blue: 199 89% 48%;
-    --icon-green: 142 76% 36%;
-    --icon-purple: 262 83% 58%;
-    --icon-yellow: 45 93% 47%;
-    --icon-red: 0 84% 60%;
+    /* Light theme modern variables - cores com melhor contraste */
+    --bg-primary: 210 20% 98%;
+    --bg-secondary: 210 25% 95%;
+    --bg-tertiary: 210 30% 92%;
+    --text-primary: 215 25% 15%;
+    --text-secondary: 215 20% 25%;
+    --text-tertiary: 215 15% 40%;
+    --accent-color: 234 89% 60%;
+    --accent-hover: 234 89% 50%;
+    --accent-light: 234 89% 95%;
+    --success-color: 142 76% 36%;
+    --success-light: 142 76% 94%;
+    --warning-color: 38 92% 50%;
+    --warning-light: 38 92% 95%;
+    --error-color: 0 84% 60%;
+    --error-light: 0 84% 95%;
+    --surface-primary: 0 0% 100%;
+    --surface-secondary: 210 25% 98%;
+    --surface-tertiary: 210 30% 96%;
+    --border-primary: 215 20% 80%;
+    --border-secondary: 215 15% 85%;
+    --shadow-light: 215 25% 15% / 0.08;
+    --shadow-medium: 215 25% 15% / 0.12;
+    --shadow-heavy: 215 25% 15% / 0.16;
   }
 
   .dark {
-    /* Modo escuro usa as mesmas variáveis */
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 65.1%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 50.6%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 95%;
+
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 90%;
+
+    --popover: 0 0% 3%;
+    --popover-foreground: 0 0% 90%;
+
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 85%;
+
+    --muted: 0 0% 6%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 90%;
+
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --sidebar-background: 0 0% 3.9%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 0 0% 9%;
-    --sidebar-accent: 0 0% 14.9%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 14.9%;
-    --sidebar-ring: 0 0% 83.1%;
+
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 20%;
+    
+    --sidebar-background: 0 0% 2%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 0 0% 95%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 0 0% 20%;
+
+    /* Dark theme custom variables */
+    --bg-primary: 0 0% 0%;
+    --bg-secondary: 0 0% 3%;
+    --text-primary: 0 0% 95%;
+    --text-secondary: 0 0% 70%;
+    --accent-color: 99 102 241;
+    --accent-hover: 124 58 237;
   }
 }
 
@@ -158,15 +126,406 @@
 
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+    background: hsl(var(--bg-primary));
+    transition: background-color 0.3s ease;
+    color: hsl(var(--text-primary));
+  }
+
+  /* Only hide cursor on desktop devices with hover capability */
+  @media (hover: hover) and (pointer: fine) {
+    * {
+      cursor: none !important;
+    }
+    
+    body {
+      cursor: none !important;
+    }
+    
+    a, button, [role="button"], input, textarea, select {
+      cursor: none !important;
+    }
+  }
+
+  .light body {
+    background: linear-gradient(135deg, hsl(var(--bg-primary)) 0%, hsl(var(--bg-secondary)) 100%);
+    color: hsl(var(--text-primary));
+  }
+
+  .dark body {
+    background: hsl(var(--bg-primary));
+    color: hsl(var(--text-primary));
+  }
+
+  #cursor-follower {
+    display: none;
   }
 }
 
-/* ========================================
-   CLASSES UTILITÁRIAS USANDO O SISTEMA MODULAR
-   ======================================== */
-
 @layer utilities {
-  /* Importar estilos do sistema modular através de classes CSS */
-  @import url('./lib/colors/styles.css');
+  .animate-fade-in {
+    animation: fadeIn 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .hover-scale {
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+  }
+
+  .hover-scale:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+
+  .glass-card {
+    backdrop-filter: blur(12px) saturate(150%);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+      0 4px 24px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 
+      0 8px 40px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .light .glass-card {
+    background: hsl(var(--surface-secondary)) / 0.9;
+    border: 1px solid hsl(var(--border-secondary));
+    box-shadow: 
+      0 2px 16px hsl(var(--shadow-light)),
+      0 1px 4px hsl(var(--shadow-medium)),
+      inset 0 1px 0 hsl(var(--surface-primary)) / 0.8;
+  }
+
+  .light .glass-card:hover {
+    background: hsl(var(--surface-primary)) / 1;
+    border: 1px solid hsl(var(--border-primary));
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 32px hsl(var(--shadow-medium)),
+      0 2px 8px hsl(var(--shadow-light)),
+      inset 0 1px 0 hsl(var(--surface-primary));
+  }
+
+  .btn-primary {
+    @apply relative overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--accent-color)) 0%, hsl(var(--accent-hover)) 100%);
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+      0 4px 16px hsla(var(--accent-color), 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-primary:hover::before {
+    left: 100%;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+      0 8px 32px hsla(var(--accent-color), 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .btn-secondary {
+    @apply glass-card relative overflow-hidden;
+    color: hsl(var(--text-primary));
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-secondary:hover::before {
+    left: 100%;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  .nav-link {
+    @apply relative overflow-hidden;
+    color: hsl(var(--text-secondary));
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, hsl(var(--accent-color)), hsl(var(--accent-hover)));
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .nav-link:hover {
+    color: hsl(var(--text-primary));
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+  }
+
+  .nav-link:hover::before {
+    width: 100%;
+  }
+
+  .light .nav-link {
+    color: hsl(var(--text-secondary));
+    background: hsl(var(--surface-secondary)) / 0.7;
+    border: 1px solid hsl(var(--border-secondary));
+  }
+
+  .light .nav-link:hover {
+    color: hsl(var(--text-primary));
+    background: hsl(var(--surface-primary)) / 0.95;
+    border: 1px solid hsl(var(--border-primary));
+  }
+
+  .social-link {
+    @apply glass-card relative overflow-hidden;
+    color: hsl(var(--text-secondary));
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    padding: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .social-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, hsl(var(--accent-color)), hsl(var(--accent-hover)));
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: -1;
+  }
+
+  .social-link:hover {
+    color: white;
+    transform: translateY(-3px) scale(1.1);
+  }
+
+  .social-link:hover::before {
+    opacity: 1;
+  }
+
+  .skill-badge {
+    @apply glass-card relative overflow-hidden;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    color: hsl(var(--text-primary));
+  }
+
+  .skill-badge:hover {
+    transform: translateY(-2px) scale(1.05);
+    color: white; /* Texto branco no hover para contraste com gradientes coloridos */
+  }
+
+  /* Modo claro */
+  .light .skill-badge {
+    color: hsl(var(--text-primary)); /* Texto escuro no estado normal */
+    background: hsl(var(--surface-secondary)) / 0.9;
+    border: 1px solid hsl(var(--border-secondary));
+  }
+
+  .light .skill-badge:hover {
+    color: white; /* Texto branco no hover para contraste com gradientes */
+  }
+
+  /* Modo escuro */
+  .dark .skill-badge {
+    color: hsl(var(--text-primary)); /* Texto claro no estado normal */
+    border: 1px solid rgba(75, 85, 99, 0.4);
+  }
+
+  .dark .skill-badge:hover {
+    color: white; /* Texto branco no hover para contraste com gradientes */
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--text-primary)), hsl(var(--text-secondary)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .light .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--text-primary)), hsl(var(--accent-color)));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-gradient-primary {
+    background: hsl(var(--bg-primary));
+  }
+
+  .light .bg-gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--bg-primary)) 0%, hsl(var(--bg-secondary)) 100%);
+  }
+
+  /* Scroll animations */
+  .scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .scroll-animate.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Enhanced shadows for light theme with modern approach */
+  .light .shadow-elegant {
+    box-shadow: 
+      0 1px 3px hsl(var(--shadow-light)),
+      0 1px 2px hsl(var(--shadow-medium));
+  }
+
+  .light .shadow-elegant:hover {
+    box-shadow: 
+      0 10px 25px hsl(var(--shadow-light)),
+      0 4px 10px hsl(var(--shadow-medium));
+  }
+
+  /* Modern light theme specific utilities */
+  .light .surface-primary {
+    background: hsl(var(--surface-primary));
+  }
+
+  .light .surface-secondary {
+    background: hsl(var(--surface-secondary));
+  }
+
+  .light .surface-tertiary {
+    background: hsl(var(--surface-tertiary));
+  }
+
+  .light .text-primary {
+    color: hsl(var(--text-primary));
+  }
+
+  .light .text-secondary {
+    color: hsl(var(--text-secondary));
+  }
+
+  .light .text-tertiary {
+    color: hsl(var(--text-tertiary));
+  }
+
+  .light .border-primary {
+    border-color: hsl(var(--border-primary));
+  }
+
+  .light .border-secondary {
+    border-color: hsl(var(--border-secondary));
+  }
+
+  /* Accent colors for light theme */
+  .light .accent-bg {
+    background: hsl(var(--accent-light));
+    color: hsl(var(--accent-color));
+  }
+
+  .light .success-bg {
+    background: hsl(var(--success-light));
+    color: hsl(var(--success-color));
+  }
+
+  .light .warning-bg {
+    background: hsl(var(--warning-light));
+    color: hsl(var(--warning-color));
+  }
+
+  .light .error-bg {
+    background: hsl(var(--error-light));
+    color: hsl(var(--error-color));
+  }
 }

@@ -1,5 +1,5 @@
 
-// src/lib/colors/utilities.ts - Utilitários para trabalhar com cores
+// src/lib/colors/utilities.ts - Utilitários atualizados para a nova paleta
 import { COLOR_VARIABLES } from './variables';
 
 /**
@@ -27,7 +27,7 @@ export const getColor = (path: string): string => {
     current = current[key];
     if (!current) {
       console.warn(`Cor não encontrada: ${path}`);
-      return COLOR_VARIABLES.text['gray-400'];
+      return COLOR_VARIABLES.text.tertiary;
     }
   }
   
@@ -51,42 +51,48 @@ export const createGradient = (
 };
 
 /**
- * Cria uma sombra customizada
+ * Cria uma sombra customizada usando as novas variáveis
  */
 export const createShadow = (
-  offsetX: number,
-  offsetY: number,
-  blur: number,
-  spread: number,
-  colorVar: string,
-  opacity: number = 1
+  type: 'light' | 'medium' | 'heavy' = 'medium'
 ): string => {
-  return `${offsetX}px ${offsetY}px ${blur}px ${spread}px hsl(${colorVar} / ${opacity})`;
+  switch (type) {
+    case 'light':
+      return `0 2px 8px hsl(${COLOR_VARIABLES.shadow.light})`;
+    case 'medium':
+      return `0 4px 16px hsl(${COLOR_VARIABLES.shadow.medium})`;
+    case 'heavy':
+      return `0 8px 32px hsl(${COLOR_VARIABLES.shadow.heavy})`;
+  }
 };
 
 /**
- * Utilitários para cores de status
+ * Utilitários para cores de status atualizados
  */
 export const statusColors = {
-  active: {
-    bg: hsl(COLOR_VARIABLES.status.active),
+  success: {
+    bg: hsl(COLOR_VARIABLES.state.success),
+    lightBg: hsl(COLOR_VARIABLES.state['success-light']),
     text: 'text-white',
-    border: `border-[${hsl(COLOR_VARIABLES.status.active)}]`,
+    className: 'success-bg',
   },
-  completed: {
-    bg: hsl(COLOR_VARIABLES.status.completed),
-    text: 'text-white',
-    border: `border-[${hsl(COLOR_VARIABLES.status.completed)}]`,
-  },
-  draft: {
-    bg: hsl(COLOR_VARIABLES.status.draft),
+  warning: {
+    bg: hsl(COLOR_VARIABLES.state.warning),
+    lightBg: hsl(COLOR_VARIABLES.state['warning-light']),
     text: 'text-black',
-    border: `border-[${hsl(COLOR_VARIABLES.status.draft)}]`,
+    className: 'warning-bg',
   },
-  paused: {
-    bg: hsl(COLOR_VARIABLES.status.paused),
+  error: {
+    bg: hsl(COLOR_VARIABLES.state.error),
+    lightBg: hsl(COLOR_VARIABLES.state['error-light']),
     text: 'text-white',
-    border: `border-[${hsl(COLOR_VARIABLES.status.paused)}]`,
+    className: 'error-bg',
+  },
+  info: {
+    bg: hsl(COLOR_VARIABLES.accent.color),
+    lightBg: hsl(COLOR_VARIABLES.accent.light),
+    text: 'text-white',
+    className: 'accent-bg',
   },
 } as const;
 
@@ -96,22 +102,62 @@ export const statusColors = {
 export const stateColors = {
   success: {
     bg: hsl(COLOR_VARIABLES.state.success),
+    lightBg: hsl(COLOR_VARIABLES.state['success-light']),
     text: 'text-white',
-    icon: COLOR_VARIABLES.icon.green,
+    className: 'success-bg',
   },
   warning: {
     bg: hsl(COLOR_VARIABLES.state.warning),
+    lightBg: hsl(COLOR_VARIABLES.state['warning-light']),
     text: 'text-black',
-    icon: COLOR_VARIABLES.icon.yellow,
+    className: 'warning-bg',
   },
   error: {
     bg: hsl(COLOR_VARIABLES.state.error),
+    lightBg: hsl(COLOR_VARIABLES.state['error-light']),
     text: 'text-white',
-    icon: COLOR_VARIABLES.icon.red,
+    className: 'error-bg',
   },
   info: {
-    bg: hsl(COLOR_VARIABLES.state.info),
+    bg: hsl(COLOR_VARIABLES.accent.color),
+    lightBg: hsl(COLOR_VARIABLES.accent.light),
     text: 'text-white',
-    icon: COLOR_VARIABLES.icon.blue,
+    className: 'accent-bg',
+  },
+} as const;
+
+/**
+ * Utilitários para superfícies
+ */
+export const surfaceColors = {
+  primary: {
+    bg: hsl(COLOR_VARIABLES.surface.primary),
+    className: 'surface-primary',
+  },
+  secondary: {
+    bg: hsl(COLOR_VARIABLES.surface.secondary),
+    className: 'surface-secondary',
+  },
+  tertiary: {
+    bg: hsl(COLOR_VARIABLES.surface.tertiary),
+    className: 'surface-tertiary',
+  },
+} as const;
+
+/**
+ * Utilitários para texto
+ */
+export const textColors = {
+  primary: {
+    color: hsl(COLOR_VARIABLES.text.primary),
+    className: 'text-primary',
+  },
+  secondary: {
+    color: hsl(COLOR_VARIABLES.text.secondary),
+    className: 'text-secondary',
+  },
+  tertiary: {
+    color: hsl(COLOR_VARIABLES.text.tertiary),
+    className: 'text-tertiary',
   },
 } as const;

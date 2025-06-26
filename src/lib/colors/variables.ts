@@ -1,7 +1,7 @@
 
-// src/lib/colors/variables.ts - Variáveis de cores organizadas
+// src/lib/colors/variables.ts - Variáveis de cores atualizadas para a nova paleta
 export const COLOR_VARIABLES = {
-  // ===== CORES BASE =====
+  // ===== CORES BASE SHADCN =====
   base: {
     background: 'var(--background)',
     foreground: 'var(--foreground)',
@@ -33,6 +33,9 @@ export const COLOR_VARIABLES = {
   accent: {
     DEFAULT: 'var(--accent)',
     foreground: 'var(--accent-foreground)',
+    color: 'var(--accent-color)',
+    hover: 'var(--accent-hover)',
+    light: 'var(--accent-light)',
   },
 
   // ===== CORES DESTRUTIVAS =====
@@ -48,76 +51,48 @@ export const COLOR_VARIABLES = {
     ring: 'var(--ring)',
   },
 
-  // ===== CORES DE STATUS =====
-  status: {
-    active: 'var(--status-active)',
-    completed: 'var(--status-completed)',
-    draft: 'var(--status-draft)',
-    paused: 'var(--status-paused)',
+  // ===== CORES MODERNAS DE BACKGROUND =====
+  bg: {
+    primary: 'var(--bg-primary)',
+    secondary: 'var(--bg-secondary)',
+    tertiary: 'var(--bg-tertiary)',
+  },
+
+  // ===== CORES MODERNAS DE TEXTO =====
+  text: {
+    primary: 'var(--text-primary)',
+    secondary: 'var(--text-secondary)',
+    tertiary: 'var(--text-tertiary)',
+  },
+
+  // ===== CORES DE SUPERFÍCIE =====
+  surface: {
+    primary: 'var(--surface-primary)',
+    secondary: 'var(--surface-secondary)',
+    tertiary: 'var(--surface-tertiary)',
+  },
+
+  // ===== CORES DE BORDA =====
+  border: {
+    primary: 'var(--border-primary)',
+    secondary: 'var(--border-secondary)',
+  },
+
+  // ===== CORES DE SOMBRA =====
+  shadow: {
+    light: 'var(--shadow-light)',
+    medium: 'var(--shadow-medium)',
+    heavy: 'var(--shadow-heavy)',
   },
 
   // ===== CORES DE ESTADO =====
   state: {
-    success: 'var(--success)',
-    warning: 'var(--warning)',
-    error: 'var(--error)',
-    info: 'var(--info)',
-  },
-
-  // ===== CORES DE GRADIENTE =====
-  gradient: {
-    start: 'var(--gradient-start)',
-    middle: 'var(--gradient-middle)',
-    end: 'var(--gradient-end)',
-  },
-
-  // ===== CORES DE OVERLAY =====
-  overlay: {
-    light: 'var(--overlay-light)',
-    medium: 'var(--overlay-medium)',
-    strong: 'var(--overlay-strong)',
-  },
-
-  // ===== CORES DE HOVER =====
-  hover: {
-    card: 'var(--hover-card)',
-    border: 'var(--hover-border)',
-    button: 'var(--hover-button)',
-  },
-
-  // ===== CORES DE TEXTO ESPECÍFICAS =====
-  text: {
-    white: 'var(--text-white)',
-    'gray-100': 'var(--text-gray-100)',
-    'gray-200': 'var(--text-gray-200)',
-    'gray-300': 'var(--text-gray-300)',
-    'gray-400': 'var(--text-gray-400)',
-    'gray-500': 'var(--text-gray-500)',
-  },
-
-  // ===== CORES DE BACKGROUND ESPECÍFICAS =====
-  bg: {
-    black: 'var(--bg-black)',
-    dark: 'var(--bg-dark)',
-    input: 'var(--bg-input)',
-    'card-hover': 'var(--bg-card-hover)',
-  },
-
-  // ===== CORES DE BORDAS ESPECÍFICAS =====
-  border: {
-    default: 'var(--border-default)',
-    input: 'var(--border-input)',
-    focus: 'var(--border-focus)',
-    card: 'var(--border-card)',
-  },
-
-  // ===== CORES DE ÍCONES POR CATEGORIA =====
-  icon: {
-    blue: 'var(--icon-blue)',
-    green: 'var(--icon-green)',
-    purple: 'var(--icon-purple)',
-    yellow: 'var(--icon-yellow)',
-    red: 'var(--icon-red)',
+    success: 'var(--success-color)',
+    'success-light': 'var(--success-light)',
+    warning: 'var(--warning-color)',
+    'warning-light': 'var(--warning-light)',
+    error: 'var(--error-color)',
+    'error-light': 'var(--error-light)',
   },
 
   // ===== CORES DE SIDEBAR =====
@@ -130,5 +105,14 @@ export const COLOR_VARIABLES = {
     'accent-foreground': 'var(--sidebar-accent-foreground)',
     border: 'var(--sidebar-border)',
     ring: 'var(--sidebar-ring)',
+  },
+
+  // ===== CORES DE TECNOLOGIA (MANTIDAS PARA COMPATIBILIDADE) =====
+  technology: {
+    blue: '234 89% 60%',
+    green: '142 76% 36%',
+    purple: '262 83% 58%',
+    yellow: '38 92% 50%',
+    red: '0 84% 60%',
   },
 } as const;
