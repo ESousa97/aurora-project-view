@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { ModernButton } from '@/components/ui/modern-button';
@@ -126,9 +125,9 @@ const Index = () => {
               transition={{ duration: 0.8 }}
             >
               <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border glass-card">
-                <FaSearch className="h-5 w-5 text-primary" />
+                <FaSearch className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                 <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Sua jornada de descoberta começa aqui</span>
-                <FaAtom className="h-4 w-4 text-primary" />
+                <FaAtom className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
               
               <h1 className="text-6xl md:text-8xl font-bold tracking-tight leading-tight">
@@ -155,7 +154,7 @@ const Index = () => {
               transition={{ delay: 0.5, duration: 0.6 }}
             >
               <ModernButton variant="primary" size="lg" asChild>
-                <Link to="/projects" className="text-lg px-10 py-8 rounded-2xl group">
+                <Link to="/projects" className="text-lg px-10 py-8 rounded-2xl group bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 hover:from-blue-700 hover:to-purple-700 dark:hover:from-blue-500 dark:hover:to-purple-500 text-white">
                   <FaCompass className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform" />
                   Começar a Explorar
                   <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
@@ -227,7 +226,9 @@ const Index = () => {
                 <ModernCard className="text-center border-0 shadow-xl overflow-hidden group hover:scale-105 transition-transform">
                   <div className="pt-6 pb-4 relative">
                     <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-xl bg-gradient-to-r ${stat.gradient} opacity-20`} />
-                    <stat.icon className={`h-8 w-8 mx-auto mb-3 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`} />
+                    <div className={`h-8 w-8 mx-auto mb-3 flex items-center justify-center rounded-lg bg-gradient-to-r ${stat.gradient}`}>
+                      <stat.icon className="h-5 w-5 text-white" />
+                    </div>
                     <div className="text-3xl font-bold mb-1 text-foreground">
                       {stat.value}
                     </div>

@@ -1,3 +1,4 @@
+
 // src/components/layout/Sidebar.tsx - Sidebar com ícones do sistema languageColors
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -24,21 +25,21 @@ const navigationItems = [
     href: '/', 
     icon: SiRocket,
     description: 'Central de comando',
-    color: 'text-blue-600'
+    gradient: 'from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400'
   },
   { 
     name: 'Explorar Territórios', 
     href: '/projects', 
     icon: SiCompass,
     description: 'Descobrir projetos',
-    color: 'text-green-600'
+    gradient: 'from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400'
   },
   { 
     name: 'Centro de Comando', 
     href: '/dashboard', 
     icon: SiBarChart,
     description: 'Analytics e métricas',
-    color: 'text-purple-600'
+    gradient: 'from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400'
   },
 ];
 
@@ -94,7 +95,7 @@ export const Sidebar = () => {
                     variant={isActive ? 'secondary' : 'ghost'}
                     className={cn(
                       "w-full justify-start h-12 group relative overflow-hidden",
-                      isActive && "bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20"
+                      isActive && `bg-gradient-to-r ${item.gradient} bg-opacity-10 border border-opacity-20`
                     )}
                     asChild
                   >
@@ -103,7 +104,7 @@ export const Sidebar = () => {
                         <div className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                           isActive 
-                            ? "bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg" 
+                            ? `bg-gradient-to-br ${item.gradient} text-white shadow-lg`
                             : "bg-muted group-hover:bg-primary/20"
                         )}>
                           <item.icon className="h-4 w-4" />
@@ -113,7 +114,7 @@ export const Sidebar = () => {
                           <div className="text-xs text-muted-foreground">{item.description}</div>
                         </div>
                         {isActive && (
-                          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                          <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 rounded-full animate-pulse" />
                         )}
                       </div>
                     </Link>
@@ -157,7 +158,7 @@ export const Sidebar = () => {
                 <div className={cn(
                   "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
                   selectedCategory === '' 
-                    ? "bg-gradient-to-br from-primary to-purple-600 text-white shadow-lg" 
+                    ? "bg-gradient-to-br from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 text-white shadow-lg"
                     : "bg-muted group-hover:bg-primary/20"
                 )}>
                   <FolderOpen className="h-4 w-4" />

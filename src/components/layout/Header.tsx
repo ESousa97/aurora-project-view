@@ -1,3 +1,4 @@
+
 // src/components/layout/Header.tsx - Header com ícones do sistema
 import React from 'react';
 import { Menu, Sun, Moon } from 'lucide-react';
@@ -41,14 +42,14 @@ export const Header = () => {
             whileTap={{ scale: 0.98 }}
           >
             <div className="relative">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary via-purple-600 to-primary shadow-lg flex items-center justify-center group-hover:shadow-xl transition-shadow">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 shadow-lg flex items-center justify-center group-hover:shadow-xl transition-shadow">
                 <FaBrain className="h-5 w-5 text-white" />
               </div>
             </div>
             
             <div className="hidden sm:block">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-xl bg-gradient-to-r from-primary via-purple-600 to-primary bg-clip-text text-transparent">
+                <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                   ProjPortfólio
                 </span>
               </div>

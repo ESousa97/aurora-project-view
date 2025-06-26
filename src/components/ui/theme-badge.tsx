@@ -38,7 +38,7 @@ export const ThemeBadge: React.FC<ThemeBadgeProps> = ({
   return (
     <Badge
       className={cn(
-        'inline-flex items-center gap-1 font-medium',
+        'inline-flex items-center gap-1 font-medium text-foreground',
         statusConfig.className,
         className
       )}
