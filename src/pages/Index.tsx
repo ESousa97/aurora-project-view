@@ -1,10 +1,12 @@
+
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ModernButton } from '@/components/ui/modern-button';
+import { ModernCard } from '@/components/ui/modern-card';
+import { ThemeBadge } from '@/components/ui/theme-badge';
 import { ProjectCard } from '@/components/project/ProjectCard';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
+import { useThemeColors, useStatusColors } from '@/hooks/useColors';
 import { 
   ArrowRight, 
   ChevronDown, 
@@ -28,6 +30,10 @@ const Index = () => {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { scrollYProgress } = useScroll();
   const [discoveredProjects, setDiscoveredProjects] = React.useState<Set<number>>(new Set());
+  
+  // Usar os hooks de cores
+  const themeColors = useThemeColors();
+  const statusColors = useStatusColors();
 
   // Animações baseadas no scroll
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
@@ -113,9 +119,15 @@ const Index = () => {
           style={{ opacity: heroOpacity, y: heroY }}
         >
           {/* Elementos de fundo animados */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/10 to-transparent rounded-3xl" />
-          <div className="absolute top-20 left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute inset-0 rounded-3xl" style={{ 
+            background: `linear-gradient(135deg, ${themeColors.accent}10 0%, ${themeColors.surfaceSecondary}20 100%)` 
+          }} />
+          <div className="absolute top-20 left-20 w-64 h-64 rounded-full blur-3xl animate-pulse" style={{ 
+            backgroundColor: `${themeColors.accent}20` 
+          }} />
+          <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000" style={{ 
+            backgroundColor: `${themeColors.accentHover}20` 
+          }} />
           
           <div className="relative max-w-5xl mx-auto text-center space-y-8">
             <motion.div 
@@ -124,10 +136,13 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-full border border-primary/30">
-                <FaSearch className="h-5 w-5 text-primary" />
-                <span className="text-primary font-semibold">Sua jornada de descoberta começa aqui</span>
-                <FaAtom className="h-4 w-4 text-purple-500" />
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border" style={{
+                background: `linear-gradient(135deg, ${themeColors.accent}20, ${themeColors.accentHover}20)`,
+                borderColor: `${themeColors.accent}30`
+              }}>
+                <FaSearch className="h-5 w-5" style={{ color: themeColors.accent }} />
+                <span className="font-semibold" style={{ color: themeColors.accent }}>Sua jornada de descoberta começa aqui</span>
+                <FaAtom className="h-4 w-4" style={{ color: themeColors.accentHover }} />
               </div>
               
               <h1 className="text-6xl md:text-8xl font-bold tracking-tight leading-tight">
@@ -140,10 +155,10 @@ const Index = () => {
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                Não procure. <strong className="text-foreground">Explore.</strong> Cada projeto esconde uma história, 
+              <p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed" style={{ color: themeColors.textSecondary }}>
+                Não procure. <strong style={{ color: themeColors.textPrimary }}>Explore.</strong> Cada projeto esconde uma história, 
                 uma solução elegante, uma técnica revolucionária. Sua próxima inspiração está esperando 
-                para ser <strong className="text-primary">descoberta</strong>.
+                para ser <strong style={{ color: themeColors.accent }}>descoberta</strong>.
               </p>
             </motion.div>
             
@@ -153,15 +168,15 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
             >
-              <Button asChild size="lg" className="text-lg px-10 py-8 rounded-2xl group bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90">
-                <Link to="/projects">
+              <ModernButton variant="primary" size="lg" asChild>
+                <Link to="/projects" className="text-lg px-10 py-8 rounded-2xl group">
                   <FaCompass className="mr-3 h-6 w-6 group-hover:rotate-12 transition-transform" />
                   Começar a Explorar
                   <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
-              </Button>
+              </ModernButton>
               
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-2" style={{ color: themeColors.textSecondary }}>
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <span className="text-sm">
                   {stats.total} projetos aguardando descoberta
@@ -175,8 +190,8 @@ const Index = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <span className="text-sm text-muted-foreground">Descubra mais</span>
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm" style={{ color: themeColors.textSecondary }}>Descubra mais</span>
+              <ChevronDown className="h-5 w-5" style={{ color: themeColors.textSecondary }} />
             </motion.div>
           </div>
         </motion.section>
@@ -195,41 +210,29 @@ const Index = () => {
                 icon: FaTarget,
                 value: stats.total,
                 label: "Projetos Únicos",
-                gradient: "from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900",
-                iconColor: "text-blue-600",
-                textColor: "text-blue-700 dark:text-blue-300",
-                labelColor: "text-blue-600 dark:text-blue-400",
-                bgAccent: "bg-blue-500/20"
+                color: themeColors.accent,
+                bgColor: `${themeColors.accent}10`
               },
               {
                 icon: FaCompass,
                 value: stats.categories,
                 label: "Territórios",
-                gradient: "from-green-50 to-green-100 dark:from-green-950 dark:to-green-900",
-                iconColor: "text-green-600",
-                textColor: "text-green-700 dark:text-green-300",
-                labelColor: "text-green-600 dark:text-green-400",
-                bgAccent: "bg-green-500/20"
+                color: statusColors.success.bg,
+                bgColor: statusColors.success.lightBg
               },
               {
                 icon: FaBolt,
                 value: stats.languages,
                 label: "Linguagens",
-                gradient: "from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900",
-                iconColor: "text-purple-600",
-                textColor: "text-purple-700 dark:text-purple-300",
-                labelColor: "text-purple-600 dark:text-purple-400",
-                bgAccent: "bg-purple-500/20"
+                color: themeColors.accentHover,
+                bgColor: `${themeColors.accentHover}10`
               },
               {
                 icon: FaTrendingUp,
                 value: stats.recent,
                 label: "Novos (7 dias)",
-                gradient: "from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900",
-                iconColor: "text-orange-600",
-                textColor: "text-orange-700 dark:text-orange-300",
-                labelColor: "text-orange-600 dark:text-orange-400",
-                bgAccent: "bg-orange-500/20"
+                color: statusColors.warning.bg,
+                bgColor: statusColors.warning.lightBg
               }
             ].map((stat, index) => (
               <motion.div 
@@ -239,18 +242,20 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className={`text-center border-0 shadow-xl bg-gradient-to-br ${stat.gradient} overflow-hidden group hover:scale-105 transition-transform`}>
-                  <CardContent className="pt-6 pb-4 relative">
-                    <div className={`absolute top-0 right-0 w-20 h-20 ${stat.bgAccent} rounded-full blur-xl`} />
-                    <stat.icon className={`h-8 w-8 mx-auto mb-3 ${stat.iconColor}`} />
-                    <div className={`text-3xl font-bold ${stat.textColor} mb-1`}>
+                <ModernCard className="text-center border-0 shadow-xl overflow-hidden group hover:scale-105 transition-transform" style={{
+                  background: `linear-gradient(135deg, ${themeColors.surfacePrimary}, ${themeColors.surfaceSecondary})`
+                }}>
+                  <div className="pt-6 pb-4 relative">
+                    <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-xl" style={{ backgroundColor: stat.bgColor }} />
+                    <stat.icon className="h-8 w-8 mx-auto mb-3" style={{ color: stat.color }} />
+                    <div className="text-3xl font-bold mb-1" style={{ color: themeColors.textPrimary }}>
                       {stat.value}
                     </div>
-                    <p className={`${stat.labelColor} font-medium text-sm`}>
+                    <p className="font-medium text-sm" style={{ color: themeColors.textSecondary }}>
                       {stat.label}
                     </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </ModernCard>
               </motion.div>
             ))}
           </motion.div>
@@ -264,12 +269,14 @@ const Index = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-200 dark:from-orange-900 dark:to-orange-800 rounded-full">
-              <FaGem className="h-4 w-4 text-orange-600" />
-              <span className="text-orange-600 dark:text-orange-400 font-medium text-sm">Descobertas Recentes</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{
+              background: `linear-gradient(135deg, ${statusColors.warning.lightBg}, ${statusColors.warning.lightBg})`
+            }}>
+              <FaGem className="h-4 w-4" style={{ color: statusColors.warning.bg }} />
+              <span className="font-medium text-sm" style={{ color: statusColors.warning.bg }}>Descobertas Recentes</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold">Projetos que Merecem Sua Atenção</h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>Projetos que Merecem Sua Atenção</h2>
+            <p className="text-lg max-w-3xl mx-auto" style={{ color: themeColors.textSecondary }}>
               Nossa curadoria especial revela projetos únicos que podem mudar sua perspectiva. 
               Cada um foi escolhido por sua inovação, elegância ou impacto.
             </p>
@@ -290,19 +297,23 @@ const Index = () => {
         </section>
 
         {/* Seção Câmara dos Mistérios */}
-        <section className="space-y-12 bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-20 rounded-3xl mx-4">
+        <section className="space-y-12 py-20 rounded-3xl mx-4" style={{
+          background: `linear-gradient(135deg, ${themeColors.surfaceSecondary}, ${themeColors.surfacePrimary}, ${themeColors.surfaceSecondary})`
+        }}>
           <motion.div 
             className="text-center space-y-6"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 rounded-full">
-              <FaCrown className="h-4 w-4 text-purple-600" />
-              <span className="text-purple-600 dark:text-purple-400 font-medium text-sm">Câmara dos Mistérios</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{
+              background: `linear-gradient(135deg, ${themeColors.accent}20, ${themeColors.accentHover}20)`
+            }}>
+              <FaCrown className="h-4 w-4" style={{ color: themeColors.accent }} />
+              <span className="font-medium text-sm" style={{ color: themeColors.accent }}>Câmara dos Mistérios</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold">O que Está Escondido?</h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>O que Está Escondido?</h2>
+            <p className="text-lg max-w-3xl mx-auto" style={{ color: themeColors.textSecondary }}>
               Alguns projetos preferem manter seus segredos até o momento certo. 
               Clique para revelar e descobrir o que cada um tem a oferecer.
             </p>
@@ -324,7 +335,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Categorias como Caminhos de Exploração - SINCRONIZADO */}
+        {/* Categorias como Caminhos de Exploração */}
         <section className="space-y-12 px-4">
           <motion.div 
             className="text-center space-y-6"
@@ -332,12 +343,14 @@ const Index = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-full">
-              <FaCompass className="h-4 w-4 text-blue-600" />
-              <span className="text-blue-600 dark:text-blue-400 font-medium text-sm">Caminhos de Exploração</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{
+              background: `linear-gradient(135deg, ${themeColors.accent}20, ${themeColors.accentHover}20)`
+            }}>
+              <FaCompass className="h-4 w-4" style={{ color: themeColors.accent }} />
+              <span className="font-medium text-sm" style={{ color: themeColors.accent }}>Caminhos de Exploração</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold">Escolha Sua Aventura</h2>
-            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>Escolha Sua Aventura</h2>
+            <p className="text-lg max-w-3xl mx-auto" style={{ color: themeColors.textSecondary }}>
               Cada categoria é uma jornada diferente. Algumas são terrenos conhecidos, 
               outras são fronteiras inexploradas. Qual desperta sua curiosidade?
             </p>
@@ -345,8 +358,6 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {categories?.slice(0, 9).map((category, index) => {
-              // SINCRONIZAÇÃO: Usar o mesmo sistema de detecção dos projetos
-              // Buscar um projeto da categoria para ter a linguagem consistente
               const sampleProject = category.projects[0];
               const colorConfig = sampleProject?.detectedLanguage || getCategoryColor(category.name);
               
@@ -360,10 +371,11 @@ const Index = () => {
                   whileHover={{ scale: 1.05, y: -5 }}
                 >
                   <Link to={`/projects?category=${encodeURIComponent(category.name)}`}>
-                    <Card className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 relative h-full">
+                    <ModernCard className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden relative h-full" style={{
+                      background: `linear-gradient(135deg, ${themeColors.surfacePrimary}, ${themeColors.surfaceSecondary})`
+                    }}>
                       <div className={`h-3 bg-gradient-to-r ${colorConfig.gradient}`} />
-                      <CardContent className="p-6 relative">
-                        {/* SINCRONIZAÇÃO: Usar o mesmo ícone do sistema de linguagens */}
+                      <div className="p-6 relative">
                         <div 
                           className="absolute top-2 right-2 w-8 h-8 rounded-lg flex items-center justify-center opacity-20 group-hover:opacity-40 transition-opacity"
                           style={{ backgroundColor: `${colorConfig.color}20` }}
@@ -376,33 +388,29 @@ const Index = () => {
                         
                         <div className="space-y-4">
                           <div className="flex items-start justify-between">
-                            <h3 className="font-bold text-xl group-hover:text-primary transition-colors leading-tight">
+                            <h3 className="font-bold text-xl group-hover:text-primary transition-colors leading-tight" style={{ color: themeColors.textPrimary }}>
                               {category.name}
                             </h3>
-                            <Badge 
-                              variant="secondary" 
+                            <ThemeBadge 
+                              status="info"
                               className="shrink-0 ml-2"
-                              style={{ 
-                                backgroundColor: `${colorConfig.color}20`, 
-                                color: colorConfig.color 
-                              }}
                             >
                               {category.count}
-                            </Badge>
+                            </ThemeBadge>
                           </div>
                           
-                          <p className="text-muted-foreground text-sm">
+                          <p className="text-sm" style={{ color: themeColors.textSecondary }}>
                             {category.count} projeto{category.count !== 1 ? 's' : ''} esperando 
                             {category.count > 10 ? ' para serem explorados' : ' por você'}
                           </p>
 
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-2 text-xs" style={{ color: themeColors.textSecondary }}>
                             <MousePointer className="h-3 w-3" />
                             <span>Clique para explorar este território</span>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </ModernCard>
                   </Link>
                 </motion.div>
               );
@@ -412,7 +420,9 @@ const Index = () => {
 
         {/* Chamada para a Aventura */}
         <section className="relative py-20 px-4">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-purple-500/20 to-primary/10 rounded-3xl" />
+          <div className="absolute inset-0 rounded-3xl" style={{
+            background: `linear-gradient(135deg, ${themeColors.accent}10, ${themeColors.accentHover}20, ${themeColors.accent}10)`
+          }} />
           <motion.div 
             className="relative max-w-4xl mx-auto text-center space-y-8"
             initial={{ opacity: 0, y: 30 }}
@@ -420,13 +430,13 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold">
+              <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>
                 A Jornada Nunca Acaba
               </h2>
-              <p className="text-xl text-muted-foreground leading-relaxed">
+              <p className="text-xl leading-relaxed" style={{ color: themeColors.textSecondary }}>
                 Cada projeto visitado revela novos caminhos. Cada código lido desperta novas ideias. 
                 Cada solução descoberta abre portas para outros mundos. 
-                <strong className="text-foreground"> Sua próxima grande descoberta está a um clique de distância.</strong>
+                <strong style={{ color: themeColors.textPrimary }}> Sua próxima grande descoberta está a um clique de distância.</strong>
               </p>
             </div>
             
@@ -434,9 +444,10 @@ const Index = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Button 
+              <ModernButton 
+                variant="primary"
                 size="lg" 
-                className="text-xl px-12 py-8 rounded-2xl bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 group" 
+                className="text-xl px-12 py-8 rounded-2xl group" 
                 asChild
               >
                 <Link to="/projects">
@@ -444,10 +455,10 @@ const Index = () => {
                   Iniciar Minha Jornada
                   <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
                 </Link>
-              </Button>
+              </ModernButton>
             </motion.div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm" style={{ color: themeColors.textSecondary }}>
               <div className="flex items-center gap-2">
                 <FaEye className="h-4 w-4" />
                 <span>Sem necessidade de busca</span>
