@@ -6,7 +6,6 @@ import { ModernCard } from '@/components/ui/modern-card';
 import { ThemeBadge } from '@/components/ui/theme-badge';
 import { ProjectCard } from '@/components/project/ProjectCard';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
-import { useThemeColors, useStatusColors } from '@/hooks/useColors';
 import { 
   ArrowRight, 
   ChevronDown, 
@@ -30,10 +29,6 @@ const Index = () => {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const { scrollYProgress } = useScroll();
   const [discoveredProjects, setDiscoveredProjects] = React.useState<Set<number>>(new Set());
-  
-  // Usar os hooks de cores
-  const themeColors = useThemeColors();
-  const statusColors = useStatusColors();
 
   // Animações baseadas no scroll
   const heroOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
@@ -119,15 +114,9 @@ const Index = () => {
           style={{ opacity: heroOpacity, y: heroY }}
         >
           {/* Elementos de fundo animados */}
-          <div className="absolute inset-0 rounded-3xl" style={{ 
-            background: `linear-gradient(135deg, ${themeColors.accent}10 0%, ${themeColors.surfaceSecondary}20 100%)` 
-          }} />
-          <div className="absolute top-20 left-20 w-64 h-64 rounded-full blur-3xl animate-pulse" style={{ 
-            backgroundColor: `${themeColors.accent}20` 
-          }} />
-          <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000" style={{ 
-            backgroundColor: `${themeColors.accentHover}20` 
-          }} />
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-surface-secondary/20 to-surface-primary/20" />
+          <div className="absolute top-20 left-20 w-64 h-64 rounded-full blur-3xl animate-pulse bg-gradient-to-r from-blue-600/20 to-purple-600/20" />
+          <div className="absolute bottom-20 right-20 w-96 h-96 rounded-full blur-3xl animate-pulse delay-1000 bg-gradient-to-r from-emerald-600/20 to-blue-600/20" />
           
           <div className="relative max-w-5xl mx-auto text-center space-y-8">
             <motion.div 
@@ -136,29 +125,26 @@ const Index = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border" style={{
-                background: `linear-gradient(135deg, ${themeColors.accent}20, ${themeColors.accentHover}20)`,
-                borderColor: `${themeColors.accent}30`
-              }}>
-                <FaSearch className="h-5 w-5" style={{ color: themeColors.accent }} />
-                <span className="font-semibold" style={{ color: themeColors.accent }}>Sua jornada de descoberta começa aqui</span>
-                <FaAtom className="h-4 w-4" style={{ color: themeColors.accentHover }} />
+              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border glass-card">
+                <FaSearch className="h-5 w-5 text-primary" />
+                <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Sua jornada de descoberta começa aqui</span>
+                <FaAtom className="h-4 w-4 text-primary" />
               </div>
               
               <h1 className="text-6xl md:text-8xl font-bold tracking-tight leading-tight">
-                <span className="bg-gradient-to-r from-primary via-purple-600 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 bg-clip-text text-transparent">
                   Cada Projeto
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-purple-600 via-primary to-purple-600 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                   Uma Descoberta
                 </span>
               </h1>
               
-              <p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed" style={{ color: themeColors.textSecondary }}>
-                Não procure. <strong style={{ color: themeColors.textPrimary }}>Explore.</strong> Cada projeto esconde uma história, 
+              <p className="text-xl md:text-2xl max-w-4xl mx-auto leading-relaxed text-muted-foreground">
+                Não procure. <strong className="text-foreground">Explore.</strong> Cada projeto esconde uma história, 
                 uma solução elegante, uma técnica revolucionária. Sua próxima inspiração está esperando 
-                para ser <strong style={{ color: themeColors.accent }}>descoberta</strong>.
+                para ser <strong className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">descoberta</strong>.
               </p>
             </motion.div>
             
@@ -176,7 +162,7 @@ const Index = () => {
                 </Link>
               </ModernButton>
               
-              <div className="flex items-center gap-2" style={{ color: themeColors.textSecondary }}>
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 <span className="text-sm">
                   {stats.total} projetos aguardando descoberta
@@ -190,8 +176,8 @@ const Index = () => {
               animate={{ y: [0, 10, 0] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
             >
-              <span className="text-sm" style={{ color: themeColors.textSecondary }}>Descubra mais</span>
-              <ChevronDown className="h-5 w-5" style={{ color: themeColors.textSecondary }} />
+              <span className="text-sm text-muted-foreground">Descubra mais</span>
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             </motion.div>
           </div>
         </motion.section>
@@ -210,29 +196,25 @@ const Index = () => {
                 icon: FaTarget,
                 value: stats.total,
                 label: "Projetos Únicos",
-                color: themeColors.accent,
-                bgColor: `${themeColors.accent}10`
+                gradient: "from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400"
               },
               {
                 icon: FaCompass,
                 value: stats.categories,
                 label: "Territórios",
-                color: statusColors.success.bg,
-                bgColor: statusColors.success.lightBg
+                gradient: "from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400"
               },
               {
                 icon: FaBolt,
                 value: stats.languages,
                 label: "Linguagens",
-                color: themeColors.accentHover,
-                bgColor: `${themeColors.accentHover}10`
+                gradient: "from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400"
               },
               {
                 icon: FaTrendingUp,
                 value: stats.recent,
                 label: "Novos (7 dias)",
-                color: statusColors.warning.bg,
-                bgColor: statusColors.warning.lightBg
+                gradient: "from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400"
               }
             ].map((stat, index) => (
               <motion.div 
@@ -242,16 +224,14 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <ModernCard className="text-center border-0 shadow-xl overflow-hidden group hover:scale-105 transition-transform" style={{
-                  background: `linear-gradient(135deg, ${themeColors.surfacePrimary}, ${themeColors.surfaceSecondary})`
-                }}>
+                <ModernCard className="text-center border-0 shadow-xl overflow-hidden group hover:scale-105 transition-transform">
                   <div className="pt-6 pb-4 relative">
-                    <div className="absolute top-0 right-0 w-20 h-20 rounded-full blur-xl" style={{ backgroundColor: stat.bgColor }} />
-                    <stat.icon className="h-8 w-8 mx-auto mb-3" style={{ color: stat.color }} />
-                    <div className="text-3xl font-bold mb-1" style={{ color: themeColors.textPrimary }}>
+                    <div className={`absolute top-0 right-0 w-20 h-20 rounded-full blur-xl bg-gradient-to-r ${stat.gradient} opacity-20`} />
+                    <stat.icon className={`h-8 w-8 mx-auto mb-3 bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`} />
+                    <div className="text-3xl font-bold mb-1 text-foreground">
                       {stat.value}
                     </div>
-                    <p className="font-medium text-sm" style={{ color: themeColors.textSecondary }}>
+                    <p className="font-medium text-sm text-muted-foreground">
                       {stat.label}
                     </p>
                   </div>
@@ -269,14 +249,12 @@ const Index = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{
-              background: `linear-gradient(135deg, ${statusColors.warning.lightBg}, ${statusColors.warning.lightBg})`
-            }}>
-              <FaGem className="h-4 w-4" style={{ color: statusColors.warning.bg }} />
-              <span className="font-medium text-sm" style={{ color: statusColors.warning.bg }}>Descobertas Recentes</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card">
+              <FaGem className="h-4 w-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent" />
+              <span className="font-medium text-sm bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">Descobertas Recentes</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>Projetos que Merecem Sua Atenção</h2>
-            <p className="text-lg max-w-3xl mx-auto" style={{ color: themeColors.textSecondary }}>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Projetos que Merecem Sua Atenção</h2>
+            <p className="text-lg max-w-3xl mx-auto text-muted-foreground">
               Nossa curadoria especial revela projetos únicos que podem mudar sua perspectiva. 
               Cada um foi escolhido por sua inovação, elegância ou impacto.
             </p>
@@ -297,23 +275,19 @@ const Index = () => {
         </section>
 
         {/* Seção Câmara dos Mistérios */}
-        <section className="space-y-12 py-20 rounded-3xl mx-4" style={{
-          background: `linear-gradient(135deg, ${themeColors.surfaceSecondary}, ${themeColors.surfacePrimary}, ${themeColors.surfaceSecondary})`
-        }}>
+        <section className="space-y-12 py-20 rounded-3xl mx-4 glass-card">
           <motion.div 
             className="text-center space-y-6"
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{
-              background: `linear-gradient(135deg, ${themeColors.accent}20, ${themeColors.accentHover}20)`
-            }}>
-              <FaCrown className="h-4 w-4" style={{ color: themeColors.accent }} />
-              <span className="font-medium text-sm" style={{ color: themeColors.accent }}>Câmara dos Mistérios</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card">
+              <FaCrown className="h-4 w-4 bg-gradient-to-r from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 bg-clip-text text-transparent" />
+              <span className="font-medium text-sm bg-gradient-to-r from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 bg-clip-text text-transparent">Câmara dos Mistérios</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>O que Está Escondido?</h2>
-            <p className="text-lg max-w-3xl mx-auto" style={{ color: themeColors.textSecondary }}>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">O que Está Escondido?</h2>
+            <p className="text-lg max-w-3xl mx-auto text-muted-foreground">
               Alguns projetos preferem manter seus segredos até o momento certo. 
               Clique para revelar e descobrir o que cada um tem a oferecer.
             </p>
@@ -343,14 +317,12 @@ const Index = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{
-              background: `linear-gradient(135deg, ${themeColors.accent}20, ${themeColors.accentHover}20)`
-            }}>
-              <FaCompass className="h-4 w-4" style={{ color: themeColors.accent }} />
-              <span className="font-medium text-sm" style={{ color: themeColors.accent }}>Caminhos de Exploração</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card">
+              <FaCompass className="h-4 w-4 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent" />
+              <span className="font-medium text-sm bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Caminhos de Exploração</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>Escolha Sua Aventura</h2>
-            <p className="text-lg max-w-3xl mx-auto" style={{ color: themeColors.textSecondary }}>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground">Escolha Sua Aventura</h2>
+            <p className="text-lg max-w-3xl mx-auto text-muted-foreground">
               Cada categoria é uma jornada diferente. Algumas são terrenos conhecidos, 
               outras são fronteiras inexploradas. Qual desperta sua curiosidade?
             </p>
@@ -371,9 +343,7 @@ const Index = () => {
                   whileHover={{ scale: 1.05, y: -5 }}
                 >
                   <Link to={`/projects?category=${encodeURIComponent(category.name)}`}>
-                    <ModernCard className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden relative h-full" style={{
-                      background: `linear-gradient(135deg, ${themeColors.surfacePrimary}, ${themeColors.surfaceSecondary})`
-                    }}>
+                    <ModernCard className="group hover:shadow-2xl transition-all duration-500 cursor-pointer border-0 overflow-hidden relative h-full">
                       <div className={`h-3 bg-gradient-to-r ${colorConfig.gradient}`} />
                       <div className="p-6 relative">
                         <div 
@@ -388,7 +358,7 @@ const Index = () => {
                         
                         <div className="space-y-4">
                           <div className="flex items-start justify-between">
-                            <h3 className="font-bold text-xl group-hover:text-primary transition-colors leading-tight" style={{ color: themeColors.textPrimary }}>
+                            <h3 className="font-bold text-xl group-hover:text-primary transition-colors leading-tight text-foreground">
                               {category.name}
                             </h3>
                             <ThemeBadge 
@@ -399,12 +369,12 @@ const Index = () => {
                             </ThemeBadge>
                           </div>
                           
-                          <p className="text-sm" style={{ color: themeColors.textSecondary }}>
+                          <p className="text-sm text-muted-foreground">
                             {category.count} projeto{category.count !== 1 ? 's' : ''} esperando 
                             {category.count > 10 ? ' para serem explorados' : ' por você'}
                           </p>
 
-                          <div className="flex items-center gap-2 text-xs" style={{ color: themeColors.textSecondary }}>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             <MousePointer className="h-3 w-3" />
                             <span>Clique para explorar este território</span>
                           </div>
@@ -420,9 +390,7 @@ const Index = () => {
 
         {/* Chamada para a Aventura */}
         <section className="relative py-20 px-4">
-          <div className="absolute inset-0 rounded-3xl" style={{
-            background: `linear-gradient(135deg, ${themeColors.accent}10, ${themeColors.accentHover}20, ${themeColors.accent}10)`
-          }} />
+          <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-surface-secondary/30 to-surface-primary/30" />
           <motion.div 
             className="relative max-w-4xl mx-auto text-center space-y-8"
             initial={{ opacity: 0, y: 30 }}
@@ -430,13 +398,13 @@ const Index = () => {
             viewport={{ once: true }}
           >
             <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold" style={{ color: themeColors.textPrimary }}>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground">
                 A Jornada Nunca Acaba
               </h2>
-              <p className="text-xl leading-relaxed" style={{ color: themeColors.textSecondary }}>
+              <p className="text-xl leading-relaxed text-muted-foreground">
                 Cada projeto visitado revela novos caminhos. Cada código lido desperta novas ideias. 
                 Cada solução descoberta abre portas para outros mundos. 
-                <strong style={{ color: themeColors.textPrimary }}> Sua próxima grande descoberta está a um clique de distância.</strong>
+                <strong className="text-foreground"> Sua próxima grande descoberta está a um clique de distância.</strong>
               </p>
             </div>
             
@@ -458,7 +426,7 @@ const Index = () => {
               </ModernButton>
             </motion.div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm" style={{ color: themeColors.textSecondary }}>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <FaEye className="h-4 w-4" />
                 <span>Sem necessidade de busca</span>
