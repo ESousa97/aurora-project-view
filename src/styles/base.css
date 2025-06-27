@@ -1,69 +1,145 @@
 
-/* src/styles/base.css - Estilos base e variáveis CSS */
+/* src/styles/base.css - Sistema de cores moderno e minimalista */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 0 0% 97%;
-    --foreground: 218 14% 14%;
-    --card: 0 0% 92%;
-    --card-foreground: 218 14% 14%;
-    --popover: 0 0% 92%;
-    --popover-foreground: 218 14% 14%;
-    --primary: 212 100% 43%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 92%;
-    --secondary-foreground: 218 14% 14%;
-    --muted: 0 0% 80%;
-    --muted-foreground: 215 10% 60%;
-    --accent: 212 100% 53%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 215 20% 85%;
-    --input: 215 20% 85%;
-    --ring: 212 100% 43%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 90%;
-    --sidebar-foreground: 218 14% 14%;
-    --sidebar-primary: 212 100% 43%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 212 100% 53%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 215 20% 85%;
-    --sidebar-ring: 212 100% 43%;
+    /* === CORES BASE MODERNAS === */
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+    --card: 248 250 252;
+    --card-foreground: 15 23 42;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+    
+    /* === CORES PRIMÁRIAS (Azul para Roxo) === */
+    --primary: 59 130 246;
+    --primary-foreground: 255 255 255;
+    --primary-hover: 147 51 234;
+    
+    /* === CORES SECUNDÁRIAS === */
+    --secondary: 241 245 249;
+    --secondary-foreground: 51 65 85;
+    --secondary-hover: 226 232 240;
+    
+    /* === CORES SILENCIADAS === */
+    --muted: 248 250 252;
+    --muted-foreground: 100 116 139;
+    
+    /* === CORES DE DESTAQUE (Verde para Azul) === */
+    --accent: 16 185 129;
+    --accent-foreground: 255 255 255;
+    --accent-hover: 59 130 246;
+    
+    /* === CORES DESTRUTIVAS === */
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    
+    /* === CORES DE INTERFACE === */
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 59 130 246;
+    --radius: 0.75rem;
+    
+    /* === GRADIENTES MODERNOS === */
+    --gradient-primary: linear-gradient(135deg, rgb(59 130 246) 0%, rgb(147 51 234) 100%);
+    --gradient-secondary: linear-gradient(135deg, rgb(16 185 129) 0%, rgb(59 130 246) 100%);
+    --gradient-accent: linear-gradient(135deg, rgb(147 51 234) 0%, rgb(236 72 153) 100%);
+    
+    /* === SUPERFÍCIES MODERNAS === */
+    --surface: 255 255 255;
+    --surface-hover: 248 250 252;
+    --surface-variant: 241 245 249;
+    
+    /* === DIVISORES SUTIS === */
+    --divider: 241 245 249;
+    --divider-strong: 226 232 240;
+    
+    /* === SOMBRAS ELEGANTES === */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* === SIDEBAR === */
+    --sidebar-background: 255 255 255;
+    --sidebar-foreground: 15 23 42;
+    --sidebar-primary: 59 130 246;
+    --sidebar-primary-foreground: 255 255 255;
+    --sidebar-accent: 16 185 129;
+    --sidebar-accent-foreground: 255 255 255;
+    --sidebar-border: 226 232 240;
+    --sidebar-ring: 59 130 246;
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 95%;
-    --card: 0 0% 15%;
-    --card-foreground: 0 0% 95%;
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 95%;
-    --primary: 0 0% 100%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 95%;
-    --muted: 0 0% 30%;
-    --muted-foreground: 0 0% 60%;
-    --accent: 0 0% 70%;
-    --accent-foreground: 0 0% 95%;
-    --destructive: 0 70% 55%;
-    --destructive-foreground: 0 0% 95%;
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 50%;
-    --sidebar-background: 0 0% 12%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 0 0% 10%;
-    --sidebar-accent: 0 0% 20%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 0 0% 50%;
+    /* === CORES BASE DARK === */
+    --background: 2 6 23;
+    --foreground: 248 250 252;
+    --card: 15 23 42;
+    --card-foreground: 248 250 252;
+    --popover: 15 23 42;
+    --popover-foreground: 248 250 252;
+    
+    /* === CORES PRIMÁRIAS DARK (Azul para Roxo) === */
+    --primary: 96 165 250;
+    --primary-foreground: 2 6 23;
+    --primary-hover: 196 181 253;
+    
+    /* === CORES SECUNDÁRIAS DARK === */
+    --secondary: 30 41 59;
+    --secondary-foreground: 226 232 240;
+    --secondary-hover: 51 65 85;
+    
+    /* === CORES SILENCIADAS DARK === */
+    --muted: 30 41 59;
+    --muted-foreground: 148 163 184;
+    
+    /* === CORES DE DESTAQUE DARK (Verde para Azul) === */
+    --accent: 52 211 153;
+    --accent-foreground: 2 6 23;
+    --accent-hover: 96 165 250;
+    
+    /* === CORES DESTRUTIVAS DARK === */
+    --destructive: 248 113 113;
+    --destructive-foreground: 2 6 23;
+    
+    /* === CORES DE INTERFACE DARK === */
+    --border: 51 65 85;
+    --input: 51 65 85;
+    --ring: 96 165 250;
+    
+    /* === GRADIENTES DARK === */
+    --gradient-primary: linear-gradient(135deg, rgb(96 165 250) 0%, rgb(196 181 253) 100%);
+    --gradient-secondary: linear-gradient(135deg, rgb(52 211 153) 0%, rgb(96 165 250) 100%);
+    --gradient-accent: linear-gradient(135deg, rgb(196 181 253) 0%, rgb(244 114 182) 100%);
+    
+    /* === SUPERFÍCIES DARK === */
+    --surface: 15 23 42;
+    --surface-hover: 30 41 59;
+    --surface-variant: 51 65 85;
+    
+    /* === DIVISORES DARK === */
+    --divider: 30 41 59;
+    --divider-strong: 51 65 85;
+    
+    /* === SOMBRAS DARK === */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+    
+    /* === SIDEBAR DARK === */
+    --sidebar-background: 15 23 42;
+    --sidebar-foreground: 248 250 252;
+    --sidebar-primary: 96 165 250;
+    --sidebar-primary-foreground: 2 6 23;
+    --sidebar-accent: 52 211 153;
+    --sidebar-accent-foreground: 2 6 23;
+    --sidebar-border: 51 65 85;
+    --sidebar-ring: 96 165 250;
   }
 
   * {
@@ -76,6 +152,25 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color 200ms ease-in-out, color 200ms ease-in-out;
+    transition: background-color 300ms ease-in-out, color 300ms ease-in-out;
+  }
+
+  /* === SCROLLBAR MINIMALISTA === */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--muted-foreground) / 0.5);
   }
 }
