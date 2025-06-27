@@ -1,0 +1,54 @@
+
+/* src/styles/components.css - Estilos de componentes */
+@layer components {
+  .btn-primary {
+    @apply relative overflow-hidden font-medium;
+    background: rgb(var(--primary));
+    color: rgb(var(--primary-foreground));
+    transition: all 200ms ease-in-out;
+  }
+
+  .btn-primary:hover {
+    background: rgb(var(--primary-hover));
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .btn-secondary {
+    @apply font-medium;
+    background: rgb(var(--secondary));
+    color: rgb(var(--secondary-foreground));
+    border: 1px solid rgb(var(--border));
+    transition: all 200ms ease-in-out;
+  }
+
+  .btn-secondary:hover {
+    background: rgb(var(--secondary-hover));
+    transform: translateY(-1px);
+  }
+
+  .card-surface {
+    background: rgb(var(--card));
+    border: 1px solid rgb(var(--border));
+    transition: all 200ms ease-in-out;
+  }
+
+  .card-surface:hover {
+    background: rgb(var(--card-hover));
+  }
+
+  .glass-surface {
+    background: rgb(var(--card) / 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgb(var(--border) / 0.5);
+  }
+
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    --tw-ring-color: rgb(var(--ring));
+    --tw-ring-offset-color: rgb(var(--background));
+  }
+}

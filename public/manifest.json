@@ -1,0 +1,26 @@
+
+{
+  "name": "ProjPortfólio - Plataforma de Projetos Técnicos",
+  "short_name": "ProjPortfólio",
+  "description": "Descubra, explore e organize projetos técnicos de forma moderna e intuitiva.",
+  "theme_color": "#1570EF",
+  "background_color": "#F7F7F7",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

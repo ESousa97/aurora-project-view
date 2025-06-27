@@ -1,0 +1,55 @@
+
+/* src/styles/utilities.css - Classes utilitárias */
+@layer utilities {
+  .gradient-brand {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--brand-600)) 0%,
+      rgb(var(--brand-500)) 50%,
+      rgb(var(--brand-400)) 100%
+    );
+  }
+
+  .gradient-success {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--accent-600)) 0%,
+      rgb(var(--accent-500)) 50%,
+      rgb(var(--accent-400)) 100%
+    );
+  }
+
+  .gradient-subtle {
+    background: linear-gradient(
+      135deg,
+      rgb(var(--background)) 0%,
+      rgb(var(--background-secondary)) 100%
+    );
+  }
+
+  .gradient-fade {
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--background) / 0) 0%,
+      rgb(var(--background) / 0.5) 50%,
+      rgb(var(--background)) 100%
+    );
+  }
+
+  .text-primary {
+    color: rgb(var(--foreground));
+  }
+
+  .text-secondary {
+    color: rgb(var(--foreground-secondary));
+  }
+
+  .text-tertiary {
+    color: rgb(var(--foreground-tertiary));
+  }
+
+  ::selection {
+    background: rgb(var(--brand-500) / 0.3);
+    color: rgb(var(--foreground));
+  }
+}
