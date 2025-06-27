@@ -1,5 +1,4 @@
-
-// src/components/layout/Sidebar.tsx - Sidebar refatorada e modular
+// src/components/layout/Sidebar.tsx - Sidebar com background corrigido
 import React from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUIStore } from '@/stores/uiStore';
@@ -15,7 +14,13 @@ export const Sidebar: React.FC = () => {
     <AnimatePresence>
       {sidebarOpen && (
         <motion.aside
-          className="fixed inset-y-0 left-0 z-40 w-80 bg-sidebar border-r border-sidebar-border flex flex-col"
+          className="fixed inset-y-0 left-0 z-40 w-80 flex flex-col"
+          style={{
+            // Force clean background - inherit from CSS variables
+            backgroundColor: 'hsl(var(--sidebar-background))',
+            borderRight: '1px solid hsl(var(--sidebar-border))',
+            color: 'hsl(var(--sidebar-foreground))'
+          }}
           initial={{ x: -320 }}
           animate={{ x: 0 }}
           exit={{ x: -320 }}

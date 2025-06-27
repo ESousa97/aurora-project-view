@@ -1,4 +1,3 @@
-
 // src/pages/Index.tsx - Página principal com design moderno
 import React, { useState, useMemo, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -18,11 +17,25 @@ import {
   Atom
 } from 'lucide-react';
 
+interface Project {
+  id: number;
+  name: string;
+  category: string;
+  language: string;
+}
+
+type ProjectVariant = 'featured' | 'mystery';
+
+interface Category {
+  name: string;
+  count: number;
+}
+
 const Index = () => {
   const [discoveredProjects, setDiscoveredProjects] = useState(new Set());
 
   // Mock data para demonstração
-  const projects = [
+  const projects: Project[] = [
     { id: 1, name: "Sistema de Automação", category: "Backend", language: "Python" },
     { id: 2, name: "Dashboard Analytics", category: "Frontend", language: "React" },
     { id: 3, name: "API REST", category: "Backend", language: "Node.js" },
@@ -31,7 +44,7 @@ const Index = () => {
     { id: 6, name: "E-commerce", category: "Fullstack", language: "Next.js" }
   ];
 
-  const categories = [
+  const categories: Category[] = [
     { name: "Backend", count: 12 },
     { name: "Frontend", count: 8 },
     { name: "Mobile", count: 5 },
@@ -54,7 +67,15 @@ const Index = () => {
     setDiscoveredProjects(prev => new Set([...prev, projectId]));
   }, []);
 
-  const ProjectCard = ({ project, variant, index, onDiscover, isDiscovered }) => {
+  interface ProjectCardProps {
+    project: Project;
+    variant: ProjectVariant;
+    index: number;
+    onDiscover?: (projectId: number) => void;
+    isDiscovered?: boolean;
+  }
+
+  const ProjectCard = ({ project, variant, index, onDiscover, isDiscovered }: ProjectCardProps) => {
     const [revealed, setRevealed] = useState(variant !== 'mystery');
 
     const handleReveal = () => {
