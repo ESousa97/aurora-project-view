@@ -6,7 +6,7 @@ import { ProjectCard } from '../ProjectCard';
 import { ProjectCard as ProjectCardType } from '@/types';
 
 const mockProject: ProjectCardType = {
-  id: '1',
+  id: 1, // Corrigido para number
   titulo: 'Test Project',
   descricao: 'Test description',
   categoria: 'Frontend',

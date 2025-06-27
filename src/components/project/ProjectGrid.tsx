@@ -109,23 +109,9 @@ export const ProjectGrid: React.FC<ProjectGridProps> = ({
   }
 
   // Determinar a variante dos cards baseado no contexto
-  const getCardVariant = (index: number) => {
-    if (variant === 'discovery') {
-      // Página inicial - mix de variantes para criar interesse
-      if (index < 2) return 'featured';
-      if (index < 5) return 'default';
-      return 'mystery';
-    }
-    
-    if (variant === 'showcase') {
-      // Para destacar projetos específicos
-      return 'featured';
-    }
-    
-    // Exploração padrão
+  const getCardVariant = (index: number): 'default' | 'compact' => {
     if (viewMode === 'list') return 'compact';
-    if (index < 3) return 'featured'; // Primeiros 3 em destaque
-    return 'default';
+    return 'default'; // Sempre retorna um tipo válido
   };
 
   // Container variants para animação staggered

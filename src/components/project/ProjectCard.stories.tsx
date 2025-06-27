@@ -6,7 +6,7 @@ import { ProjectCard as ProjectCardType } from '@/types';
 import { BrowserRouter } from 'react-router-dom';
 
 const mockProject: ProjectCardType = {
-  id: '1',
+  id: 1, // Corrigido para number
   titulo: 'Sistema de Automação Inteligente',
   descricao: 'Um sistema completo de automação residencial usando IoT e IA para otimizar o consumo de energia.',
   categoria: 'IoT',
