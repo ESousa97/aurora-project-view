@@ -37,10 +37,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ totalProjects }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-gray-600 bg-slate-800/80 backdrop-blur-sm shadow-lg">
-            <Search className="h-5 w-5 text-blue-400" />
-            <span className="font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Sua jornada de descoberta começa aqui</span>
-            <Atom className="h-4 w-4 text-blue-400" />
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-700">
+            <Search className="h-4 w-4 text-blue-400" />
+            <span className="font-medium text-sm bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">Descobertas Recentes</span>
           </div>
           
           <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold tracking-tight leading-tight">
