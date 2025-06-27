@@ -1,4 +1,3 @@
-
 // src/components/layout/Header.tsx - Header com ícones do sistema
 import React from 'react';
 import { Menu, Sun, Moon } from 'lucide-react';

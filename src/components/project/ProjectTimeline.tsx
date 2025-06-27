@@ -1,4 +1,4 @@
-
+// src/components/project/ProjectTimeline.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, GitBranch } from 'lucide-react';

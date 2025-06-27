@@ -1,245 +1,141 @@
 // src/components/project/ProjectCard.tsx
 import React from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Target, ChevronRight, HelpCircle } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Calendar, ArrowRight, Code2 } from 'lucide-react';
 import { ProjectCard as ProjectCardType } from '@/types';
-import { EnhancedProjectCard } from '@/types/enhanced';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { detectLanguage, LanguageColor, LANGUAGE_COLORS } from '@/lib/languageColors';
-import { toast } from '@/components/ui/sonner';
-import { ProjectCardContent } from './ProjectCardContent';
-import { ProjectCardImage } from './ProjectCardImage';
-import { ProjectCardFooter } from './ProjectCardFooter';
-import { useProjectEngagement } from '@/hooks/useProjectEngagement';
+import { detectLanguage } from '@/lib/languageColors';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface ProjectCardProps {
-  project: ProjectCardType | EnhancedProjectCard | null | undefined;
-  variant?: 'default' | 'compact' | 'mystery' | 'featured';
+  project: ProjectCardType;
+  variant?: 'default' | 'compact';
   index?: number;
-  onDiscover?: (id: number) => void;
-  isDiscovered?: boolean;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ 
-  project, 
+export const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
   variant = 'default',
   index = 0,
-  onDiscover,
-  isDiscovered = false
 }) => {
-  const [isRevealed, setIsRevealed] = React.useState(variant !== 'mystery');
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [viewProgress, setViewProgress] = React.useState(0);
+  const languageConfig = React.useMemo(() => detectLanguage(project), [project]);
+  const Icon = languageConfig.icon;
 
-  // SINCRONIZAÇÃO: Usar a linguagem já detectada se disponível (EnhancedProjectCard)
-  // Senão fazer detecção local com fallback consistente
-  const languageConfig: LanguageColor = React.useMemo(() => {
-    if (!project) {
-      return LANGUAGE_COLORS.default;
+  const formattedDate = React.useMemo(() => {
+    try {
+      return format(new Date(project.data_modificacao), "dd 'de' MMM yyyy", { locale: ptBR });
+    } catch {
+      return 'Data inválida';
     }
-    
-    // Se é um EnhancedProjectCard (vem do useProjectsWithLanguage), usar a linguagem já detectada
-    if ('detectedLanguage' in project && project.detectedLanguage) {
-      return project.detectedLanguage;
-    }
-    
-    // Senão, usar a função detectLanguage padrão
-    return detectLanguage(project);
-  }, [project]);
+  }, [project.data_modificacao]);
 
-  const engagement = useProjectEngagement(project);
-
-  // Usar o ícone da configuração de linguagem detectada
-  const ProjectIcon = languageConfig.icon;
-
-  // Renderização para projeto não disponível
-  if (!project?.id) {
-    return (
-      <div className="border rounded-xl p-6 bg-muted/30 text-center">
-        <div className="space-y-3">
-          <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
-            <Target className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <p className="text-muted-foreground font-medium">Projeto não disponível</p>
-          <p className="text-xs text-muted-foreground">Este território ainda está sendo mapeado</p>
-        </div>
-      </div>
-    );
-  }
-
-  const handleReveal = () => {
-    if (!isRevealed) {
-      setIsRevealed(true);
-      setViewProgress(100);
-      if (onDiscover && project.id) {
-        onDiscover(project.id);
-        toast.success("Descoberta realizada!", {
-          description: `Você descobriu ${project.titulo}! Linguagem: ${languageConfig.displayName}`,
-          duration: 3000,
-        });
-      }
-    }
+  const animationProps = {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay: index * 0.05, duration: 0.3 },
   };
 
-  // Renderização da variante compact
   if (variant === 'compact') {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.05 }}
-        whileHover={{ x: 4, scale: 1.01 }}
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-      >
-        <Card className="group cursor-pointer border-l-4 relative overflow-hidden transition-all duration-300 hover:shadow-lg"
-              style={{ 
-                borderLeftColor: isRevealed ? languageConfig.color : '#94a3b8'
-              }}>
-          
-          {/* Background gradient sutil */}
-          <div className={`absolute inset-0 bg-gradient-to-r ${
-            isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-          } opacity-5`} />
-          
-          <CardContent className="p-4 flex items-center gap-4 relative z-10">
-            {/* Ícone do projeto - SINCRONIZADO */}
-            <div className="flex flex-col items-center gap-2 shrink-0">
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
-                isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-              } shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                {isRevealed ? (
-                  <ProjectIcon className="w-6 h-6 text-white" />
-                ) : (
-                  <HelpCircle className="w-6 h-6 text-white" />
-                )}
-              </div>
-              
-              {/* Indicador de dificuldade - só mostrar se revelado */}
-              {isRevealed && languageConfig.difficulty && (
-                <div className="flex gap-0.5">
-                  {[...Array(Math.min(languageConfig.difficulty, 3))].map((_, i) => (
-                    <div 
-                      key={`difficulty-${i}`}
-                      className="w-1 h-1 rounded-full bg-current"
-                      style={{ color: languageConfig.color }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            {/* Conteúdo do projeto */}
-            <div className="flex-1">
-              <ProjectCardContent 
-                project={project} 
-                isRevealed={isRevealed} 
-                variant="compact"
-                enhancedLanguage={isRevealed ? languageConfig : undefined}
-              />
+      <motion.div {...animationProps}>
+        <Link to={`/projects/${project.id}`} className="block">
+          <Card className="group card-surface hover-lift rounded-lg p-4 cursor-pointer flex items-start gap-4">
+            {/* Tech Icon */}
+            <div className="flex-shrink-0">
+              <span
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-surface text-primary transition-colors group-hover:bg-accent"
+                aria-label={languageConfig.displayName}
+              >
+                <Icon className="w-5 h-5" />
+              </span>
             </div>
 
-            {/* Ícone de navegação */}
-            <div className="flex items-center">
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </motion.div>
-              )}
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-primary line-clamp-1 transition-colors group-hover:text-accent">
+                {project.titulo}
+              </h3>
+              <p className="mt-1 text-sm text-muted line-clamp-2">
+                {project.descricao || 'Sem descrição disponível.'}
+              </p>
+
+              {/* Metadata */}
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted">
+                <Calendar className="w-3 h-3 flex-shrink-0" />
+                <span>{formattedDate}</span>
+                <Badge variant="outline" className="ml-auto">
+                  {languageConfig.displayName}
+                </Badge>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+
+            {/* Hover Arrow */}
+            <ArrowRight className="w-4 h-4 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Card>
+        </Link>
       </motion.div>
     );
   }
 
-  // Renderização da variante default
+  // Default variant
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      whileHover={{ y: -4, scale: 1.02 }}
-      className="h-full"
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-    >
-      <Card 
-        className="group hover:shadow-2xl transition-all duration-500 cursor-pointer h-full flex flex-col relative overflow-hidden border-0 shadow-lg" 
-        onClick={handleReveal}
-        style={{
-          background: isRevealed 
-            ? `linear-gradient(135deg, ${languageConfig.color}05 0%, transparent 50%)`
-            : 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--background)) 100%)'
-        }}
-      >
-        {/* Overlay para projetos não revelados */}
-        {!isRevealed && (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/20 to-primary/5 z-10" />
-        )}
-
-        {/* Imagem do projeto */}
-        <div className="aspect-video relative overflow-hidden">
-          <ProjectCardImage 
-            project={project}
-            isRevealed={isRevealed}
-            viewProgress={viewProgress}
-            enhancedLanguage={isRevealed ? languageConfig : undefined}
-          />
-          
-          {/* SINCRONIZAÇÃO: Ícone da tecnologia sobreposto na imagem - SOMENTE se revelado */}
-          {isRevealed && (
-            <div className="absolute top-4 left-4 z-20">
-              <div 
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center backdrop-blur-sm`}
-                style={{ 
-                  backgroundColor: `${languageConfig.color}90`
-                }}
-                title={`${languageConfig.displayName} - ${languageConfig.description}`}
-              >
-                <ProjectIcon className="w-6 h-6 text-white" />
+    <motion.div {...animationProps} className="h-full">
+      <Link to={`/projects/${project.id}`} className="block h-full">
+        <Card className="group card-surface hover-lift rounded-lg overflow-hidden h-full flex flex-col">
+          {/* Image or Placeholder */}
+          <div className="relative aspect-video bg-surface-variant">
+            {project.imageurl ? (
+              <img
+                src={project.imageurl}
+                alt={project.titulo}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-full h-full">
+                <Code2 className="w-12 h-12 text-muted" />
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Ícone de mistério para projetos não revelados */}
-          {!isRevealed && (
-            <div className="absolute top-4 left-4 z-20">
-              <div 
-                className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 shadow-lg flex items-center justify-center backdrop-blur-sm"
-                style={{ backgroundColor: '#64748b90' }}
-                title="Tecnologia oculta - Clique para revelar"
+            {/* Language Badge Overlay */}
+            <div className="absolute top-4 left-4">
+              <span
+                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-surface text-muted transition-opacity group-hover:opacity-100 opacity-90"
+                aria-label={languageConfig.displayName}
               >
-                <HelpCircle className="w-6 h-6 text-white" />
-              </div>
+                <Icon className="w-4 h-4" style={{ color: languageConfig.color }} />
+                <span className="text-xs font-medium" style={{ color: languageConfig.color }}>
+                  {languageConfig.displayName}
+                </span>
+              </span>
             </div>
-          )}
-        </div>
+          </div>
 
-        {/* Conteúdo do projeto */}
-        <CardContent className="flex-1 flex flex-col p-4">
-          <ProjectCardContent 
-            project={project} 
-            isRevealed={isRevealed} 
-            variant="default"
-            enhancedLanguage={isRevealed ? languageConfig : undefined}
-          />
-        </CardContent>
+          {/* Title & Description */}
+          <div className="flex-1 p-5 flex flex-col">
+            <h3 className="font-semibold text-lg line-clamp-2 transition-colors group-hover:text-accent text-primary">
+              {project.titulo}
+            </h3>
+            <p className="mt-2 text-sm text-secondary flex-1 line-clamp-3">
+              {project.descricao || 'Este projeto ainda não possui uma descrição.'}
+            </p>
 
-        {/* Footer do projeto */}
-        <CardFooter className="p-0">
-          <ProjectCardFooter 
-            project={project} 
-            isRevealed={isRevealed}
-            enhancedLanguage={isRevealed ? languageConfig : undefined}
-          />
-        </CardFooter>
-      </Card>
+            {/* Footer Metadata & CTA */}
+            <div className="mt-4 pt-4 border-t border-divider flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs text-muted">
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{formattedDate}</span>
+              </div>
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                Ver projeto
+                <ArrowRight className="w-3.5 h-3.5" />
+              </span>
+            </div>
+          </div>
+        </Card>
+      </Link>
     </motion.div>
   );
 };

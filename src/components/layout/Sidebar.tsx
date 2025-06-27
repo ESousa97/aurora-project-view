@@ -1,287 +1,154 @@
-
-// src/components/layout/Sidebar.tsx - Sidebar com ícones do sistema languageColors
+// src/components/layout/Sidebar.tsx
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ChevronRight, FolderOpen
-} from 'lucide-react';
 import { useUIStore } from '@/stores/uiStore';
 import { useCategories } from '@/hooks/useProjects';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { getCategoryColor } from '@/lib/languageColors';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getCategoryColor } from '@/lib/languageColors';
+import { SiRocket, SiCompass, SiBarChart, SiGlobe } from '@/lib/languageColors/icons';
+import { FolderOpen } from 'lucide-react';
 
-// Importar ícones do sistema languageColors
-import { 
-  SiRocket, SiCompass, SiBarChart, SiGlobe 
-} from '@/lib/languageColors/icons';
-
-const navigationItems = [
-  { 
-    name: 'Base de Operações', 
-    href: '/', 
-    icon: SiRocket,
-    description: 'Central de comando',
-    gradient: 'from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400'
-  },
-  { 
-    name: 'Explorar Territórios', 
-    href: '/projects', 
-    icon: SiCompass,
-    description: 'Descobrir projetos',
-    gradient: 'from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400'
-  },
-  { 
-    name: 'Centro de Comando', 
-    href: '/dashboard', 
-    icon: SiBarChart,
-    description: 'Analytics e métricas',
-    gradient: 'from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400'
-  },
+const navItems = [
+  { name: 'Base de Operações', href: '/', icon: SiRocket, gradient: 'from-blue-600 to-purple-600' },
+  { name: 'Explorar Territórios', href: '/projects', icon: SiCompass, gradient: 'from-emerald-600 to-blue-600' },
+  { name: 'Centro de Comando', href: '/dashboard', icon: SiBarChart, gradient: 'from-purple-600 to-pink-600' },
 ];
 
-export const Sidebar = () => {
+export const Sidebar: React.FC = () => {
+  const { sidebarOpen, selectedCategory, setSelectedCategory } = useUIStore();
+  const { data: categories = [], isLoading } = useCategories();
   const location = useLocation();
   const navigate = useNavigate();
-  const { 
-    sidebarOpen, 
-    selectedCategory, 
-    setSelectedCategory 
-  } = useUIStore();
-  const { data: categories, isLoading: categoriesLoading } = useCategories();
 
-  const handleCategorySelect = (categoryName: string) => {
-    setSelectedCategory(categoryName);
-    if (location.pathname !== '/projects') {
-      navigate('/projects');
-    }
-  };
-
-  const handleAllCategories = () => {
+  const onNavClick = (href: string) => {
+    navigate(href);
     setSelectedCategory('');
-    if (location.pathname !== '/projects') {
-      navigate('/projects');
-    }
   };
 
   return (
-    <div
-      className={cn(
-        "fixed inset-y-0 z-30 flex h-full w-80 flex-col border-r bg-background/95 backdrop-blur-lg transition-transform duration-300 ease-in-out lg:translate-x-0",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}
-    >
-      <ScrollArea className="flex-1 px-4 py-6">
-        {/* Navigation */}
-        <div className="space-y-2 mb-8">
-          <h2 className="mb-4 px-4 text-sm font-semibold tracking-tight text-muted-foreground uppercase flex items-center gap-2">
-            <SiRocket className="h-4 w-4" />
-            Navegação
-          </h2>
-          <div className="space-y-1">
-            {navigationItems.map((item, index) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    className={cn(
-                      "w-full justify-start h-12 group relative overflow-hidden",
-                      isActive && `bg-gradient-to-r ${item.gradient} bg-opacity-10 border border-opacity-20`
-                    )}
-                    asChild
+    <AnimatePresence>
+      {sidebarOpen && (
+        <motion.aside
+          className="fixed inset-y-0 left-0 z-40 w-72 bg-surface-variant shadow-lg flex flex-col"
+          initial={{ x: -300 }}
+          animate={{ x: 0 }}
+          exit={{ x: -300 }}
+          transition={{ type: 'tween' }}
+        >
+          <ScrollArea className="flex-1 pt-6">
+            {/* Logo */}
+            <div className="px-6 mb-8">
+              <Link to="/" className="flex items-center space-x-2">
+                <SiRocket className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold text-primary">Aurora</span>
+              </Link>
+            </div>
+
+            {/* Navigation */}
+            <nav className="space-y-1 px-4">
+              {navItems.map((item, idx) => {
+                const active = location.pathname === item.href;
+                return (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
                   >
-                    <Link to={item.href}>
-                      <div className="flex items-center gap-3 w-full">
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
-                          isActive 
-                            ? `bg-gradient-to-br ${item.gradient} text-white shadow-lg`
-                            : "bg-muted group-hover:bg-primary/20"
-                        )}>
-                          <item.icon className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="font-medium">{item.name}</div>
-                          <div className="text-xs text-muted-foreground">{item.description}</div>
-                        </div>
-                        {isActive && (
-                          <div className="w-2 h-2 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 rounded-full animate-pulse" />
-                        )}
-                      </div>
-                    </Link>
-                  </Button>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Categories */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between px-4 mb-4">
-            <h3 className="text-sm font-semibold tracking-tight text-muted-foreground uppercase flex items-center gap-2">
-              <SiGlobe className="h-4 w-4" />
-              Territórios
-              <Badge variant="outline" className="text-xs">
-                {categories?.length || 0}
-              </Badge>
-            </h3>
-            {selectedCategory && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleAllCategories}
-                className="h-6 px-2 text-xs"
-              >
-                <span>Limpar</span>
-              </Button>
-            )}
-          </div>
-          
-          <div className="space-y-1">
-            <Button
-              variant={selectedCategory === '' ? 'secondary' : 'ghost'}
-              size="sm"
-              className="w-full justify-start h-10 group"
-              onClick={handleAllCategories}
-            >
-              <div className="flex items-center gap-3 w-full">
-                <div className={cn(
-                  "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
-                  selectedCategory === '' 
-                    ? "bg-gradient-to-br from-emerald-600 to-blue-600 dark:from-emerald-400 dark:to-blue-400 text-white shadow-lg"
-                    : "bg-muted group-hover:bg-primary/20"
-                )}>
-                  <FolderOpen className="h-4 w-4" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="text-sm font-medium">Todos os Projetos</div>
-                  <div className="text-xs text-muted-foreground">
-                    {categories ? categories.reduce((total, cat) => total + cat.count, 0) : 0} projetos
-                  </div>
-                </div>
-                <Badge variant="outline" className="text-xs">
-                  {categories ? categories.reduce((total, cat) => total + cat.count, 0) : 0}
-                </Badge>
-              </div>
-            </Button>
-            
-            {categoriesLoading ? (
-              <div className="space-y-2 px-4">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="h-10 bg-muted/50 rounded-lg animate-pulse" />
-                ))}
-              </div>
-            ) : categories && categories.length > 0 ? (
-              <AnimatePresence>
-                {categories.slice(0, 12).map((category, index) => {
-                  const colorConfig = getCategoryColor(category.name);
-                  const CategoryIcon = colorConfig.icon;
-                  const isSelected = selectedCategory === category.name;
-                  
-                  return (
-                    <motion.div
-                      key={category.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                    <Button
+                      variant={active ? 'default' : 'ghost'}
+                      className={cn(
+                        'w-full justify-start space-x-3 py-3',
+                        active
+                          ? `bg-gradient-to-r ${item.gradient} text-white shadow-md`
+                          : 'text-muted-foreground hover:bg-muted/10'
+                      )}
+                      onClick={() => onNavClick(item.href)}
                     >
-                      <Button
-                        variant={isSelected ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className="w-full justify-between h-12 group relative overflow-hidden"
-                        onClick={() => handleCategorySelect(category.name)}
-                      >
-                        {/* Background gradient effect */}
-                        <div 
-                          className={`absolute inset-0 bg-gradient-to-r ${colorConfig.gradient} opacity-0 group-hover:opacity-10 transition-opacity`}
-                        />
-                        
-                        <div className="flex items-center gap-3 flex-1 text-left min-w-0 relative z-10">
-                          <div 
-                            className={cn(
-                              "w-8 h-8 rounded-xl flex items-center justify-center transition-all group-hover:scale-110",
-                              isSelected 
-                                ? "text-white shadow-lg" 
-                                : "text-white"
-                            )}
-                            style={{ 
-                              background: isSelected 
-                                ? `linear-gradient(135deg, ${colorConfig.color}, ${colorConfig.color}CC)`
-                                : `linear-gradient(135deg, ${colorConfig.color}CC, ${colorConfig.color}AA)`
-                            }}
-                          >
-                            <CategoryIcon className="h-4 w-4" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate text-sm">{category.name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {category.count} projeto{category.count !== 1 ? 's' : ''}
-                              {colorConfig.trending && (
-                                <span className="ml-1"></span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 shrink-0 relative z-10">
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs border-current"
-                            style={{ color: colorConfig.color }}
-                          >
-                            {category.count}
-                          </Badge>
-                          {!isSelected && (
-                            <ChevronRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground" />
-                          )}
-                        </div>
-                      </Button>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            ) : (
-              <div className="px-4 py-6 text-center">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                    <SiGlobe className="h-6 w-6 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium mb-1">Explorando Territórios</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Mapeamento em andamento...
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+                      <item.icon className="h-5 w-5 flex-shrink-0" />
+                      <span className="flex-1 text-left font-medium truncate">
+                        {item.name}
+                      </span>
+                    </Button>
+                  </motion.div>
+                );
+              })}
+            </nav>
 
-            {categories && categories.length > 12 && (
-              <div className="px-4 py-2">
+            <div className="mt-8 px-4">
+              <h3 className="text-xs font-semibold uppercase text-muted-foreground mb-2 flex items-center space-x-1">
+                <SiGlobe className="h-4 w-4" />
+                <span>Territórios</span>
+                <Badge variant="outline" className="ml-auto">{categories.length}</Badge>
+              </h3>
+
+              <Button
+                variant={selectedCategory === '' ? 'secondary' : 'ghost'}
+                className="w-full justify-start space-x-3 py-2 mb-2"
+                onClick={() => onNavClick('/projects')}
+              >
+                <FolderOpen className="h-5 w-5 flex-shrink-0" />
+                <span className="flex-1 text-left">Todos</span>
+                <Badge variant="outline">{categories.reduce((sum, c) => sum + c.count, 0)}</Badge>
+              </Button>
+
+              {isLoading
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-10 bg-muted/20 rounded animate-pulse mb-2" />
+                  ))
+                : categories.slice(0, 12).map((cat, i) => {
+                    const active = selectedCategory === cat.name;
+                    const { gradient, icon: Icon } = getCategoryColor(cat.name);
+                    return (
+                      <motion.div
+                        key={cat.name}
+                        className="mb-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.04 }}
+                      >
+                        <Button
+                          variant={active ? 'default' : 'ghost'}
+                          className={cn(
+                            'w-full justify-between space-x-3 py-2 relative overflow-hidden',
+                            active
+                              ? `bg-gradient-to-r ${gradient} text-white shadow-md`
+                              : 'text-muted-foreground hover:bg-muted/10'
+                          )}
+                          onClick={() => {
+                            setSelectedCategory(cat.name);
+                            navigate('/projects');
+                          }}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="inline-flex items-center justify-center h-6 w-6 rounded bg-surface">
+                              <Icon className="h-4 w-4" style={{ color: active ? '#fff' : gradient.split(' ')[0] }} />
+                            </span>
+                            <span className="flex-1 truncate font-medium">{cat.name}</span>
+                          </div>
+                          <Badge variant="outline" className="flex-shrink-0">{cat.count}</Badge>
+                        </Button>
+                      </motion.div>
+                    );
+                  })}
+
+              {categories.length > 12 && (
                 <Button
                   variant="ghost"
-                  size="sm"
-                  className="w-full text-xs text-muted-foreground hover:text-foreground justify-center"
+                  className="w-full justify-center py-2 mt-2"
                   onClick={() => navigate('/projects')}
                 >
-                  <span>+{categories.length - 12} territórios adicionais</span>
-                  <ChevronRight className="h-3 w-3 ml-1" />
+                  Ver mais...
                 </Button>
-              </div>
-            )}
-          </div>
-        </div>
-      </ScrollArea>
-    </div>
+              )}
+            </div>
+          </ScrollArea>
+        </motion.aside>
+      )}
+    </AnimatePresence>
   );
 };
