@@ -1,4 +1,4 @@
-// src/App.tsx - Com correção de background
+// src/App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,10 +8,7 @@ import Index from "./pages/Index";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import { Dashboard } from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
-import { useBackgroundFix } from "./hooks/useBackgroundFix";
-import { useSidebarFix } from "./hooks/useSidebarFix";
-import { useEffect } from "react";
+import NotFound from "./pages/NotFound"; // Importado para a rota de 404
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,40 +20,21 @@ const queryClient = new QueryClient({
   },
 });
 
-// Componente interno que usa os hooks
-const AppWithBackgroundFix = () => {
-  const { checkAndFixBackground } = useBackgroundFix();
-  const { checkAndFixSidebar } = useSidebarFix();
-
-  // Verificação adicional a cada 5 segundos
-  useEffect(() => {
-    const interval = setInterval(() => {
-      checkAndFixBackground();
-      checkAndFixSidebar();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [checkAndFixBackground, checkAndFixSidebar]);
-
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/projects/:id" element={<ProjectDetail />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
-  );
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <AppWithBackgroundFix />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/projects/:id" element={<ProjectDetail />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* A ROTA DE LOGIN FOI REMOVIDA */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
