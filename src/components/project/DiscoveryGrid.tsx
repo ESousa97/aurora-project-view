@@ -370,9 +370,7 @@ export const DiscoveryGrid: React.FC<DiscoveryGridProps> = ({
             >
               <ProjectCard
                 project={project}
-                variant={currentLayout === 'stories' ? 'default' : 'default'} // Removendo 'featured'
-                onDiscover={handleProjectDiscover}
-                isDiscovered={discoveredProjects.has(project.id)}
+                variant={currentLayout === 'stories' ? 'default' : 'default'}
               />
             </motion.div>
           ))}

@@ -11,6 +11,8 @@ const mockProject: ProjectCardType = {
   descricao: 'Um sistema completo de automação residencial usando IoT e IA para otimizar o consumo de energia.',
   categoria: 'IoT',
   data_modificacao: '2024-01-15T10:30:00Z',
+  data_criacao: '2024-01-10T08:00:00Z',
+  conteudo: 'Conteúdo completo do projeto com detalhes técnicos...',
   imageurl: null,
 };
 

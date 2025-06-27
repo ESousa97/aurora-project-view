@@ -11,6 +11,8 @@ const mockProject: ProjectCardType = {
   descricao: 'Test description',
   categoria: 'Frontend',
   data_modificacao: '2024-01-01T00:00:00Z',
+  data_criacao: '2024-01-01T00:00:00Z',
+  conteudo: 'Test content',
   imageurl: null,
 };
 
