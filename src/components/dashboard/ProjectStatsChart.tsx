@@ -1,4 +1,4 @@
-// src/components/dashboard/ProjectStatsChart.tsx - Gráfico com ícones do sistema corrigidos
+// src/components/dashboard/ProjectStatsChart.tsx
 import React from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

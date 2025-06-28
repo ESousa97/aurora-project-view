@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { useUIStore } from '@/stores/uiStore';
+import { useUIStore, useSidebar, useResponsiveSidebar } from '@/stores/uiStore';
 import { keepAliveService } from '@/services/api';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +11,17 @@ interface AppLayoutProps {
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { sidebarOpen, theme, setTheme, setSidebarOpen } = useUIStore();
+  const { theme, setTheme } = useUIStore();
+  const { 
+    sidebarState, 
+    sidebarMode, 
+    isOpen, 
+    isMinimized, 
+    isOverlayMode
+  } = useSidebar();
+  
+  // Hook para gerenciar responsividade
+  useResponsiveSidebar();
 
   // Sincroniza tema na montagem
   useEffect(() => {
@@ -23,6 +33,25 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     const cleanup = keepAliveService.start();
     return cleanup;
   }, []);
+
+  // Calcular margem esquerda baseada no estado da sidebar
+  const getMainMargin = () => {
+    // Em modo overlay ou hidden, sem margem
+    if (isOverlayMode || sidebarState === 'hidden') {
+      return '0';
+    }
+    
+    // Em modo push, aplicar margem baseada no estado
+    if (isMinimized) {
+      return '4rem'; // 64px - sidebar minimizada
+    }
+    
+    if (isOpen) {
+      return '20rem'; // 320px - sidebar aberta
+    }
+    
+    return '0';
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/50 dark:from-gray-950 dark:via-blue-950/40 dark:to-purple-950/60">
@@ -39,20 +68,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Header fixo */}
       <Header />
 
-      {/* Overlay acrílico - só aparece quando sidebar está aberta */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 backdrop-blur-sm transition-all duration-300 ease-in-out"
-          style={{ top: '64px' }}
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar como overlay */}
+      {/* Sidebar - agora gerencia seu próprio overlay */}
       <Sidebar />
 
-      {/* Conteúdo principal - sempre ocupa toda a largura */}
-      <main className="pt-16 min-h-screen">
+      {/* Conteúdo principal - margem dinâmica baseada no estado da sidebar */}
+      <main 
+        className={cn(
+          "pt-16 min-h-screen transition-all duration-300 ease-in-out",
+          // Adicionar classes baseadas no modo para debugging
+          isOverlayMode && "sidebar-overlay-mode",
+          !isOverlayMode && "sidebar-push-mode"
+        )}
+        style={{ 
+          marginLeft: getMainMargin(),
+        }}
+      >
         <div className="container mx-auto px-4 py-6">
           {children}
         </div>
