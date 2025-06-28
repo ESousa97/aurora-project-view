@@ -1,13 +1,11 @@
-// src/components/layout/Header.tsx - Header com ícones do sistema
+
+// src/components/layout/Header.tsx
 import React from 'react';
 import { Menu, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { useUIStore } from '@/stores/uiStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-
-// Usar ícone do sistema languageColors
 import { FaBrain } from '@/lib/languageColors/icons';
 
 export const Header = () => {
@@ -19,21 +17,21 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-lg supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
+    <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+      <div className="flex h-full items-center justify-between px-4">
         {/* Left section */}
         <div className="flex items-center gap-4">
-          {/* Mobile menu trigger */}
+          {/* Menu hambúrguer */}
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden"
             onClick={toggleSidebar}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </Button>
           
-          {/* Logo and brand */}
+          {/* Logo e brand */}
           <motion.div 
             className="flex items-center gap-3 cursor-pointer group"
             onClick={() => navigate('/')}
@@ -56,19 +54,19 @@ export const Header = () => {
           </motion.div>
         </div>
 
-        {/* Right section - Theme toggle only */}
+        {/* Right section - Theme toggle */}
         <div className="flex items-center">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={toggleTheme} 
-            className="relative group"
+            className="relative group p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
             <div className="relative w-5 h-5">
-              <Sun className={`h-5 w-5 absolute transition-all duration-300 ${
+              <Sun className={`h-5 w-5 absolute transition-all duration-300 text-gray-700 dark:text-gray-300 ${
                 theme === 'light' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'
               }`} />
-              <Moon className={`h-5 w-5 absolute transition-all duration-300 ${
+              <Moon className={`h-5 w-5 absolute transition-all duration-300 text-gray-700 dark:text-gray-300 ${
                 theme === 'dark' ? 'rotate-0 scale-100' : '-rotate-90 scale-0'
               }`} />
             </div>
