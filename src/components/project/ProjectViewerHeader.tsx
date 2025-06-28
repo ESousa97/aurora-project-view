@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ExternalLink, Share2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
@@ -31,93 +31,60 @@ export const ProjectViewerHeader: React.FC<ProjectViewerHeaderProps> = ({
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: project.titulo,
-        text: project.descricao,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
-
   return (
     <motion.header 
-      className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm"
+      className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border/50"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          {/* Left section */}
-          <div className="flex items-center gap-4">
+          {/* Left section - Back button */}
+          <div className="flex items-center gap-6">
             <Button
               variant="ghost"
               size="sm"
               onClick={handleBack}
-              className="hover:bg-accent"
+              className="hover:bg-accent/80 transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar
+              Projetos
             </Button>
             
-            <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
-              <Link to="/projects" className="hover:text-foreground transition-colors">
-                Projetos
+            <div className="hidden md:flex items-center gap-3 text-sm text-muted-foreground">
+              <Link to="/projects" className="hover:text-foreground transition-colors font-medium">
+                Portfólio
               </Link>
-              <span>/</span>
-              <span className="text-foreground font-medium truncate max-w-48">
+              <span className="text-border">•</span>
+              <span className="text-foreground font-medium truncate max-w-64">
                 {project.titulo}
               </span>
             </div>
           </div>
 
-          {/* Center section */}
-          <div className="flex items-center gap-3">
+          {/* Right section - Project info */}
+          <div className="flex items-center gap-4">
             {/* Language indicator */}
             <div 
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium shadow-sm"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200"
               style={{ 
-                backgroundColor: `${languageConfig.color}20`,
-                color: languageConfig.color,
-                border: `1px solid ${languageConfig.color}30`
+                backgroundColor: `${languageConfig.color}08`,
+                borderColor: `${languageConfig.color}20`,
+                color: languageConfig.color
               }}
             >
               <LanguageIcon className="h-4 w-4" />
-              <span className="hidden sm:inline">{languageConfig.displayName}</span>
+              <span className="hidden sm:inline font-semibold">{languageConfig.displayName}</span>
             </div>
 
             {/* Date */}
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="secondary" className="text-xs font-medium bg-muted/50">
               {formatDistanceToNow(new Date(project.data_modificacao), {
                 addSuffix: true,
                 locale: ptBR
               })}
             </Badge>
-          </div>
-
-          {/* Right section */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleShare}
-              className="hover:bg-accent"
-            >
-              <Share2 className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">Compartilhar</span>
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className="hover:bg-accent"
-            >
-              <ExternalLink className="h-4 w-4" />
-              <span className="hidden sm:inline ml-2">Abrir</span>
-            </Button>
           </div>
         </div>
       </div>

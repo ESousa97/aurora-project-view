@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Copy } from 'lucide-react';
+import { Copy, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -52,12 +52,12 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       (_, content) => `<span class="highlight-text">${content.trim()}</span>`
     );
 
-    // Parse markdown synchronously using parseInline for inline content
-    const processedContent = marked.parseInline(highlightedMarkdown.replace(/\\n/g, '\n'));
+    // Parse full markdown content synchronously
+    const processedContent = marked(highlightedMarkdown.replace(/\\n/g, '\n'));
     
     // Create temporary div to process content
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = processedContent;
+    tempDiv.innerHTML = typeof processedContent === 'string' ? processedContent : '';
 
     // Process code elements
     tempDiv.querySelectorAll('code').forEach((codeEl) => {
@@ -86,7 +86,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
 
       if (videoMatch) {
         return (
-          <div key={`video-${index}`} className="my-6">
+          <div key={`video-${index}`} className="my-8">
             {renderVideo(videoMatch[1])}
           </div>
         );
@@ -100,7 +100,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
             return part.trim() === '' ? null : (
               <span
                 key={`text-${index}-${i}`}
-                dangerouslySetInnerHTML={createMarkup(marked.parseInline(part))}
+                dangerouslySetInnerHTML={createMarkup(typeof marked(part) === 'string' ? marked(part) : '')}
               />
             );
           }
@@ -110,15 +110,15 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onCopy(part)}
-              className="mx-1 my-1 bg-green-50 hover:bg-green-100 border-green-200 text-green-700"
+              className="mx-2 my-1 bg-green-50 hover:bg-green-100 border-green-200 text-green-700 transition-all duration-200 hover:scale-105"
             >
-              <Copy className="h-3 w-3 mr-1" />
+              <Copy className="h-3 w-3 mr-2" />
               {part}
             </Button>
           );
         });
         return (
-          <div key={`copy-wrap-${index}`} className="my-4">
+          <div key={`copy-wrap-${index}`} className="my-6 flex flex-wrap items-center gap-2">
             {processed}
           </div>
         );
@@ -127,7 +127,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       // Handle images
       if (node.nodeType === Node.ELEMENT_NODE && (node as Element).nodeName.toLowerCase() === 'img') {
         return (
-          <div key={`img-${index}`} className="my-6 text-center">
+          <div key={`img-${index}`} className="my-8 text-center">
             <div dangerouslySetInnerHTML={{ __html: (node as Element).outerHTML }} />
           </div>
         );
@@ -157,72 +157,99 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
     <motion.div 
       ref={contentRef}
       className="prose prose-lg max-w-none dark:prose-invert project-viewer-content"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 0.3 }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1, duration: 0.5 }}
     >
       <style>{`
         .project-viewer-content {
-          /* Headings */
-          --tw-prose-headings: theme(colors.foreground);
-          --tw-prose-lead: theme(colors.muted.foreground);
-          --tw-prose-links: theme(colors.primary.DEFAULT);
-          --tw-prose-bold: theme(colors.foreground);
-          --tw-prose-counters: theme(colors.muted.foreground);
-          --tw-prose-bullets: theme(colors.muted.foreground);
-          --tw-prose-hr: theme(colors.border);
-          --tw-prose-quotes: theme(colors.foreground);
-          --tw-prose-quote-borders: theme(colors.border);
-          --tw-prose-captions: theme(colors.muted.foreground);
-          --tw-prose-code: theme(colors.foreground);
-          --tw-prose-pre-code: theme(colors.muted.foreground);
-          --tw-prose-pre-bg: theme(colors.muted);
-          --tw-prose-th-borders: theme(colors.border);
-          --tw-prose-td-borders: theme(colors.border);
+          /* Modern color scheme */
+          --tw-prose-headings: theme(colors.slate.900);
+          --tw-prose-lead: theme(colors.slate.600);
+          --tw-prose-links: theme(colors.blue.600);
+          --tw-prose-bold: theme(colors.slate.900);
+          --tw-prose-counters: theme(colors.slate.500);
+          --tw-prose-bullets: theme(colors.slate.400);
+          --tw-prose-hr: theme(colors.slate.200);
+          --tw-prose-quotes: theme(colors.slate.900);
+          --tw-prose-quote-borders: theme(colors.slate.200);
+          --tw-prose-captions: theme(colors.slate.500);
+          --tw-prose-code: theme(colors.slate.900);
+          --tw-prose-pre-code: theme(colors.slate.100);
+          --tw-prose-pre-bg: theme(colors.slate.900);
+          --tw-prose-th-borders: theme(colors.slate.300);
+          --tw-prose-td-borders: theme(colors.slate.200);
+        }
+
+        .dark .project-viewer-content {
+          --tw-prose-headings: theme(colors.slate.100);
+          --tw-prose-lead: theme(colors.slate.400);
+          --tw-prose-links: theme(colors.blue.400);
+          --tw-prose-bold: theme(colors.slate.100);
+          --tw-prose-counters: theme(colors.slate.400);
+          --tw-prose-bullets: theme(colors.slate.500);
+          --tw-prose-hr: theme(colors.slate.700);
+          --tw-prose-quotes: theme(colors.slate.100);
+          --tw-prose-quote-borders: theme(colors.slate.700);
+          --tw-prose-captions: theme(colors.slate.400);
+          --tw-prose-code: theme(colors.slate.100);
+          --tw-prose-pre-code: theme(colors.slate.300);
+          --tw-prose-pre-bg: theme(colors.slate.800);
+          --tw-prose-th-borders: theme(colors.slate.600);
+          --tw-prose-td-borders: theme(colors.slate.700);
         }
 
         .project-viewer-content h1 {
-          font-size: 1.8rem;
-          font-weight: 700;
-          margin-bottom: 1.5rem;
+          font-size: 2rem;
+          font-weight: 800;
+          margin-bottom: 2rem;
+          margin-top: 2rem;
           color: var(--tw-prose-headings);
-          border-bottom: 2px solid theme(colors.border);
-          padding-bottom: 0.5rem;
+          letter-spacing: -0.025em;
+          line-height: 1.2;
         }
 
         .project-viewer-content h2 {
           font-size: 1.5rem;
-          font-weight: 600;
-          margin-bottom: 1.25rem;
+          font-weight: 700;
+          margin-bottom: 1.5rem;
+          margin-top: 2rem;
           color: var(--tw-prose-headings);
+          letter-spacing: -0.025em;
         }
 
         .project-viewer-content h3 {
-          font-size: 1.3rem;
+          font-size: 1.25rem;
           font-weight: 600;
           margin-bottom: 1rem;
+          margin-top: 1.5rem;
           color: var(--tw-prose-headings);
         }
 
         .project-viewer-content p {
-          font-size: 0.95rem;
-          line-height: 1.7;
-          margin-bottom: 1rem;
-          color: theme(colors.muted.foreground);
-          word-break: break-word;
-          overflow-wrap: break-word;
+          font-size: 1rem;
+          line-height: 1.8;
+          margin-bottom: 1.5rem;
+          color: var(--tw-prose-lead);
+          font-weight: 400;
         }
 
         .project-viewer-content pre {
-          background-color: theme(colors.muted);
-          color: theme(colors.foreground);
-          border-radius: 0.75rem;
+          background-color: var(--tw-prose-pre-bg);
+          color: var(--tw-prose-pre-code);
+          border-radius: 12px;
           padding: 1.5rem;
           overflow-x: auto;
-          margin: 1.5rem 0;
-          font-size: 0.9rem;
-          font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          margin: 2rem 0;
+          font-size: 0.875rem;
+          font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+          border: 1px solid theme(colors.slate.200);
+        }
+
+        .dark .project-viewer-content pre {
+          border: 1px solid theme(colors.slate.700);
+          box-shadow: 0 4px 16px rgba(0,0,0,0.3);
         }
 
         .project-viewer-content pre code {
@@ -230,133 +257,135 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
           padding: 0;
           color: inherit;
           font-family: inherit;
-          word-break: break-word;
-          overflow-wrap: break-word;
         }
 
         .project-viewer-content code {
-          background-color: theme(colors.muted);
-          color: theme(colors.primary.DEFAULT);
-          font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-          padding: 0.125rem 0.375rem;
-          border-radius: 0.25rem;
-          font-size: 0.85rem;
+          background-color: theme(colors.slate.100);
+          color: theme(colors.slate.800);
+          font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+          font-size: 0.875rem;
           font-weight: 500;
-          word-break: break-word;
+        }
+
+        .dark .project-viewer-content code {
+          background-color: theme(colors.slate.800);
+          color: theme(colors.slate.200);
         }
 
         .project-viewer-content .highlight-text {
-          background-color: theme(colors.accent.DEFAULT);
-          color: theme(colors.accent.foreground);
+          background-color: theme(colors.yellow.100);
+          color: theme(colors.yellow.800);
           font-style: italic;
-          font-weight: bold;
-          padding: 0.125rem 0.375rem;
-          border-radius: 0.375rem;
-          font-size: 0.9rem;
-          border: 1px dashed theme(colors.border);
+          font-weight: 600;
+          padding: 0.25rem 0.5rem;
+          border-radius: 6px;
+          font-size: 0.875rem;
+          border: 1px solid theme(colors.yellow.200);
           display: inline-block;
+        }
+
+        .dark .project-viewer-content .highlight-text {
+          background-color: theme(colors.yellow.900);
+          color: theme(colors.yellow.200);
+          border: 1px solid theme(colors.yellow.700);
         }
 
         .project-viewer-content ul, .project-viewer-content ol {
           margin-left: 1.5rem;
-          margin-bottom: 1rem;
+          margin-bottom: 1.5rem;
+          padding-left: 0.5rem;
         }
 
         .project-viewer-content li {
           margin-bottom: 0.75rem;
-          line-height: 1.6;
-          word-break: break-word;
-          overflow-wrap: break-word;
+          line-height: 1.7;
         }
 
         .project-viewer-content a {
-          color: theme(colors.primary.DEFAULT);
+          color: var(--tw-prose-links);
           text-decoration: none;
-          font-weight: 600;
-          transition: color 0.3s ease-in-out;
-          position: relative;
+          font-weight: 500;
+          transition: all 0.2s ease;
+          border-bottom: 1px solid transparent;
         }
 
         .project-viewer-content a:hover {
-          color: theme(colors.primary.DEFAULT / 0.8);
-        }
-
-        .project-viewer-content a::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: -2px;
-          height: 2px;
-          width: 0;
-          background-color: theme(colors.primary.DEFAULT);
-          transition: width 0.3s ease-in-out;
-        }
-
-        .project-viewer-content a:hover::after {
-          width: 100%;
+          border-bottom-color: var(--tw-prose-links);
         }
 
         .project-viewer-content table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 1.5rem;
-          font-size: 0.95rem;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          margin: 2rem 0;
+          font-size: 0.875rem;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          border-radius: 8px;
+          overflow: hidden;
         }
 
         .project-viewer-content th, .project-viewer-content td {
-          border: 1px solid theme(colors.border);
-          padding: 0.75rem;
+          border: 1px solid var(--tw-prose-th-borders);
+          padding: 0.75rem 1rem;
           text-align: left;
-          word-break: break-word;
-          overflow-wrap: break-word;
         }
 
         .project-viewer-content th {
-          background-color: theme(colors.muted);
+          background-color: theme(colors.slate.50);
           font-weight: 600;
+          color: theme(colors.slate.900);
+        }
+
+        .dark .project-viewer-content th {
+          background-color: theme(colors.slate.800);
+          color: theme(colors.slate.100);
         }
 
         .project-viewer-content img {
           max-width: 100%;
           height: auto;
           display: block;
-          margin: 1.5rem auto;
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          margin: 2rem auto;
+          border-radius: 12px;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
 
         .project-viewer-content blockquote {
-          border-left: 4px solid theme(colors.primary.DEFAULT);
-          padding-left: 1rem;
-          margin: 1.5rem 0;
+          border-left: 4px solid var(--tw-prose-links);
+          padding-left: 1.5rem;
+          margin: 2rem 0;
           font-style: italic;
-          color: theme(colors.muted.foreground);
+          color: var(--tw-prose-quotes);
+          background-color: theme(colors.slate.50);
+          padding: 1.5rem;
+          border-radius: 8px;
         }
 
-        @media (max-width: 640px) {
+        .dark .project-viewer-content blockquote {
+          background-color: theme(colors.slate.800);
+        }
+
+        @media (max-width: 768px) {
           .project-viewer-content h1 {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
           }
           
           .project-viewer-content h2 {
-            font-size: 1.3rem;
+            font-size: 1.375rem;
           }
           
           .project-viewer-content h3 {
-            font-size: 1.1rem;
+            font-size: 1.125rem;
           }
           
           .project-viewer-content p {
-            font-size: 0.875rem;
+            font-size: 0.95rem;
           }
           
           .project-viewer-content pre {
-            font-size: 0.75rem;
-          }
-          
-          .project-viewer-content code {
-            font-size: 0.75rem;
+            padding: 1rem;
+            font-size: 0.8rem;
           }
         }
       `}</style>
