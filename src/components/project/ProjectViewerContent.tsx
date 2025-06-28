@@ -52,8 +52,8 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       (_, content) => `<span class="highlight-text">${content.trim()}</span>`
     );
 
-    // Parse markdown
-    const processedContent = marked.parse(highlightedMarkdown.replace(/\\n/g, '\n'));
+    // Parse markdown synchronously using parseInline for inline content
+    const processedContent = marked.parseInline(highlightedMarkdown.replace(/\\n/g, '\n'));
     
     // Create temporary div to process content
     const tempDiv = document.createElement('div');
@@ -100,7 +100,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
             return part.trim() === '' ? null : (
               <span
                 key={`text-${index}-${i}`}
-                dangerouslySetInnerHTML={createMarkup(marked.parse(part))}
+                dangerouslySetInnerHTML={createMarkup(marked.parseInline(part))}
               />
             );
           }
@@ -125,21 +125,30 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       }
 
       // Handle images
-      if (node.nodeName.toLowerCase() === 'img') {
+      if (node.nodeType === Node.ELEMENT_NODE && (node as Element).nodeName.toLowerCase() === 'img') {
         return (
           <div key={`img-${index}`} className="my-6 text-center">
-            <div dangerouslySetInnerHTML={{ __html: node.outerHTML }} />
+            <div dangerouslySetInnerHTML={{ __html: (node as Element).outerHTML }} />
           </div>
         );
       }
 
       // Handle regular content
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        return (
+          <div
+            key={`html-${index}`}
+            className="my-4"
+            dangerouslySetInnerHTML={createMarkup((node as Element).outerHTML)}
+          />
+        );
+      }
+
+      // Handle text nodes
       return (
-        <div
-          key={`html-${index}`}
-          className="my-4"
-          dangerouslySetInnerHTML={createMarkup(node.outerHTML)}
-        />
+        <div key={`text-${index}`} className="my-4">
+          {textContent}
+        </div>
       );
     });
   };
@@ -152,7 +161,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
     >
-      <style jsx>{`
+      <style>{`
         .project-viewer-content {
           /* Headings */
           --tw-prose-headings: theme(colors.foreground);
