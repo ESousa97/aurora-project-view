@@ -1,3 +1,4 @@
+
 // src/components/project/RelatedProjects.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -8,11 +9,13 @@ import { ProjectCard as ProjectCardType } from '@/types';
 interface RelatedProjectsProps {
   projectId: string;
   category: string;
+  currentProjectTitle?: string;
 }
 
 export const RelatedProjects: React.FC<RelatedProjectsProps> = ({
   projectId,
   category,
+  currentProjectTitle,
 }) => {
   const { data } = useRelatedProjects(projectId, category);
 
