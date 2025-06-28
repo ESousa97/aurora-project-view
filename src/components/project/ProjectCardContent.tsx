@@ -47,12 +47,10 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = React.memo(
       return variant === 'compact' && desc.length > 75 ? desc.slice(0, 75) + '...' : desc;
     }, [isRevealed, project.descricao, variant]);
 
-    // Badge de linguagem
+    // Badge de linguagem MELHORADO com gradiente
     const languageBadge = useMemo(() => {
       const baseClasses = variant === 'compact' ? 'text-[10px] px-1 py-0.5 h-5' : 'text-xs px-2 py-1 h-7 font-medium';
-      const color = detected.color;
-      const border = color + '40';
-      const background = color + (variant === 'compact' ? '08' : '10');
+      const isMultiLanguage = detected.name === 'combined' || detected.displayName.includes('+');
 
       if (!isRevealed) {
         return (
@@ -61,11 +59,33 @@ export const ProjectCardContent: React.FC<ProjectCardContentProps> = React.memo(
           </Badge>
         );
       }
+
+      // NOVO: Badge com gradiente para múltiplas linguagens
+      if (isMultiLanguage) {
+        return (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className={`inline-flex items-center gap-1.5 ${baseClasses} rounded-full text-white bg-gradient-to-r ${detected.gradient} shadow-sm`}
+            title={`${detected.description}${variant === 'compact' ? '' : ` | Categoria: ${detected.category} | Dificuldade: ${detected.difficulty}/5`}`}
+          >
+            <detected.icon className={`${variant === 'compact' ? 'h-3 w-3' : 'h-4 w-4'} flex-shrink-0`} />
+            <span className="truncate">{detected.displayName}</span>
+          </motion.div>
+        );
+      }
+
+      // Badge normal para linguagem única
       return (
         <Badge
           variant="outline"
           className={baseClasses}
-          style={{ color, borderColor: border, backgroundColor: background }}
+          style={{ 
+            color: detected.color, 
+            borderColor: detected.color + '40', 
+            backgroundColor: detected.color + (variant === 'compact' ? '08' : '10') 
+          }}
           title={`${detected.description}${variant === 'compact' ? '' : ` | Categoria: ${detected.category} | Dificuldade: ${detected.difficulty}/5`}`}
         >
           <detected.icon className={`mr-1 ${variant === 'compact' ? 'h-3 w-3' : 'h-4 w-4'}`} />

@@ -1,4 +1,4 @@
-// src/lib/languageColors/configs.ts - Configurações com ícones do sistema
+// src/lib/languageColors/configs.ts
 import { LanguageColor } from './types';
 import {
   // Tecnologias principais

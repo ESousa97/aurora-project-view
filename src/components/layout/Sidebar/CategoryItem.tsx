@@ -1,4 +1,3 @@
-// src/components/layout/Sidebar/CategoryItem.tsx
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getCategoryColor } from '@/lib/languageColors';
 import { Category } from './types';
+import { GradientIcon } from '@/components/GradientIcon';
 
 interface CategoryItemProps {
   category: Category;
@@ -20,7 +20,12 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   index,
   onClick,
 }) => {
-  const { gradient, icon: Icon } = getCategoryColor(category.name);
+  const colorCfg = getCategoryColor(category.name);
+  const { gradient, icon: Icon, color } = colorCfg;
+
+  const isMultiLanguage =
+    colorCfg.name === 'combined' || category.name.includes('+');
+  const isPython = colorCfg.name === 'python';
 
   return (
     <motion.div
@@ -32,23 +37,39 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
       <Button
         variant={isActive ? 'default' : 'ghost'}
         className={cn(
-          'w-full justify-between space-x-3 py-2 relative overflow-hidden',
+          'w-full justify-between space-x-3 py-2 overflow-hidden transition-all duration-300',
           isActive
-            ? `bg-gradient-to-r ${gradient} text-white shadow-md`
+            ? 'text-white shadow-md bg-primary/90'
             : 'text-muted-foreground hover:bg-muted/10'
         )}
         onClick={onClick}
       >
-        <div className="flex items-center space-x-3">
-          <span className="inline-flex items-center justify-center h-6 w-6 rounded bg-surface">
-            <Icon 
-              className="h-4 w-4" 
-              style={{ color: isActive ? '#fff' : gradient.split(' ')[0] }} 
+        {/* Ícone */}
+        <span
+          className={cn(
+            'inline-flex items-center justify-center h-6 w-6 rounded transition-all duration-300',
+            isActive ? 'bg-white/10' : 'bg-surface'
+          )}
+        >
+          {isMultiLanguage || isPython ? (
+            <GradientIcon icon={Icon} gradient={gradient} className="h-4 w-4" />
+          ) : (
+            <Icon
+              className="h-4 w-4"
+              style={{ color: isActive ? '#fff' : color }}
             />
-          </span>
-          <span className="flex-1 truncate font-medium">{category.name}</span>
-        </div>
-        <Badge variant="outline" className="flex-shrink-0">
+          )}
+        </span>
+
+        <span className="flex-1 truncate font-medium">{category.name}</span>
+
+        <Badge
+          variant={isActive ? 'secondary' : 'outline'}
+          className={cn(
+            'flex-shrink-0 transition-all duration-300',
+            isActive && 'bg-white/20 text-white border-white/30'
+          )}
+        >
           {category.count}
         </Badge>
       </Button>

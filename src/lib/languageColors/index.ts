@@ -1,7 +1,12 @@
 // src/lib/languageColors/index.ts
 import { LanguageColor, TechnologyCategory } from './types';
 import { LANGUAGE_COLORS } from './configs';
-import { detectMultipleTechnologies, detectSingleTechnology, createCombinedGradient } from './detectionUtils';
+import { 
+  detectMultipleTechnologies, 
+  detectSingleTechnology, 
+  createCombinedGradient,
+  createMultiLanguageStyle 
+} from './detectionUtils';
 
 // Export types
 export type { LanguageColor, TechnologyCategory };
@@ -10,10 +15,16 @@ export type { LanguageColor, TechnologyCategory };
 export { LANGUAGE_COLORS };
 
 // Export detection functions
-export { detectMultipleTechnologies, detectSingleTechnology, createCombinedGradient };
+export { 
+  detectMultipleTechnologies, 
+  detectSingleTechnology, 
+  createCombinedGradient,
+  createMultiLanguageStyle 
+};
 
 /**
  * Detecta a linguagem/tecnologia principal de um projeto
+ * MELHORADO: Suporte completo para múltiplas linguagens
  * @param project - Qualquer objeto que represente um projeto
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,10 +33,20 @@ export function detectLanguage(project: any): LanguageColor {
     return LANGUAGE_COLORS.default;
   }
 
+  // Priorizar categoria se tiver o padrão "X + Y"
+  const categoria = project.categoria || project.category || '';
+  if (categoria && categoria.includes('+')) {
+    const technologies = detectMultipleTechnologies(categoria);
+    if (technologies.length > 1) {
+      return createMultiLanguageStyle(technologies);
+    }
+  }
+
+  // Fallback para detecção normal
   const fields = [
     project.titulo || project.title || '',
     project.descricao || project.description || '',
-    project.categoria || project.category || '',
+    categoria,
     Array.isArray(project.tags) ? project.tags.join(' ') : '',
     Array.isArray(project.tecnologias) ? project.tecnologias.join(' ') : '',
     Array.isArray(project.stack) ? project.stack.join(' ') : ''
@@ -47,30 +68,24 @@ export function detectLanguage(project: any): LanguageColor {
   }
   
   // Para múltiplas tecnologias, criar uma configuração combinada
-  const combinedGradient = createCombinedGradient(technologies);
-  const mainColor = technologies[0].color;
-  const combinedName = technologies.slice(0, 2).map(t => t.displayName).join(' + ');
-  
-  return {
-    ...technologies[0],
-    name: 'combined',
-    displayName: combinedName,
-    color: mainColor,
-    gradient: combinedGradient,
-    difficulty: Math.max(...technologies.map(t => t.difficulty)) as 1 | 2 | 3 | 4 | 5,
-    trending: technologies.some(t => t.trending),
-    popularity: Math.max(...technologies.map(t => t.popularity)),
-    description: `Projeto usando ${technologies.map(t => t.displayName).join(', ')}`,
-    keywords: [...new Set(technologies.flatMap(t => t.keywords))]
-  };
+  return createMultiLanguageStyle(technologies);
 }
 
 /**
  * Obtém configuração de cor por categoria
+ * MELHORADO: Suporte para categorias compostas
  */
 export function getCategoryColor(categoryName?: string | null | undefined): LanguageColor {
   if (!categoryName || typeof categoryName !== 'string') {
     return LANGUAGE_COLORS.default;
+  }
+
+  // Se a categoria tem "+", processar como múltiplas linguagens
+  if (categoryName.includes('+')) {
+    const technologies = detectMultipleTechnologies(categoryName);
+    if (technologies.length > 1) {
+      return createMultiLanguageStyle(technologies);
+    }
   }
 
   const normalizedCategory = categoryName.toLowerCase().trim();

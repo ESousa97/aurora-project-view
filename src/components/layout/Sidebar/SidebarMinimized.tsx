@@ -1,127 +1,137 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useUIStore } from '@/stores/uiStore';
-import { useCategories } from '@/hooks/useProjects';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FolderOpen } from 'lucide-react';
-import { SiRocket } from '@/lib/languageColors/icons';
+
+import { useUIStore } from '@/stores/uiStore';
+import { useCategories } from '@/hooks/useProjects';
 import { navItems } from './constants';
+
+import { SiRocket } from '@/lib/languageColors/icons';
 import { getCategoryColor } from '@/lib/languageColors';
+import { GradientIcon } from '@/components/GradientIcon';
+import { cn } from '@/lib/utils';
 
 export const SidebarMinimized: React.FC = () => {
+  /* ---------- Stores & hooks ---------- */
   const { selectedCategory, setSelectedCategory } = useUIStore();
   const { data: rawCategories = [] } = useCategories();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Remove duplicados e itens de home (href '/')
+  /* ---------- Helpers ---------- */
   const filteredNavItems = useMemo(() => {
     const map = new Map<string, typeof navItems[0]>();
     navItems.forEach(item => {
-      if (item.href !== '/' && !map.has(item.href)) {
-        map.set(item.href, item);
-      }
+      if (item.href !== '/' && !map.has(item.href)) map.set(item.href, item);
     });
     return Array.from(map.values());
   }, []);
 
-  // Remove categorias duplicadas e limita aos 8 primeiros
   const uniqueCategories = useMemo(() => {
     const map = new Map<string, typeof rawCategories[0]>();
     rawCategories.forEach(cat => {
-      if (!map.has(cat.name)) {
-        map.set(cat.name, cat);
-      }
+      if (!map.has(cat.name)) map.set(cat.name, cat);
     });
     return Array.from(map.values()).slice(0, 8);
   }, [rawCategories]);
 
-  const handleCategoryClick = (categoryName: string) => {
-    console.log('Category clicked:', categoryName);
-    setSelectedCategory(categoryName);
-    navigate('/projects');
+  const goTo = (href: string, category = '') => {
+    setSelectedCategory(category);
+    navigate(href);
   };
 
-  const handleAllProjectsClick = () => {
-    console.log('All projects clicked');
-    setSelectedCategory('');
-    navigate('/projects');
-  };
-
+  /* ---------- Render ---------- */
   return (
     <motion.aside
       className="fixed top-16 left-0 w-16 h-[calc(100vh-4rem)] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-lg border-r border-gray-200/50 dark:border-gray-700/50 z-30"
       initial={{ x: -64, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: -64, opacity: 0 }}
+      animate={{ x: 0,  opacity: 1 }}
+      exit={{   x: -64, opacity: 0 }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      style={{
-        pointerEvents: 'auto',
-        userSelect: 'none'
-      }}
     >
       <div className="flex flex-col h-full p-1 space-y-1">
-        {/* Logo */}
+        {/* ---------- Logo ---------- */}
         <Link
           to="/"
-          className="flex justify-center p-2 hover:bg-muted/20 rounded-md transition-colors cursor-pointer"
+          className="flex justify-center p-2 hover:bg-muted/20 rounded-md transition-colors"
           title="Página Inicial"
-          onClick={() => console.log('Logo clicked')}
         >
-          <SiRocket className="h-6 w-6 text-primary pointer-events-none" />
+          <SiRocket className="h-6 w-6 text-primary" />
         </Link>
 
         <div className="border-t border-gray-200/50 dark:border-gray-700/50 pt-1">
-          {/* Navigation items sem duplicatas e sem home */}
+          {/* ---------- Links de navegação (sempre cor primária) ---------- */}
           {filteredNavItems.map(item => {
             const active = location.pathname === item.href;
             return (
               <Link key={item.href} to={item.href} className="block w-full">
                 <button
-                  className={`w-full h-10 p-0 mb-1 transition-colors rounded-md flex items-center justify-center cursor-pointer ${
-                    active 
-                      ? 'bg-primary/10 text-primary border border-primary/20' 
+                  className={cn(
+                    'w-full h-10 p-0 mb-1 rounded-md flex items-center justify-center transition-colors',
+                    active
+                      ? 'bg-primary/10 border border-primary/20'
                       : 'hover:bg-muted/20'
-                  }`}
+                  )}
                   title={item.name}
-                  onClick={() => console.log('Nav item clicked:', item.name)}
                 >
-                  <item.icon className="h-5 w-5 pointer-events-none" />
+                  <item.icon className="h-5 w-5 pointer-events-none text-primary" />
                 </button>
               </Link>
             );
           })}
 
-          {/* Todos os projetos */}
+          {/* ---------- Todos os projetos ---------- */}
           <button
-            className={`w-full h-10 p-0 mb-1 transition-colors rounded-md flex items-center justify-center cursor-pointer ${
+            className={cn(
+              'w-full h-10 p-0 mb-1 rounded-md flex items-center justify-center transition-colors',
               selectedCategory === '' && location.pathname === '/projects'
-                ? 'bg-primary/10 text-primary border border-primary/20' 
+                ? 'bg-primary/10 border border-primary/20'
                 : 'hover:bg-muted/20'
-            }`}
-            onClick={handleAllProjectsClick}
+            )}
+            onClick={() => goTo('/projects', '')}
             title="Todos os projetos"
           >
-            <FolderOpen className="h-5 w-5 pointer-events-none" />
+            <FolderOpen className="h-5 w-5 pointer-events-none text-primary" />
           </button>
 
-          {/* Categorias (primeiras 8, sem duplicatas) */}
+          {/* Categorias */}
           {uniqueCategories.map(category => {
-            const active = selectedCategory === category.name && location.pathname === '/projects';
-            const { icon: Icon } = getCategoryColor(category.name);
+            const active =
+              selectedCategory === category.name &&
+              location.pathname === '/projects';
+
+            const cfg = getCategoryColor(category.name);
+            const { icon: Icon, gradient, color } = cfg;
+
+            const isMultiLanguage =
+              cfg.name === 'combined' || category.name.includes('+');
+            const isPython = cfg.name === 'python';
 
             return (
               <button
                 key={category.name}
-                className={`w-full h-10 p-0 mb-1 transition-colors rounded-md flex items-center justify-center cursor-pointer ${
-                  active 
-                    ? 'bg-primary/10 text-primary border border-primary/20' 
+                className={cn(
+                  'w-full h-10 p-0 mb-1 rounded-md flex items-center justify-center transition-colors',
+                  active
+                    ? 'bg-primary/10 border border-primary/20'
                     : 'hover:bg-muted/20'
-                }`}
-                onClick={() => handleCategoryClick(category.name)}
+                )}
+                onClick={() => goTo('/projects', category.name)}
                 title={`${category.name} (${category.count} projetos)`}
               >
-                <Icon className="h-4 w-4 pointer-events-none" />
+                {isMultiLanguage || isPython ? (
+                  <GradientIcon
+                    icon={Icon}
+                    gradient={gradient}      // azul → amarelo para Python
+                    className="h-4 w-4 pointer-events-none"
+                  />
+                ) : (
+                  <Icon
+                    className="h-4 w-4 pointer-events-none"
+                    style={{ color }}
+                  />
+                )}
               </button>
             );
           })}

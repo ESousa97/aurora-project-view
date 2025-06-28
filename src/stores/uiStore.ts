@@ -1,50 +1,74 @@
+// src/stores/uiStore.ts
+/* ----------------------------------------------------------------
+   GLOBAL UI STORE  – Zustand + persist
+   • A sidebar agora é controlada por um booleano `collapsed`
+     (true  ⇢  64 px ;  false ⇢ 320 px).
+   • Mantido `sidebarMode` ("push" | "overlay") para desktop / mobile.
+   • `sidebarState` e `sidebarOpen` continuam disponíveis **somente
+     para retro-compatibilidade** (mapeiam para o novo modelo).
+----------------------------------------------------------------- */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Theme, ViewMode } from '@/types';
 
-export type SidebarState = 'open' | 'minimized' | 'hidden';
+/* ----------------------------------------------------------------
+   Types
+----------------------------------------------------------------- */
 export type SidebarMode = 'push' | 'overlay';
 
-interface UIStore {
-  // Existing properties
+export interface UIStore {
+  /* ---- Visual ---- */
   theme: Theme;
   viewMode: ViewMode;
+
+  /* ---- Navegação / filtro ---- */
   selectedCategory: string;
-  isLoading: boolean;
   searchQuery: string;
+
+  /* ---- Descoberta gamificada ---- */
   discoveryMode: boolean;
   revealedProjects: Set<number>;
   explorationProgress: number;
 
-  // New sidebar properties
-  sidebarState: SidebarState;
-  sidebarMode: SidebarMode;
+  /* ---- Sidebar ---- */
+  collapsed: boolean;          // NOVO – true = 64 px
+  sidebarMode: SidebarMode;    // push → ocupa espaço | overlay → flutua
 
-  // Existing methods
+  /* ---- Meta ---- */
+  isLoading: boolean;
+
+  /* ---- Mutators ---- */
   setTheme: (theme: Theme) => void;
   setViewMode: (mode: ViewMode) => void;
   setSelectedCategory: (category: string) => void;
-  setLoading: (loading: boolean) => void;
-  setSearchQuery: (query: string) => void;
-  setDiscoveryMode: (enabled: boolean) => void;
-  revealProject: (projectId: number) => void;
+  setLoading: (b: boolean) => void;
+  setSearchQuery: (q: string) => void;
+
+  /* Descoberta */
+  setDiscoveryMode: (b: boolean) => void;
+  revealProject: (id: number) => void;
   resetDiscovery: () => void;
-  setExplorationProgress: (progress: number) => void;
+  setExplorationProgress: (p: number) => void;
 
-  // New sidebar methods
-  setSidebarState: (state: SidebarState) => void;
-  setSidebarMode: (mode: SidebarMode) => void;
+  /* Sidebar – novo fluxo */
   toggleSidebar: () => void;
-  minimizeSidebar: () => void;
+  collapseSidebar: () => void;
   expandSidebar: () => void;
-  hideSidebar: () => void;
+  hideSidebarOverlay: () => void; // só se sidebarMode === 'overlay'
+  setSidebarMode: (m: SidebarMode) => void;
 
-  // Legacy compatibility
+  /* ---- Back-compat getters ---- */
+  /** open | minimized | hidden (overlay only) */
+  get sidebarState(): 'open' | 'minimized' | 'hidden';
+  /** true se não está escondida em overlay */
+  get sidebarOpen(): boolean;
+  /** manter API antiga */
   setSidebarOpen: (open: boolean) => void;
-  sidebarOpen: boolean; // Computed property for backward compatibility
 }
 
-// Tipo para o estado persistido (conversão de Set para Array)
+/* ----------------------------------------------------------------
+   Dados que serão persistidos
+----------------------------------------------------------------- */
 type PersistedUI = Partial<{
   theme: Theme;
   viewMode: ViewMode;
@@ -53,200 +77,190 @@ type PersistedUI = Partial<{
   discoveryMode: boolean;
   revealedProjects: number[];
   explorationProgress: number;
-  sidebarState: SidebarState;
+  collapsed: boolean;
   sidebarMode: SidebarMode;
 }>;
 
+/* ----------------------------------------------------------------
+   Store
+----------------------------------------------------------------- */
 export const useUIStore = create<UIStore>()(
   persist(
     (set, get) => ({
-      // Existing state
+      /* ---------- State ---------- */
       theme: 'system',
       viewMode: 'grid',
       selectedCategory: '',
-      isLoading: false,
       searchQuery: '',
+      isLoading: false,
+
       discoveryMode: false,
       revealedProjects: new Set<number>(),
       explorationProgress: 0,
 
-      // New sidebar state
-      sidebarState: 'open',
+      /* Novo modelo da sidebar */
+      collapsed: false,     // começa expandida
       sidebarMode: 'push',
 
-      // Computed property for backward compatibility
+      /* ---------- Getters de compatibilidade ---------- */
+      get sidebarState() {
+        /* overlay: hidden se collapsed=true e overlay */
+        if (get().sidebarMode === 'overlay' && get().collapsed) return 'hidden';
+        return get().collapsed ? 'minimized' : 'open';
+      },
       get sidebarOpen() {
-        return get().sidebarState !== 'hidden';
+        return !(get().sidebarMode === 'overlay' && get().collapsed);
       },
 
-      // Existing methods
+      /* ---------- Mutators ---------- */
       setTheme: (theme) => {
         set({ theme });
         const root = document.documentElement;
-        if (theme === 'dark') {
-          root.classList.add('dark');
-        } else if (theme === 'light') {
-          root.classList.remove('dark');
-        } else {
-          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          root.classList.toggle('dark', prefersDark);
+        if (theme === 'dark') root.classList.add('dark');
+        else if (theme === 'light') root.classList.remove('dark');
+        else {
+          const prefers = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          root.classList.toggle('dark', prefers);
         }
       },
-
       setViewMode: (mode) => set({ viewMode: mode }),
-      setSelectedCategory: (category) => set({ selectedCategory: category }),
-      setLoading: (loading) => set({ isLoading: loading }),
-      setSearchQuery: (query) => set({ searchQuery: query }),
+      setSelectedCategory: (cat) => set({ selectedCategory: cat }),
+      setLoading: (b) => set({ isLoading: b }),
+      setSearchQuery: (q) => set({ searchQuery: q }),
 
-      setDiscoveryMode: (enabled) => set({ discoveryMode: enabled }),
-      revealProject: (projectId) =>
-        set((state) => ({ 
-          revealedProjects: new Set(state.revealedProjects).add(projectId) 
-        })),
-      resetDiscovery: () =>
-        set({ revealedProjects: new Set<number>(), explorationProgress: 0 }),
-      setExplorationProgress: (progress) => set({ explorationProgress: progress }),
+      /* Descoberta */
+      setDiscoveryMode: (b) => set({ discoveryMode: b }),
+      revealProject: (id) =>
+        set((s) => ({ revealedProjects: new Set(s.revealedProjects).add(id) })),
+      resetDiscovery: () => set({ revealedProjects: new Set(), explorationProgress: 0 }),
+      setExplorationProgress: (p) => set({ explorationProgress: p }),
 
-      // New sidebar methods
-      setSidebarState: (state) => set({ sidebarState: state }),
+      /* Sidebar */
+      toggleSidebar: () => {
+        const { sidebarMode, collapsed } = get();
+        if (sidebarMode === 'overlay') {
+          set({ collapsed: !collapsed }); // overlay: mostra ↔ esconde
+        } else {
+          set({ collapsed: !collapsed }); // push: expande ↔ minimiza
+        }
+      },
+      collapseSidebar: () => set({ collapsed: true }),
+      expandSidebar:   () => set({ collapsed: false }),
+      hideSidebarOverlay: () => {
+        if (get().sidebarMode === 'overlay') set({ collapsed: true });
+      },
       setSidebarMode: (mode) => set({ sidebarMode: mode }),
 
-      toggleSidebar: () => {
-        const { sidebarState } = get();
-        if (sidebarState === 'open') {
-          set({ sidebarState: 'minimized' });
-        } else if (sidebarState === 'minimized') {
-          set({ sidebarState: 'open' });
-        } else {
-          set({ sidebarState: 'open' });
-        }
-      },
-
-      minimizeSidebar: () => set({ sidebarState: 'minimized' }),
-      expandSidebar: () => set({ sidebarState: 'open' }),
-      hideSidebar: () => set({ sidebarState: 'hidden' }),
-
-      // Legacy compatibility method
+      /* Compatibilidade */
       setSidebarOpen: (open) => {
-        if (open) {
-          set({ sidebarState: 'open' });
+        const { sidebarMode } = get();
+        if (sidebarMode === 'overlay') {
+          set({ collapsed: !open }); // overlay esconde/mostra
         } else {
-          const { sidebarMode } = get();
-          // Em modo overlay (mobile), esconder. Em modo push (desktop), minimizar
-          set({ sidebarState: sidebarMode === 'overlay' ? 'hidden' : 'minimized' });
+          set({ collapsed: open ? false : true }); // push: minimiza
         }
       },
     }),
     {
       name: 'projportfolio-ui',
-      partialize: (state): PersistedUI => ({
-        theme: state.theme,
-        viewMode: state.viewMode,
-        selectedCategory: state.selectedCategory,
-        searchQuery: state.searchQuery,
-        discoveryMode: state.discoveryMode,
-        revealedProjects: Array.from(state.revealedProjects),
-        explorationProgress: state.explorationProgress,
-        sidebarState: state.sidebarState,
-        sidebarMode: state.sidebarMode,
+      partialize: (s): PersistedUI => ({
+        theme: s.theme,
+        viewMode: s.viewMode,
+        selectedCategory: s.selectedCategory,
+        searchQuery: s.searchQuery,
+        discoveryMode: s.discoveryMode,
+        revealedProjects: Array.from(s.revealedProjects),
+        explorationProgress: s.explorationProgress,
+        collapsed: s.collapsed,
+        sidebarMode: s.sidebarMode,
       }),
-      merge: (persistedState: PersistedUI, currentState) => ({
-        ...currentState,
-        ...persistedState,
-        revealedProjects: new Set(persistedState.revealedProjects ?? []),
-        // Ensure valid default values
-        sidebarState: persistedState.sidebarState ?? 'open',
-        sidebarMode: persistedState.sidebarMode ?? 'push',
+      merge: (persisted: PersistedUI, curr) => ({
+        ...curr,
+        ...persisted,
+        revealedProjects: new Set(persisted.revealedProjects ?? []),
+        collapsed: persisted.collapsed ?? false,
+        sidebarMode: persisted.sidebarMode ?? 'push',
       }),
     }
   )
 );
 
-// Hook personalizado para detectar responsividade
+/* ----------------------------------------------------------------
+   Responsive hook – decide push/overlay e mantém fluid
+----------------------------------------------------------------- */
 import { useEffect } from 'react';
 
 export const useResponsiveSidebar = () => {
-  const { setSidebarMode, sidebarState, sidebarMode } = useUIStore();
+  const { collapsed, sidebarMode, setSidebarMode } = useUIStore();
 
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      
-      // Mobile: sempre overlay
-      if (width < 768) {
+    const handle = () => {
+      const w = window.innerWidth;
+
+      /* Mobile < 768 → sempre overlay */
+      if (w < 768) {
         setSidebarMode('overlay');
         return;
       }
-      
-      // Desktop: verificar se há espaço suficiente
-      const sidebarWidth = sidebarState === 'minimized' ? 64 : 320;
-      const availableSpace = width - sidebarWidth;
-      
-      // Se há espaço suficiente para o conteúdo (mínimo 600px), usar push
-      if (availableSpace >= 600) {
-        setSidebarMode('push');
-      } else {
-        setSidebarMode('overlay');
-      }
+
+      /* Desktop */
+      const sidebarWidth = collapsed ? 64 : 320;
+      setSidebarMode(w - sidebarWidth >= 600 ? 'push' : 'overlay');
     };
 
-    // Executar na inicialização
-    handleResize();
-    
-    // Escutar mudanças de tamanho
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [setSidebarMode, sidebarState]);
+    handle();
+    window.addEventListener('resize', handle);
+    return () => window.removeEventListener('resize', handle);
+  }, [collapsed, setSidebarMode]);
 
-  return { 
-    sidebarState, 
+  return {
+    collapsed,
     sidebarMode,
     isMobile: window.innerWidth < 768,
     isDesktop: window.innerWidth >= 768,
   };
 };
 
-// Hooks de conveniência para usar nos componentes
+/* ----------------------------------------------------------------
+   Hooks de conveniência
+----------------------------------------------------------------- */
 export const useSidebar = () => {
   const store = useUIStore();
-  
   return {
-    // Estado
-    sidebarState: store.sidebarState,
+    /* estado */
+    collapsed: store.collapsed,
     sidebarMode: store.sidebarMode,
-    sidebarOpen: store.sidebarOpen, // Para compatibilidade
-    isOpen: store.sidebarState === 'open',
-    isMinimized: store.sidebarState === 'minimized',
-    isHidden: store.sidebarState === 'hidden',
+    sidebarOpen: store.sidebarOpen, // compat
+
+    /* derived */
+    isOpen: !store.collapsed && store.sidebarMode !== 'overlay',
+    isMinimized: store.collapsed && store.sidebarMode === 'push',
+    isHidden: store.collapsed && store.sidebarMode === 'overlay',
     isPushMode: store.sidebarMode === 'push',
     isOverlayMode: store.sidebarMode === 'overlay',
-    
-    // Ações
+
+    /* ações */
     toggle: store.toggleSidebar,
-    minimize: store.minimizeSidebar,
+    collapse: store.collapseSidebar,
     expand: store.expandSidebar,
-    hide: store.hideSidebar,
-    setSidebarOpen: store.setSidebarOpen, // Para compatibilidade
+    hideOverlay: store.hideSidebarOverlay,
+    setSidebarOpen: store.setSidebarOpen, // compat
   };
 };
 
 export const useDiscovery = () => {
-  const store = useUIStore();
-  
+  const s = useUIStore();
   return {
-    // Estado
-    discoveryMode: store.discoveryMode,
-    revealedProjects: store.revealedProjects,
-    explorationProgress: store.explorationProgress,
-    
-    // Ações
-    setDiscoveryMode: store.setDiscoveryMode,
-    revealProject: store.revealProject,
-    resetDiscovery: store.resetDiscovery,
-    setExplorationProgress: store.setExplorationProgress,
-    
-    // Helpers
-    isProjectRevealed: (projectId: number) => store.revealedProjects.has(projectId),
-    totalRevealed: store.revealedProjects.size,
+    discoveryMode: s.discoveryMode,
+    revealedProjects: s.revealedProjects,
+    explorationProgress: s.explorationProgress,
+
+    setDiscoveryMode: s.setDiscoveryMode,
+    revealProject: s.revealProject,
+    resetDiscovery: s.resetDiscovery,
+    setExplorationProgress: s.setExplorationProgress,
+
+    isProjectRevealed: (id: number) => s.revealedProjects.has(id),
+    totalRevealed: s.revealedProjects.size,
   };
 };

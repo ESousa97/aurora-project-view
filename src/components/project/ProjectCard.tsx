@@ -16,7 +16,9 @@ interface ProjectCardProps {
 const hoverEffects = { scale: 1.02, boxShadow: '0 8px 24px rgba(0,0,0,0.05)' };
 
 export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, compact = false }) => {
-  const { gradient, icon: Icon } = detectLanguage(project);
+  // MELHORADO: Detecta múltiplas linguagens e usa gradiente
+  const languageConfig = detectLanguage(project);
+  const { gradient, icon: Icon } = languageConfig;
 
   // Memoize parsed date to avoid unnecessary re-renders
   const modified = useMemo(
@@ -52,7 +54,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
             </span>
           )}
 
-          {/* Ícone ou imagem */}
+          {/* Ícone ou imagem com gradiente */}
           <div
             className={`flex-shrink-0 flex items-center justify-center rounded-lg bg-gradient-to-br ${gradient} ${compact ? 'w-10 h-10' : 'w-full h-40'}`}
           >
@@ -65,7 +67,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <Code2 className="w-8 h-8 text-muted" />
+              <Icon className="w-12 h-12 text-white/80" />
             )}
           </div>
 
@@ -75,13 +77,27 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
             <h3 className="font-semibold text-base truncate">{project.titulo}</h3>
 
             {!compact && (
-              <motion.p
-                className="text-sm text-muted flex-1 mt-2 line-clamp-3"
-                initial={{ opacity: 0.8 }}
-                whileHover={{ opacity: 1 }}
-              >
-                {project.descricao || '—'}
-              </motion.p>
+              <>
+                <motion.p
+                  className="text-sm text-muted flex-1 mt-2 line-clamp-3"
+                  initial={{ opacity: 0.8 }}
+                  whileHover={{ opacity: 1 }}
+                >
+                  {project.descricao || '—'}
+                </motion.p>
+
+                {/* Badge da linguagem com gradiente */}
+                {languageConfig.displayName && (
+                  <div className="mt-3">
+                    <span 
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full text-white bg-gradient-to-r ${gradient}`}
+                    >
+                      <Icon className="w-3 h-3" />
+                      {languageConfig.displayName}
+                    </span>
+                  </div>
+                )}
+              </>
             )}
 
             {/* Rodapé com data e CTA */}

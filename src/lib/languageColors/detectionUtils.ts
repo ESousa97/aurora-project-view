@@ -4,7 +4,7 @@ import { LANGUAGE_COLORS } from './configs';
 import { DETECTION_PATTERNS } from './detectionPatterns';
 
 /**
- * Detecta múltiplas tecnologias em um texto
+ * Detecta múltiplas tecnologias em um texto, incluindo o padrão "X + Y"
  */
 export function detectMultipleTechnologies(content: string): LanguageColor[] {
   if (!content || typeof content !== 'string') {
@@ -19,22 +19,45 @@ export function detectMultipleTechnologies(content: string): LanguageColor[] {
 
   const detected = new Set<LanguageColor>();
   
-  // Usar padrões de detecção mais precisos
-  for (const [techKey, patterns] of Object.entries(DETECTION_PATTERNS)) {
-    const techConfig = LANGUAGE_COLORS[techKey];
-    if (techConfig && patterns.some(pattern => pattern.test(normalizedContent))) {
-      detected.add(techConfig);
+  // NOVO: Detectar padrão "LINGUAGEM + LINGUAGEM"
+  const multiLanguagePattern = /(\w+)\s*\+\s*(\w+)/gi;
+  const multiLanguageMatches = normalizedContent.matchAll(multiLanguagePattern);
+  
+  for (const match of multiLanguageMatches) {
+    const [, firstLang, secondLang] = match;
+    
+    // Buscar primeira linguagem
+    const firstLanguageConfig = findLanguageByName(firstLang);
+    if (firstLanguageConfig) {
+      detected.add(firstLanguageConfig);
+    }
+    
+    // Buscar segunda linguagem
+    const secondLanguageConfig = findLanguageByName(secondLang);
+    if (secondLanguageConfig) {
+      detected.add(secondLanguageConfig);
     }
   }
   
-  // Se não detectou nenhuma tecnologia específica, tentar detecção simples por keywords
+  // Se não detectou com o padrão +, usar detecção normal
   if (detected.size === 0) {
-    for (const [key, config] of Object.entries(LANGUAGE_COLORS)) {
-      if (key !== 'default' && config.keywords.some(keyword => 
-        normalizedContent.includes(keyword.toLowerCase())
-      )) {
-        detected.add(config);
-        break; // Pegar apenas a primeira correspondência
+    // Usar padrões de detecção mais precisos
+    for (const [techKey, patterns] of Object.entries(DETECTION_PATTERNS)) {
+      const techConfig = LANGUAGE_COLORS[techKey];
+      if (techConfig && patterns.some(pattern => pattern.test(normalizedContent))) {
+        detected.add(techConfig);
+      }
+    }
+    
+    // Se não detectou nenhuma tecnologia específica, tentar detecção simples por keywords
+    if (detected.size === 0) {
+      for (const [key, config] of Object.entries(LANGUAGE_COLORS)) {
+        if (key !== 'default' && config.keywords.some(keyword => 
+          normalizedContent.includes(keyword.toLowerCase())
+        )) {
+          detected.add(config);
+          // Não fazer break aqui para detectar múltiplas linguagens
+        }
       }
     }
   }
@@ -60,6 +83,31 @@ export function detectMultipleTechnologies(content: string): LanguageColor[] {
     .slice(0, 3); // Limitar a 3 tecnologias
   
   return detectedArray;
+}
+
+/**
+ * Função auxiliar para encontrar linguagem por nome
+ */
+function findLanguageByName(name: string): LanguageColor | null {
+  const normalizedName = name.toLowerCase().trim();
+  
+  // Busca direta
+  for (const [key, config] of Object.entries(LANGUAGE_COLORS)) {
+    if (key === normalizedName || 
+        config.name === normalizedName || 
+        config.displayName.toLowerCase() === normalizedName) {
+      return config;
+    }
+  }
+  
+  // Busca por keywords
+  for (const [, config] of Object.entries(LANGUAGE_COLORS)) {
+    if (config.keywords.some(keyword => keyword.toLowerCase() === normalizedName)) {
+      return config;
+    }
+  }
+  
+  return null;
 }
 
 /**
@@ -98,6 +146,7 @@ export function extractMainColor(tech: LanguageColor): string {
 
 /**
  * Cria um gradiente combinado baseado em múltiplas tecnologias
+ * MELHORADO: Suporte aprimorado para múltiplas cores
  */
 export function createCombinedGradient(technologies: LanguageColor[]): string {
   if (!technologies || technologies.length === 0) {
@@ -108,15 +157,49 @@ export function createCombinedGradient(technologies: LanguageColor[]): string {
     return technologies[0].gradient;
   }
   
-  const colors = technologies.map(extractMainColor).slice(0, 3);
-  
-  if (colors.length === 2) {
-    return `from-${colors[0]} via-${colors[1]} to-${colors[0]}`;
+  // Para 2 tecnologias - gradiente direto entre elas
+  if (technologies.length === 2) {
+    const color1 = extractMainColor(technologies[0]);
+    const color2 = extractMainColor(technologies[1]);
+    return `from-${color1} to-${color2}`;
   }
   
-  if (colors.length === 3) {
-    return `from-${colors[0]} via-${colors[1]} to-${colors[2]}`;
+  // Para 3 tecnologias - usar via
+  if (technologies.length === 3) {
+    const color1 = extractMainColor(technologies[0]);
+    const color2 = extractMainColor(technologies[1]);
+    const color3 = extractMainColor(technologies[2]);
+    return `from-${color1} via-${color2} to-${color3}`;
   }
   
-  return technologies[0].gradient;
+  // Para mais de 3, usar as 3 primeiras
+  return createCombinedGradient(technologies.slice(0, 3));
+}
+
+/**
+ * Cria configuração de estilo para múltiplas linguagens
+ */
+export function createMultiLanguageStyle(technologies: LanguageColor[]) {
+  if (technologies.length <= 1) {
+    return technologies[0] || LANGUAGE_COLORS.default;
+  }
+
+  const gradient = createCombinedGradient(technologies);
+  const mainTech = technologies[0];
+  const combinedName = technologies.map(t => t.displayName).join(' + ');
+  
+  return {
+    ...mainTech, // Herda propriedades da linguagem principal
+    name: 'combined',
+    displayName: combinedName,
+    gradient: gradient,
+    // Usar o ícone da primeira linguagem
+    icon: mainTech.icon,
+    // Ajustar outras propriedades
+    difficulty: Math.max(...technologies.map(t => t.difficulty)) as 1 | 2 | 3 | 4 | 5,
+    trending: technologies.some(t => t.trending),
+    popularity: Math.max(...technologies.map(t => t.popularity)),
+    description: `Projeto usando ${combinedName}`,
+    keywords: [...new Set(technologies.flatMap(t => t.keywords))]
+  };
 }
