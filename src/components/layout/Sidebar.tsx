@@ -1,8 +1,8 @@
-// src/components/layout/Sidebar/Sidebar.tsx
+// src/components/layout/Sidebar/Sidebar.tsx – enterprise-grade look & feel
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { FolderOpen } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { useUIStore } from '@/stores/uiStore';
 import { useCategories } from '@/hooks/useProjects';
@@ -14,88 +14,96 @@ import { GradientIcon } from '@/components/GradientIcon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
-const W_MIN = 64;
-const W_FULL = 320;
+/* ------------------------------------------------------------------
+   Tokens & metrics
+------------------------------------------------------------------- */
+const SIZE_MIN   = 64;   // px – collapsed
+const SIZE_FULL  = 280;  // px – expanded
+const ICON_ZONE  = 64;   // px – fixed area for icons
 
-/* ---------- Botão base ---------- */
-interface BtnProps {
-  title: string;
-  icon: React.ReactNode;
+/* ------------------------------------------------------------------
+   Button component
+------------------------------------------------------------------- */
+interface SideBtnProps {
+  icon: ReactNode;
   label: string;
+  title: string;
+  qty?: number;           // opcional – badge do lado direito
   active?: boolean;
   onClick?: () => void;
-  small?: boolean;            // font-size para categorias
+  small?: boolean;        // tipografia menor (categorias)
 }
 
-const Btn: React.FC<BtnProps> = ({
-  title,
-  icon,
-  label,
-  active,
-  onClick,
-  small,
-}) => {
+const SideBtn: React.FC<SideBtnProps> = ({ icon, label, title, qty, active, onClick, small }) => {
   const { collapsed } = useUIStore();
+
   return (
     <button
-      onClick={onClick}
+      type="button"
       title={title}
+      onClick={onClick}
       className={cn(
-        'relative flex items-center h-10 w-full my-0.5 rounded-md transition-colors',
-        active ? 'bg-primary/10 border border-primary/20' : 'hover:bg-muted/20'
+        'group relative flex w-full items-center h-11 rounded-md overflow-hidden',
+        'transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
+        active
+          ? 'bg-primary/20 text-primary shadow-sm'
+          : 'hover:bg-muted/10 text-foreground/80',
       )}
     >
-      {/* Bloco fixo de 64 px com ícone centralizado */}
-      <div className="w-16 flex justify-center">{icon}</div>
+      {/* left accent bar */}
+      <span
+        className={cn(
+          'absolute left-0 top-0 h-full w-1 rounded-r',
+          active ? 'bg-primary' : 'group-hover:bg-muted/40'
+        )}
+      />
 
-      {/* Texto flutuante */}
+      {/* icon zone */}
+      <div className="relative z-10 shrink-0 flex items-center justify-center w-16">
+        {icon}
+      </div>
+
+      {/* label & qty */}
       <AnimatePresence initial={false}>
         {!collapsed && (
-          <motion.span
-            key="lbl"
-            initial={{ x: 8, opacity: 0 }}
+          <motion.div
+            key="content"
+            initial={{ x: -8, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 8, opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className={cn(
-              'absolute left-16 pr-3 whitespace-nowrap pointer-events-none',
-              small ? 'text-xs' : 'text-sm'
-            )}
+            exit={{ x: -8, opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="flex grow items-center justify-between pr-4 gap-2"
           >
-            {label}
-          </motion.span>
+            <span className={cn(small ? 'text-xs font-medium' : 'text-sm font-semibold', 'truncate')}>{label}</span>
+            {qty !== undefined && (
+              <span className="text-[10px] font-bold bg-muted/30 text-muted-foreground rounded px-1.5 py-0.5">
+                {qty}
+              </span>
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
     </button>
   );
 };
 
+/* ------------------------------------------------------------------
+   Sidebar
+------------------------------------------------------------------- */
 export const Sidebar: React.FC = () => {
-  /* ---------- Estado ---------- */
-  const {
-    collapsed,
-    sidebarMode,
-    toggleSidebar,
-    selectedCategory,
-    setSelectedCategory,
-  } = useUIStore();
-
-  const { data: rawCategories = [] } = useCategories();
+  const { collapsed, sidebarMode, toggleSidebar, selectedCategory, setSelectedCategory } = useUIStore();
+  const { data: rawCats = [] } = useCategories();
   const location = useLocation();
   const navigate = useNavigate();
 
-  /* ---------- Listas ---------- */
-  const navList = useMemo(() => {
-    const m = new Map<string, typeof navItems[0]>();
-    navItems.forEach(i => i.href !== '/' && !m.has(i.href) && m.set(i.href, i));
-    return Array.from(m.values());
-  }, []);
+  /* ---------- lists ---------- */
+  const navList = useMemo(() => navItems.filter(n => n.href !== '/'), []);
 
   const categories = useMemo(() => {
-    const m = new Map<string, typeof rawCategories[0]>();
-    rawCategories.forEach(c => !m.has(c.name) && m.set(c.name, c));
-    return Array.from(m.values()).slice(0, 8);
-  }, [rawCategories]);
+    const map = new Map<string, (typeof rawCats)[0]>();
+    rawCats.forEach(c => !map.has(c.name) && map.set(c.name, c));
+    return Array.from(map.values()).slice(0, 12);
+  }, [rawCats]);
 
   const go = (href: string, cat = '') => {
     setSelectedCategory(cat);
@@ -103,83 +111,69 @@ export const Sidebar: React.FC = () => {
     if (sidebarMode === 'overlay') toggleSidebar();
   };
 
-  /* ---------- Scrollable Content ---------- */
-  const Content = (
-    <ScrollArea className="flex-1">
-      {/* Navegação */}
-      <nav className="pt-2 pb-3">
+  const ScrollContent = (
+    <ScrollArea className="flex-1 py-4">
+      {/* Navigation */}
+      <section className="space-y-1">
         {navList.map(item => (
-          <Btn
+          <SideBtn
             key={item.href}
-            title={item.name}
-            label={item.name}
             icon={<item.icon className="h-5 w-5 text-primary" />}
+            label={item.name}
+            title={item.name}
             active={location.pathname === item.href}
             onClick={() => go(item.href)}
           />
         ))}
-      </nav>
+      </section>
 
-      <div className="h-px bg-muted/30 mx-1 my-2" />
+      <div className="my-5 border-t border-border/40" />
 
-      {/* Categorias */}
-      <nav>
+      {/* Categories */}
+      <section className="space-y-1">
         {categories.map(c => {
           const cfg = getCategoryColor(c.name);
-          const multi =
-            cfg.name === 'combined' || c.name.includes('+') || cfg.name === 'python';
-          const iconNode = multi ? (
-            <GradientIcon icon={cfg.icon} gradient={cfg.gradient} className="h-4 w-4" />
-          ) : (
-            <cfg.icon className="h-4 w-4" style={{ color: cfg.color }} />
-          );
+          const iconEl = (cfg.name === 'combined' || c.name.includes('+') || cfg.name === 'python')
+            ? <GradientIcon icon={cfg.icon} gradient={cfg.gradient} className="h-4 w-4" />
+            : <cfg.icon className="h-4 w-4" style={{ color: cfg.color }} />;
 
           return (
-            <Btn
+            <SideBtn
               key={c.name}
               small
+              qty={c.count}
+              icon={iconEl}
+              label={c.name}
               title={`${c.name} (${c.count})`}
-              label={`${c.name} — ${c.count}`}
-              icon={iconNode}
-              active={
-                selectedCategory === c.name && location.pathname === '/projects'
-              }
+              active={selectedCategory === c.name && location.pathname === '/projects'}
               onClick={() => go('/projects', c.name)}
             />
           );
         })}
-      </nav>
+      </section>
     </ScrollArea>
   );
 
-  /* ---------- Overlay ---------- */
+  /* ---------- overlay ---------- */
   if (sidebarMode === 'overlay') {
     return (
       <AnimatePresence>
         {!collapsed && (
-          <motion.div
-            className="fixed inset-0 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-black/40"
-              onClick={toggleSidebar}
-            />
+          <motion.div className="fixed inset-0 z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div className="absolute inset-0 bg-black/65 backdrop-blur-sm" onClick={toggleSidebar} />
             <motion.aside
-              initial={{ x: -W_FULL }}
+              initial={{ x: -SIZE_FULL }}
               animate={{ x: 0 }}
-              exit={{ x: -W_FULL }}
-              transition={{ type: 'spring', stiffness: 220, damping: 24 }}
-              className="absolute top-16 left-0 h-[calc(100vh-4rem)] w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-2xl border-r border-muted/30"
+              exit={{ x: -SIZE_FULL }}
+              transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+              className="absolute top-16 left-0 h-[calc(100vh-4rem)] w-[280px] bg-background/95 backdrop-blur-xl shadow-xl border-r border-border/30"
             >
-              <div className="h-12 flex items-center justify-center">
-                <Link to="/" className="p-2 rounded hover:bg-muted/20">
+              <div className="h-12 flex items-center justify-center border-b border-border/30">
+                <Link to="/" className="p-2 rounded hover:bg-muted/10">
                   <SiRocket className="h-6 w-6 text-primary" />
                 </Link>
               </div>
-              {Content}
+              {ScrollContent}
             </motion.aside>
           </motion.div>
         )}
@@ -187,21 +181,21 @@ export const Sidebar: React.FC = () => {
     );
   }
 
-  /* ---------- Push (desktop) ---------- */
+  /* ---------- push ---------- */
   return (
     <motion.aside
       layout
       initial={false}
-      animate={{ width: collapsed ? W_MIN : W_FULL }}
-      transition={{ type: 'spring', stiffness: 220, damping: 30 }}
-      className="fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl shadow-lg border-r border-muted/30 z-30 overflow-hidden"
+      animate={{ width: collapsed ? SIZE_MIN : SIZE_FULL }}
+      transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+      className="fixed top-16 left-0 h-[calc(100vh-4rem)] bg-background/90 backdrop-blur-lg border-r border-border/25 shadow-lg z-30 overflow-hidden"
     >
-      <div className="h-12 flex items-center justify-center">
-        <Link to="/" className="p-2 rounded hover:bg-muted/20">
+      <div className="h-12 flex items-center justify-center border-b border-border/30">
+        <Link to="/" className="p-2 rounded hover:bg-muted/10">
           <SiRocket className="h-6 w-6 text-primary" />
         </Link>
       </div>
-      {Content}
+      {ScrollContent}
     </motion.aside>
   );
 };
