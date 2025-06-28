@@ -52,12 +52,12 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       (_, content) => `<span class="highlight-text">${content.trim()}</span>`
     );
 
-    // Parse full markdown content synchronously
-    const processedContent = marked(highlightedMarkdown.replace(/\\n/g, '\n'));
+    // Parse full markdown content synchronously using parseInline for simple content
+    const processedContent = marked.parseInline(highlightedMarkdown.replace(/\\n/g, '\n'));
     
     // Create temporary div to process content
     const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = typeof processedContent === 'string' ? processedContent : '';
+    tempDiv.innerHTML = processedContent;
 
     // Process code elements
     tempDiv.querySelectorAll('code').forEach((codeEl) => {
@@ -100,7 +100,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
             return part.trim() === '' ? null : (
               <span
                 key={`text-${index}-${i}`}
-                dangerouslySetInnerHTML={createMarkup(typeof marked(part) === 'string' ? marked(part) : '')}
+                dangerouslySetInnerHTML={createMarkup(marked.parseInline(part))}
               />
             );
           }
@@ -161,7 +161,8 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1, duration: 0.5 }}
     >
-      <style>{`
+      <style>
+        {`
         .project-viewer-content {
           /* Modern color scheme */
           --tw-prose-headings: theme(colors.slate.900);
@@ -388,7 +389,8 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
             font-size: 0.8rem;
           }
         }
-      `}</style>
+        `}
+      </style>
       
       {processContent()}
     </motion.div>
