@@ -1,19 +1,15 @@
-// src/components/project/EnhancedProjectCard.tsx
-import React from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Target, ChevronRight, HelpCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from '@/components/ui/sonner';
-import { EnhancedProjectCard as EnhancedProjectCardType } from '@/types/enhanced';
-import { LanguageColor, LANGUAGE_COLORS } from '@/lib/languageColors';
-import { ProjectCardContent } from './ProjectCardContent';
+import { useNavigate } from 'react-router-dom';
+import type { EnhancedProjectCard as EnhancedProjectCardType } from '@/types/enhanced';
+import { LANGUAGE_COLORS, LanguageColor } from '@/lib/languageColors';
 import { ProjectCardImage } from './ProjectCardImage';
+import { ProjectCardContent } from './ProjectCardContent';
 import { ProjectCardFooter } from './ProjectCardFooter';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
-
-// Tipos para as categorias de linguagem (baseado na interface LanguageColor)
-type LanguageCategory = 'frontend' | 'backend' | 'mobile' | 'other' | 'database' | 'devops' | 'design' | 'ai' | 'game' | 'blockchain' | 'testing' | 'cloud';
 
 interface EnhancedProjectCardProps {
   project: EnhancedProjectCardType | null | undefined;
@@ -23,258 +19,126 @@ interface EnhancedProjectCardProps {
   isDiscovered?: boolean;
 }
 
-// Função utilitária para validar a categoria
-const validateLanguageCategory = (category: unknown): LanguageCategory => {
-  const validCategories: LanguageCategory[] = [
-    'frontend', 'backend', 'mobile', 'other', 'database', 'devops', 
-    'design', 'ai', 'game', 'blockchain', 'testing', 'cloud'
-  ];
-  
-  if (typeof category === 'string' && validCategories.includes(category as LanguageCategory)) {
-    return category as LanguageCategory;
-  }
-  
-  return 'other';
-};
-
-export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = ({ 
-  project, 
+export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = React.memo(({ 
+  project,
   variant = 'default',
   index = 0,
   onDiscover,
   isDiscovered = false
 }) => {
-  const [isRevealed, setIsRevealed] = React.useState(variant !== 'mystery');
-  const [isHovered, setIsHovered] = React.useState(false);
-  const [viewProgress, setViewProgress] = React.useState(0);
+  const navigate = useNavigate();
+  const [revealed, setRevealed] = useState(variant !== 'mystery');
+  useProjectEngagement(project);
 
-  const engagement = useProjectEngagement(project);
+  // Detect language config
+  const langConfig: LanguageColor = useMemo(
+    () => project?.detectedLanguage ?? LANGUAGE_COLORS.default,
+    [project]
+  );
+  const ProjectIcon = langConfig.icon;
 
-  // Usar a linguagem já detectada do projeto com fallback seguro
-  const languageConfig: LanguageColor = React.useMemo(() => {
-    if (!project?.detectedLanguage) {
-      return LANGUAGE_COLORS.default;
+  // Unified click handler: reveal then navigate
+  const handleClick = useCallback(() => {
+    if (!project?.id) return;
+    if (!revealed) {
+      setRevealed(true);
+      toast.success(`Descobriu ${project.titulo}!`, { duration: 2000 });
+      onDiscover?.(project.id);
+      return;
     }
-    
-    // Garantir que o objeto tem todas as propriedades necessárias
-    const detectedLang = project.detectedLanguage;
-    return {
-      name: detectedLang.name || 'default',
-      displayName: detectedLang.displayName || 'Unknown',
-      color: detectedLang.color || '#64748b',
-      bgColor: detectedLang.bgColor || '#f1f5f9',
-      textColor: detectedLang.textColor || 'text-slate-700',
-      gradient: detectedLang.gradient || 'from-slate-500 to-slate-600',
-      icon: detectedLang.icon || LANGUAGE_COLORS.default.icon,
-      category: validateLanguageCategory(detectedLang.category),
-      difficulty: detectedLang.difficulty || 1,
-      popularity: detectedLang.popularity || 50,
-      trending: detectedLang.trending || false,
-      description: detectedLang.description || 'Tecnologia de desenvolvimento',
-      keywords: detectedLang.keywords || []
-    };
-  }, [project]);
+    navigate(`/projects/${project.id}`);
+  }, [project, revealed, navigate, onDiscover]);
 
-  // Ícone da tecnologia baseado na linguagem detectada
-  const ProjectIcon = languageConfig.icon;
-
-  // Handlers
-  const handleReveal = React.useCallback(() => {
-    if (!isRevealed && project?.id) {
-      setIsRevealed(true);
-      setViewProgress(100);
-      
-      if (onDiscover) {
-        onDiscover(project.id);
-        toast.success("Descoberta realizada!", {
-          description: `Você descobriu ${project.titulo}! Linguagem: ${languageConfig.displayName}`,
-          duration: 3000,
-        });
-      }
-    }
-  }, [isRevealed, project?.id, project?.titulo, onDiscover, languageConfig.displayName]);
-
-  const handleHoverStart = React.useCallback(() => setIsHovered(true), []);
-  const handleHoverEnd = React.useCallback(() => setIsHovered(false), []);
-
-  // Renderização para projeto não disponível
-  if (!project?.id) {
-    return (
-      <div className="border rounded-xl p-6 bg-muted/30 text-center">
-        <div className="space-y-3">
-          <div className="w-12 h-12 mx-auto bg-muted rounded-xl flex items-center justify-center">
-            <Target className="h-6 w-6 text-muted-foreground" />
-          </div>
-          <p className="text-muted-foreground font-medium">Projeto não disponível</p>
-          <p className="text-xs text-muted-foreground">Este território ainda está sendo mapeado</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Renderização da variante compact
+  // Compact variant
   if (variant === 'compact') {
+    if (!project?.id) return null;
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        className="w-full"
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.05 }}
-        whileHover={{ x: 4, scale: 1.01 }}
-        onHoverStart={handleHoverStart}
-        onHoverEnd={handleHoverEnd}
+        transition={{ delay: index * 0.04 }}
+        whileHover={{ scale: 1.02 }}
+        onClick={handleClick}
       >
-        <Card 
-          className="group cursor-pointer border-l-4 relative overflow-hidden transition-all duration-300 hover:shadow-lg"
-          style={{ 
-            borderLeftColor: isRevealed ? languageConfig.color : '#94a3b8'
+        <Card
+          className="flex items-center justify-between p-2 h-16 rounded-lg shadow-sm cursor-pointer transition-shadow duration-200"
+          style={{
+            backgroundColor: revealed ? langConfig.bgColor : 'hsl(var(--muted))',
+            borderColor: revealed ? langConfig.color : 'transparent'
           }}
         >
-          {/* Background gradient sutil */}
-          <div 
-            className={`absolute inset-0 bg-gradient-to-r ${
-              isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-            } opacity-5`} 
-          />
-          
-          <CardContent className="p-4 flex items-center gap-4 relative z-10">
-            {/* Ícone do projeto e indicadores */}
-            <div className="flex flex-col items-center gap-2 shrink-0">
-              <div 
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
-                  isRevealed ? languageConfig.gradient : 'from-slate-400 to-slate-600'
-                } shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform`}
-              >
-                {isRevealed ? (
-                  <ProjectIcon className="w-6 h-6 text-white" />
-                ) : (
-                  <HelpCircle className="w-6 h-6 text-white" />
-                )}
-              </div>
-              
-              {/* Indicador de confiança na detecção - só mostrar se revelado */}
-              {isRevealed && project.languageMetadata?.confidence === 100 && (
-                <div className="flex gap-0.5">
-                  {Array.from({ length: Math.min(languageConfig.difficulty, 3) }, (_, i) => (
-                    <div 
-                      key={`difficulty-${i}`}
-                      className="w-1 h-1 rounded-full bg-current"
-                      style={{ color: languageConfig.color }}
-                    />
-                  ))}
-                </div>
+          <div className="flex items-center gap-2">
+            <div className={`p-1 rounded-md bg-gradient-to-br ${revealed ? langConfig.gradient : 'from-gray-300 to-gray-400'}`}
+            >
+              {revealed ? (
+                <ProjectIcon className="h-5 w-5 text-white" />
+              ) : (
+                <HelpCircle className="h-5 w-5 text-white animate-pulse" />
               )}
             </div>
-            
-            {/* Conteúdo do projeto */}
-            <div className="flex-1">
-              <ProjectCardContent 
-                project={project} 
-                isRevealed={isRevealed} 
-                variant="compact"
-                enhancedLanguage={isRevealed ? languageConfig : undefined}
-              />
-            </div>
-
-            {/* Ícone de navegação */}
-            <div className="flex items-center">
-              {isHovered && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </motion.div>
-              )}
-            </div>
-          </CardContent>
+            <span className="text-sm font-medium truncate">{project.titulo}</span>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
         </Card>
       </motion.div>
     );
   }
 
-  // Renderização da variante default
+  // Default variant
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ delay: index * 0.05, type: 'spring' }}
+      whileHover={{ scale: 1.03 }}
+      onClick={handleClick}
       className="h-full"
-      onHoverStart={handleHoverStart}
-      onHoverEnd={handleHoverEnd}
     >
-      <Card 
-        className="group hover:shadow-2xl transition-all duration-500 cursor-pointer h-full flex flex-col relative overflow-hidden border-0 shadow-lg" 
-        onClick={handleReveal}
+      <Card
+        className="relative overflow-hidden rounded-2xl shadow-md transition-shadow duration-300 cursor-pointer h-full flex flex-col"
         style={{
-          background: isRevealed 
-            ? `linear-gradient(135deg, ${languageConfig.color}05 0%, transparent 50%)`
-            : 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--background)) 100%)'
+          backgroundColor: revealed ? langConfig.bgColor : 'hsl(var(--muted))',
+          backgroundImage: revealed
+            ? `linear-gradient(135deg, ${langConfig.color}10, transparent)`
+            : `linear-gradient(135deg, var(--muted), var(--background))`,
+          borderColor: revealed ? langConfig.color : 'transparent'
         }}
       >
-        {/* Overlay para projetos não revelados */}
-        {!isRevealed && (
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/20 to-primary/5 z-10" />
-        )}
-
-        {/* Imagem do projeto */}
-        <div className="aspect-video relative overflow-hidden">
-          <ProjectCardImage 
+        {/* Top image/icon */}
+        <div className="relative aspect-video overflow-hidden">
+          <ProjectCardImage
             project={project}
-            isRevealed={isRevealed}
-            viewProgress={viewProgress}
-            enhancedLanguage={isRevealed ? languageConfig : undefined}
+            isRevealed={revealed}
+            viewProgress={100}
+            enhancedLanguage={revealed ? langConfig : undefined}
           />
-          
-          {/* Ícone da tecnologia sobreposto na imagem - SOMENTE se revelado */}
-          {isRevealed && (
-            <div className="absolute top-4 left-4 z-20">
-              <div 
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${languageConfig.gradient} shadow-lg flex items-center justify-center backdrop-blur-sm`}
-                style={{ 
-                  backgroundColor: `${languageConfig.color}90`
-                }}
-                title={languageConfig.displayName}
-              >
-                <ProjectIcon className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          )}
-
-          {/* Ícone de mistério para projetos não revelados */}
-          {!isRevealed && (
-            <div className="absolute top-4 left-4 z-20">
-              <div 
-                className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-400 to-slate-600 shadow-lg flex items-center justify-center backdrop-blur-sm"
-                style={{ backgroundColor: '#64748b90' }}
-                title="Tecnologia oculta - Clique para revelar"
-              >
-                <HelpCircle className="w-6 h-6 text-white" />
-              </div>
+          {!revealed && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <HelpCircle className="h-8 w-8 text-white animate-pulse" />
             </div>
           )}
         </div>
 
-        {/* Conteúdo do projeto */}
-        <CardContent className="flex-1 flex flex-col p-4">
-          <ProjectCardContent 
-            project={project} 
-            isRevealed={isRevealed} 
+        {/* Content */}
+        <CardContent className="flex-1 p-4">
+          <ProjectCardContent
+            project={project}
+            isRevealed={revealed}
             variant="default"
-            enhancedLanguage={isRevealed ? languageConfig : undefined}
+            enhancedLanguage={revealed ? langConfig : undefined}
           />
         </CardContent>
 
-        {/* Footer do projeto */}
+        {/* Footer */}
         <CardFooter className="p-0">
-          <ProjectCardFooter 
-            project={project} 
-            isRevealed={isRevealed}
-            enhancedLanguage={isRevealed ? languageConfig : undefined}
+          <ProjectCardFooter
+            project={project}
+            isRevealed={revealed}
+            enhancedLanguage={revealed ? langConfig : undefined}
           />
         </CardFooter>
       </Card>
     </motion.div>
   );
-};
+});

@@ -1,13 +1,13 @@
-// src/components/project/ProjectCardContent.tsx
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ProjectCard as ProjectCardType } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { HelpCircle } from 'lucide-react';
 import { EnhancedProjectCard } from '@/types/enhanced';
-import { LanguageColor, detectLanguage } from '@/lib/languageColors';
+import type { ProjectCard as ProjectCardType } from '@/types';
+import { detectLanguage, LanguageColor } from '@/lib/languageColors';
 import { ProjectCardEngagement } from './ProjectCardEngagement';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
-import { HelpCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface ProjectCardContentProps {
   project: ProjectCardType | EnhancedProjectCard;
@@ -16,138 +16,100 @@ interface ProjectCardContentProps {
   enhancedLanguage?: LanguageColor;
 }
 
-export const ProjectCardContent: React.FC<ProjectCardContentProps> = ({
-  project,
-  isRevealed,
-  variant = 'default',
-  enhancedLanguage
-}) => {
-  const detectedLanguage = React.useMemo(() => {
-    if (enhancedLanguage) return enhancedLanguage;
-    if ('detectedLanguage' in project && project.detectedLanguage) return project.detectedLanguage;
-    return detectLanguage(project);
-  }, [project, enhancedLanguage]);
+// Tamanho padrão para todos os cards
+const CARD_HEIGHT = 'h-48';
 
-  useProjectEngagement(project);
+export const ProjectCardContent: React.FC<ProjectCardContentProps> = React.memo(
+  ({ project, isRevealed, variant = 'default', enhancedLanguage }) => {
+    // Language detection memoizado
+    const detected = useMemo<LanguageColor>(() => {
+      if (enhancedLanguage) return enhancedLanguage;
+      if ('detectedLanguage' in project && project.detectedLanguage) return project.detectedLanguage;
+      return detectLanguage(project);
+    }, [project, enhancedLanguage]);
 
-  const renderTitle = () =>
-    isRevealed ? project.titulo || 'Projeto sem título' : 'Projeto Misterioso';
+    // Hook de engajamento (prova social)
+    useProjectEngagement(project);
 
-  const renderDescription = () => {
-    if (!isRevealed) {
-      return variant === 'compact'
-        ? 'Clique para revelar as tecnologias utilizadas neste projeto...'
-        : 'Este projeto esconde tecnologias interessantes esperando para serem descobertas. Clique para revelar as linguagens, frameworks e ferramentas utilizadas.';
-    }
-    const desc = project.descricao || 'Sem descrição disponível';
-    return variant === 'compact' && desc.length > 75
-      ? `${desc.substring(0, 75)}...`
-      : desc;
-  };
+    // Title e descrição
+    const title = useMemo(
+      () => (isRevealed ? project.titulo || 'Projeto sem título' : 'Projeto Misterioso'),
+      [isRevealed, project.titulo]
+    );
 
-  const renderLanguageBadge = () => {
-    if (!isRevealed) {
+    const description = useMemo(() => {
+      if (!isRevealed) {
+        return variant === 'compact'
+          ? 'Clique para descobrir tecnologias...'
+          : 'Techs ocultas aguardam sua curiosidade. Clique para revelar!';
+      }
+      const desc = project.descricao || 'Sem descrição disponível';
+      return variant === 'compact' && desc.length > 75 ? desc.slice(0, 75) + '...' : desc;
+    }, [isRevealed, project.descricao, variant]);
+
+    // Badge de linguagem
+    const languageBadge = useMemo(() => {
+      const baseClasses = variant === 'compact' ? 'text-[10px] px-1 py-0.5 h-5' : 'text-xs px-2 py-1 h-7 font-medium';
+      const color = detected.color;
+      const border = color + '40';
+      const background = color + (variant === 'compact' ? '08' : '10');
+
+      if (!isRevealed) {
+        return (
+          <Badge variant="outline" className={`${baseClasses} border-dashed`}>
+            <HelpCircle className="h-3 w-3 mr-1" />???
+          </Badge>
+        );
+      }
       return (
         <Badge
           variant="outline"
-          className={`text-[10px] px-1 py-0.5 h-5 ${variant === 'compact' ? 'border-dashed' : ''}`}
+          className={baseClasses}
+          style={{ color, borderColor: border, backgroundColor: background }}
+          title={`${detected.description}${variant === 'compact' ? '' : ` | Categoria: ${detected.category} | Dificuldade: ${detected.difficulty}/5`}`}
         >
-          <HelpCircle className="h-2 w-2 mr-0.5" />
-          ???
+          <detected.icon className={`mr-1 ${variant === 'compact' ? 'h-3 w-3' : 'h-4 w-4'}`} />
+          {detected.displayName}
         </Badge>
       );
-    }
+    }, [detected, isRevealed, variant]);
 
-    return (
-      <Badge
-        variant="outline"
-        className={variant === 'compact' ? 'text-[10px] px-1 py-0.5 h-5' : 'text-xs px-2 py-1 h-7 font-medium'}
-        style={{
-          color: detectedLanguage.color,
-          borderColor: detectedLanguage.color + '40',
-          backgroundColor: detectedLanguage.color + (variant === 'compact' ? '08' : '10')
-        }}
-        title={
-          variant === 'compact'
-            ? `${detectedLanguage.description} - ${detectedLanguage.category}`
-            : `${detectedLanguage.description} | Categoria: ${detectedLanguage.category} | Dificuldade: ${detectedLanguage.difficulty}/5`
-        }
+    // Motion variants
+    const containerMotion = { hover: { scale: 1.01 } };
+
+    // Conteúdo
+    const Content = (
+      <motion.div
+        whileHover="hover"
+        variants={containerMotion}
+        className={`group flex flex-col justify-between p-2 ${CARD_HEIGHT}`}
       >
-        <detectedLanguage.icon className={`mr-0.5 ${variant === 'compact' ? 'h-2 w-2' : 'h-3 w-3 mr-1'}`} />
-        {detectedLanguage.displayName}
-      </Badge>
+        <div>
+          <h3 className={`font-semibold ${variant === 'compact' ? 'text-sm' : 'text-base'} truncate group-hover:text-primary transition-colors`}>
+            {title}
+          </h3>
+          <p className={`${variant === 'compact' ? 'text-xs' : 'text-sm'} text-muted-foreground mt-1 line-clamp-${variant === 'compact' ? '2' : '3'}`}>
+            {description}
+          </p>
+        </div>
+        <div className="flex items-center justify-between mt-2">
+          <div className="flex flex-wrap gap-1">{languageBadge}</div>
+          {isRevealed && <ProjectCardEngagement project={project} variant={variant} />}
+        </div>
+      </motion.div>
     );
-  };
 
-  if (variant === 'compact') {
-    return (
-      <div className="flex-1 min-w-0">
-        <Link to={`/projects/${project.id}`} className="block group">
-          <div className="flex items-start justify-between gap-3 mb-1">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm group-hover:text-primary transition-colors truncate mb-1">
-                {renderTitle()}
-              </h3>
-              <p className="text-xs text-muted-foreground line-clamp-2 leading-[1.3] mb-2">
-                {renderDescription()}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex gap-1">{renderLanguageBadge()}</div>
-            {isRevealed && (
-              <ProjectCardEngagement project={project} variant="compact" />
-            )}
-          </div>
+    // Render por variante, mantendo CARD_HEIGHT
+    return variant === 'compact' ? (
+      <Link to={`/projects/${project.id}`} className={`block ${CARD_HEIGHT}`}>
+        {Content}
+      </Link>
+    ) : (
+      <div className={`flex-1 relative z-10 ${CARD_HEIGHT}`}>        
+        <Link to={`/projects/${project.id}`} className="block h-full">
+          {Content}
         </Link>
       </div>
     );
   }
-
-  return (
-    <div className="p-4 flex-1 flex flex-col relative z-10">
-      <Link to={`/projects/${project.id}`} className="block group flex-1">
-        <div className="mb-2">
-          <h3 className="font-bold text-base group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-            {renderTitle()}
-          </h3>
-        </div>
-        <p className="text-muted-foreground line-clamp-2 text-sm leading-[1.4] mb-3">
-          {renderDescription()}
-        </p>
-
-        {isRevealed ? (
-          <div className="mb-3">
-            <div className="flex flex-wrap gap-1">
-              {renderLanguageBadge()}
-            </div>
-          </div>
-        ) : (
-          <div className="mb-3">
-            <div className="flex flex-wrap gap-1">
-              <Badge
-                variant="outline"
-                className="text-xs px-2 py-1 h-7 border-dashed border-muted-foreground/50 text-muted-foreground"
-              >
-                <HelpCircle className="h-3 w-3 mr-1" />
-                Tecnologia Oculta
-              </Badge>
-              <Badge
-                variant="outline"
-                className="text-xs px-1.5 py-0.5 h-6 border-dashed border-muted-foreground/30 text-muted-foreground/70"
-              >
-                ???
-              </Badge>
-            </div>
-          </div>
-        )}
-
-        {isRevealed && (
-          <div className="mt-auto">
-            <ProjectCardEngagement project={project} variant="default" />
-          </div>
-        )}
-      </Link>
-    </div>
-  );
-};
+);

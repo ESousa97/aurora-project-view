@@ -1,10 +1,7 @@
-
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Video, Maximize2, Minimize2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { toast } from 'sonner';
 import { ProjectViewerContent } from './ProjectViewerContent';
 import { ProjectViewerHeader } from './ProjectViewerHeader';
 import { ProjectCard as ProjectCardType } from '@/types';
@@ -14,140 +11,125 @@ interface ProjectViewerProps {
   onBack?: () => void;
 }
 
-export const ProjectViewer: React.FC<ProjectViewerProps> = ({ 
-  project, 
-  onBack 
-}) => {
-  const [videoLoaded, setVideoLoaded] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+interface RawProject {
+  id: ProjectCardType['id'];
+  conteudo?: string;
+  content?: string;
+}
 
-  const handleLoadVideo = (videoId: string) => {
-    setVideoLoaded(videoId);
-  };
+export const ProjectViewer: React.FC<ProjectViewerProps> = ({ project, onBack }) => {
+  const [projectContent, setProjectContent] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [contentError, setContentError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const toggleExpand = () => {
-    setIsExpanded(prev => !prev);
-  };
+  useEffect(() => {
+    const fetchContent = async () => {
+      setIsLoading(true);
+      setContentError(null);
+      const endpoints = [
+        `/api/projects/${project.id}`,
+        `/api/cards/${project.id}`,
+        `https://serverdatabase.onrender.com/api/v1/projects/${project.id}`,
+        `/api/cards`
+      ];
+      let data: RawProject | RawProject[] | null = null;
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json = (await res.json()) as unknown;
+          if (Array.isArray(json)) {
+            const arr = json as RawProject[];
+            if (arr.some(item => item.id === project.id && (item.conteudo || typeof item.content === 'string'))) {
+              data = arr;
+              break;
+            }
+          } else if (typeof json === 'object' && json !== null && ('conteudo' in json || 'content' in json)) {
+            data = json as RawProject;
+            break;
+          }
+        } catch {
+          continue;
+        }
+      }
+      if (!data) {
+        setContentError('Não foi possível carregar o conteúdo do projeto.');
+      } else if (Array.isArray(data)) {
+        const item = data.find(p => p.id === project.id);
+        if (item && (item.conteudo || typeof item.content === 'string')) {
+          setProjectContent(item.conteudo ?? item.content!);
+        } else {
+          setContentError('Projeto não encontrado no array de resposta.');
+        }
+      } else {
+        setProjectContent(data.conteudo ?? data.content!);
+      }
+      setIsLoading(false);
+    };
+    fetchContent();
+  }, [project.id, retryCount]);
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text)
-      .then(() => toast.success('Conteúdo copiado para a área de transferência!'))
-      .catch(() => toast.error('Erro ao copiar conteúdo'));
-  };
+  const handleCopy = (text: string) => navigator.clipboard.writeText(text);
+  const handleRetry = () => setRetryCount(prev => prev + 1);
 
-  const renderVideo = (videoId: string) => (
-    videoLoaded === videoId ? (
-      <motion.div 
-        className={`relative rounded-xl overflow-hidden shadow-2xl mb-6 transition-all duration-500 ${
-          isExpanded ? 'h-[80vh]' : 'h-[400px]'
-        }`}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.6 }}
-      >
-        <iframe
-          className="w-full h-full border-0"
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&showinfo=0&vq=hd1080`}
-          frameBorder="0"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          loading="lazy"
-        />
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={toggleExpand}
-          className="absolute top-3 right-3 bg-black/80 hover:bg-black text-white border-0 backdrop-blur-sm"
-        >
-          {isExpanded ? (
-            <>
-              <Minimize2 className="h-4 w-4 mr-2" />
-              Minimizar
-            </>
-          ) : (
-            <>
-              <Maximize2 className="h-4 w-4 mr-2" />
-              Expandir
-            </>
-          )}
-        </Button>
-      </motion.div>
-    ) : (
-      <div className="flex justify-start items-center h-20 mb-6">
-        <Button
-          variant="outline"
-          onClick={() => handleLoadVideo(videoId)}
-          className="shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105"
-        >
-          <Video className="h-4 w-4 mr-2" />
-          Carregar Vídeo do YouTube
-        </Button>
-      </div>
-    )
-  );
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <ProjectViewerHeader 
-        project={project}
-        onBack={onBack}
-      />
-      
-      <motion.div 
-        className="container mx-auto px-6 py-8 max-w-4xl"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-      >
-        <Card className="p-8 md:p-12 shadow-xl border-0 bg-card/50 backdrop-blur-sm">
-          {/* Project Header */}
-          <div className="mb-12">
-            <motion.h1 
-              className="text-3xl md:text-4xl font-bold mb-6 text-foreground leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              {project.titulo}
-            </motion.h1>
-            {project.descricao && (
-              <motion.p 
-                className="text-lg text-muted-foreground leading-relaxed max-w-3xl"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                {project.descricao}
-              </motion.p>
-            )}
-          </div>
-
-          {/* Project Content */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-          >
-            <ProjectViewerContent 
-              content={project.conteudo || 'Conteúdo não disponível para este projeto.'}
-              onCopy={handleCopy}
-              renderVideo={renderVideo}
-            />
-          </motion.div>
-        </Card>
-      </motion.div>
-
-      {/* Minimal Footer */}
-      <footer className="mt-16 pb-8 text-center text-sm text-muted-foreground/60">
+  const renderMainContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <Loader2 className="h-12 w-12 animate-spin" />
+        </div>
+      );
+    }
+    if (contentError) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full p-4">
+          <AlertCircle className="h-12 w-12 text-red-500 mb-2" />
+          <p className="mb-4 text-center">{contentError}</p>
+          <Button onClick={handleRetry} variant="outline">Tentar novamente</Button>
+        </div>
+      );
+    }
+    if (!projectContent) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <p>Conteúdo não disponível</p>
+        </div>
+      );
+    }
+    return (
+      <AnimatePresence>
         <motion.div
+          key={projectContent}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
         >
-          Desenvolvido por <strong className="text-foreground/80">José Enoque</strong> 
-          <span className="mx-2">•</span>
-          Powered by React & TypeScript
+          <ProjectViewerContent
+            content={projectContent}
+            onCopy={handleCopy}
+            renderVideo={() => null}
+            className="w-full"
+          />
         </motion.div>
+      </AnimatePresence>
+    );
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <ProjectViewerHeader project={project} onBack={onBack} isLoading={isLoading} />
+      <main className="flex-1 p-4 lg:p-8">
+        <h1 className="text-5xl font-bold mb-4">{project.titulo}</h1>
+        {project.descricao && <p className="text-xl text-muted-foreground mb-6">{project.descricao}</p>}
+        <div ref={contentRef} className="prose lg:prose-xl max-w-none">
+          {renderMainContent()}
+        </div>
+      </main>
+      <footer className="py-2 bg-muted/30 text-center text-sm text-muted-foreground">
+        © 2025 José Enoque - Todos os direitos reservados
       </footer>
     </div>
   );
