@@ -1,4 +1,4 @@
-// src/lib/languageColors/icons.ts - Sistema completo de ícones CORRIGIDO
+// src/lib/languageColors/icons.ts
 import React from 'react';
 
 // Simple Icons para tecnologias (apenas os que existem)

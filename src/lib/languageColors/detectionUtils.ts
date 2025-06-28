@@ -1,4 +1,4 @@
-
+// src/lib/languageColors/detectionUtils.ts
 import { LanguageColor } from './types';
 import { LANGUAGE_COLORS } from './configs';
 import { DETECTION_PATTERNS } from './detectionPatterns';

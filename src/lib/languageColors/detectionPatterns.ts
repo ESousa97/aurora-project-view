@@ -1,4 +1,4 @@
-
+// src/lib/languageColors/detectionPatterns.ts
 export const DETECTION_PATTERNS: Record<string, RegExp[]> = {
   // Frontend Frameworks
   'react': [/\breact\b/i, /reactjs/i, /react\.js/i, /\bjsx\b/i, /hooks/i],

@@ -1,5 +1,4 @@
-
-// src/lib/colors/index.ts - Sistema centralizado de cores
+// src/lib/colors/index.ts
 export * from './variables';
 export * from './utilities';
 export * from './themes';

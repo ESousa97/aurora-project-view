@@ -1,5 +1,4 @@
-
-// src/lib/colors/utilities.ts - Utilitários atualizados para a nova paleta
+// src/lib/colors/utilities.ts
 import { COLOR_VARIABLES } from './variables';
 
 /**

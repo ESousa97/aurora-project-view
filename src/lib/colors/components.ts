@@ -1,5 +1,4 @@
-
-// src/lib/colors/components.ts - Componentes de cor atualizados para a nova paleta
+// src/lib/colors/components.ts
 import React from 'react';
 import { COLOR_VARIABLES } from './variables';
 import { hsl, hslWithOpacity } from './utilities';

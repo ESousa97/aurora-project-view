@@ -1,5 +1,4 @@
-
-// src/lib/colors/variables.ts - Variáveis de cores atualizadas para a nova paleta
+// src/lib/colors/variables.ts
 export const COLOR_VARIABLES = {
   // ===== CORES BASE SHADCN =====
   base: {

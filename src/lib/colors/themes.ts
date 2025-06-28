@@ -1,5 +1,4 @@
-
-// src/lib/colors/themes.ts - Temas atualizados para a nova paleta
+// src/lib/colors/themes.ts
 import { COLOR_VARIABLES } from './variables';
 import { hsl, createGradient } from './utilities';
 
