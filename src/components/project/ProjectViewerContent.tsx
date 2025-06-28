@@ -20,10 +20,11 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Configure marked options
+    // Configure marked options for synchronous operation
     marked.setOptions({
       gfm: true,
       breaks: true,
+      async: false // Force synchronous operation
     });
   }, []);
 
@@ -52,8 +53,8 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       (_, content) => `<span class="highlight-text">${content.trim()}</span>`
     );
 
-    // Parse full markdown content synchronously using parseInline for simple content
-    const processedContent = marked.parseInline(highlightedMarkdown.replace(/\\n/g, '\n'));
+    // Parse markdown content synchronously using the legacy API
+    const processedContent = marked.parse(highlightedMarkdown.replace(/\\n/g, '\n'), { async: false }) as string;
     
     // Create temporary div to process content
     const tempDiv = document.createElement('div');
@@ -100,7 +101,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
             return part.trim() === '' ? null : (
               <span
                 key={`text-${index}-${i}`}
-                dangerouslySetInnerHTML={createMarkup(marked.parseInline(part))}
+                dangerouslySetInnerHTML={createMarkup(marked.parseInline(part, { async: false }) as string)}
               />
             );
           }
