@@ -1,5 +1,4 @@
-// src/services/api.ts
-// Este arquivo agora usa apenas dados estáticos locais
+// src/services/staticApi.ts
 import { ProjectCard, ProjectDetails, Category } from '@/types';
 import { markdownProjectService } from './markdownProjectService';
 
