@@ -7,8 +7,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { useCategories } from '@/hooks/useProjects';
 import { navItems } from './Sidebar/constants';
 
-import { getCategoryColor } from '@/lib/languageColors';
-import { GradientIcon } from '@/components/GradientIcon';
+import { CategoryItem } from './Sidebar/CategoryItem';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
@@ -132,25 +131,15 @@ export const Sidebar: React.FC = () => {
       <div className="my-5 border-t border-border/40" />
 
       <section className="space-y-1">
-        {categories.map(c => {
-          const cfg = getCategoryColor(c.name);
-          const iconEl = (cfg.name === 'combined' || c.name.includes('+') || cfg.name === 'python')
-            ? <GradientIcon icon={cfg.icon} gradient={cfg.gradient} className="h-4 w-4" />
-            : <cfg.icon className="h-4 w-4" style={{ color: cfg.color }} />;
-
-          return (
-            <SideBtn
-              key={c.name}
-              small
-              qty={c.count}
-              icon={iconEl}
-              label={c.name}
-              title={`${c.name} (${c.count})`}
-              active={selectedCategory === c.name && location.pathname === '/projects'}
-              onClick={() => go('/projects', c.name)}
-            />
-          );
-        })}
+        {categories.map((category, i) => (
+          <CategoryItem
+            key={category.name}
+            category={category}
+            isActive={selectedCategory === category.name && location.pathname === '/projects'}
+            index={i}
+            onClick={() => go('/projects', category.name)}
+          />
+        ))}
       </section>
     </ScrollArea>
   );
