@@ -1,3 +1,4 @@
+// src/components/project/ProjectCardFooter.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, HelpCircle } from 'lucide-react';

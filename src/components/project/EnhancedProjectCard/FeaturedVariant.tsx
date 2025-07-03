@@ -35,7 +35,7 @@ export const FeaturedVariant: React.FC<ProjectCardVariantProps> = ({
         }}
       >
         {/* Top image/icon with larger aspect ratio for featured */}
-        <div className="relative aspect-[16/10] overflow-hidden">
+        <div className="relative aspect-[16/9] overflow-hidden">
           <ProjectCardImage
             project={project}
             isRevealed={revealed}

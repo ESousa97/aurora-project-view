@@ -95,7 +95,6 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-white dark:bg-gray-950">
         <div className="space-y-20">
           <HeroSection stats={stats} />
           
@@ -115,7 +114,6 @@ const Index = () => {
           
           <CallToActionSection />
         </div>
-      </div>
     </AppLayout>
   );
 };

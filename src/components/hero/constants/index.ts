@@ -1,0 +1,1 @@
+export { INSPIRATION_WORDS, FLOATING_ICONS, SPRING_CONFIG } from './hero';

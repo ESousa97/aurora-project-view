@@ -19,7 +19,9 @@ export const FeaturedProjectsSection: React.FC<FeaturedProjectsSectionProps> = (
         viewport={{ once: true }}
       >
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-700">
-          <Gem className="h-4 w-4 bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent" />
+          {/* Ícone visível com cor sólida */}
+          <Gem className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+          {/* Label com texto em degradê */}
           <span className="font-medium text-sm bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
             Descobertas Recentes
           </span>

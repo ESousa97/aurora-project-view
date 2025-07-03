@@ -10,12 +10,14 @@ import { FaBrain } from '@/lib/languageColors/icons';
 export const Header = () => {
   const { theme, setTheme } = useUIStore();
   const { 
+    // removido sidebarState
     sidebarMode, 
     isHidden, 
     isOverlayMode,
     toggle, 
-    expand, 
-    hideOverlay 
+    expand,
+    // hideOverlay existe no hook; vamos renomear pra "hide" se quiser manter o nome original
+    hideOverlay: hide 
   } = useSidebar();
   const navigate = useNavigate();
 
@@ -26,13 +28,10 @@ export const Header = () => {
   // Lógica simplificada para o botão da sidebar
   const handleSidebarToggle = () => {
     if (isHidden) {
-      // Se estiver escondida, expandir
       expand();
     } else if (isOverlayMode) {
-      // Em modo overlay, sempre esconder ao clicar
-      hideOverlay();
+      hide();
     } else {
-      // Em modo push, alternar entre open/minimized
       toggle();
     }
   };
@@ -42,7 +41,7 @@ export const Header = () => {
       <div className="flex h-full items-center justify-between px-4">
         {/* Left section */}
         <div className="flex items-center gap-4">
-          {/* Menu button - sempre ícone de hambúrguer */}
+          {/* Menu button */}
           <Button
             variant="ghost"
             size="sm"
@@ -72,26 +71,6 @@ export const Header = () => {
               </span>
             </div>
           </motion.div>
-        </div>
-
-        {/* Right section - Theme toggle */}
-        <div className="flex items-center">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={toggleTheme} 
-            className="relative group p-2 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            title={`Mudar para tema ${theme === 'light' ? 'escuro' : 'claro'}`}
-          >
-            <div className="relative w-5 h-5">
-              <Sun className={`h-5 w-5 absolute transition-all duration-300 text-gray-700 dark:text-gray-300 ${
-                theme === 'light' ? 'rotate-0 scale-100' : 'rotate-90 scale-0'
-              }`} />
-              <Moon className={`h-5 w-5 absolute transition-all duration-300 text-gray-700 dark:text-gray-300 ${
-                theme === 'dark' ? 'rotate-0 scale-100' : '-rotate-90 scale-0'
-              }`} />
-            </div>
-          </Button>
         </div>
       </div>
     </header>
