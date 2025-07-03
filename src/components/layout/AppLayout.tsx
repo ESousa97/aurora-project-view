@@ -2,8 +2,7 @@
 import React, { useEffect } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { useUIStore, useSidebar, useResponsiveSidebar } from '@/stores/uiStore';
-import { keepAliveService } from '@/services/api';
+import { useUIStore, useSidebar } from '@/stores/uiStore';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -13,30 +12,21 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { theme, setTheme } = useUIStore();
   const { 
-    sidebarState, 
     sidebarMode, 
     isOverlayMode,
     isMinimized,
-    isOpen
+    isOpen,
+    isHidden
   } = useSidebar();
-  
-  // Hook para gerenciar responsividade
-  useResponsiveSidebar();
 
   // Sincroniza tema na montagem
   useEffect(() => {
     setTheme(theme);
   }, [theme, setTheme]);
 
-  // Keep-alive
-  useEffect(() => {
-    const cleanup = keepAliveService.start();
-    return cleanup;
-  }, []);
-
   // Calcular margem baseada no estado da sidebar
   const sidebarWidth = () => {
-    if (isOverlayMode || sidebarState === 'hidden') return 0;
+    if (isOverlayMode || isHidden) return 0;
     if (isMinimized) return 64; // 4rem
     if (isOpen) return 320; // 20rem
     return 0;
@@ -58,7 +48,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Layout principal */}
       <div className="relative">
         {/* Sidebar */}
-        {sidebarState !== 'hidden' && <Sidebar />}
+        {!isHidden && <Sidebar />}
 
         {/* Conteúdo principal */}
         <main 

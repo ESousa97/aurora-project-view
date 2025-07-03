@@ -10,13 +10,12 @@ import { FaBrain } from '@/lib/languageColors/icons';
 export const Header = () => {
   const { theme, setTheme } = useUIStore();
   const { 
-    sidebarState, 
     sidebarMode, 
     isHidden, 
     isOverlayMode,
     toggle, 
     expand, 
-    hide 
+    hideOverlay 
   } = useSidebar();
   const navigate = useNavigate();
 
@@ -31,7 +30,7 @@ export const Header = () => {
       expand();
     } else if (isOverlayMode) {
       // Em modo overlay, sempre esconder ao clicar
-      hide();
+      hideOverlay();
     } else {
       // Em modo push, alternar entre open/minimized
       toggle();

@@ -25,51 +25,25 @@ export const ProjectViewer: React.FC<ProjectViewerProps> = ({ project, onBack })
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchContent = async () => {
+    const loadContent = async () => {
       setIsLoading(true);
       setContentError(null);
-      const endpoints = [
-        `/api/projects/${project.id}`,
-        `/api/cards/${project.id}`,
-        `https://serverdatabase.onrender.com/api/v1/projects/${project.id}`,
-        `/api/cards`
-      ];
-      let data: RawProject | RawProject[] | null = null;
-      for (const endpoint of endpoints) {
-        try {
-          const res = await fetch(endpoint);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const json = (await res.json()) as unknown;
-          if (Array.isArray(json)) {
-            const arr = json as RawProject[];
-            if (arr.some(item => item.id === project.id && (item.conteudo || typeof item.content === 'string'))) {
-              data = arr;
-              break;
-            }
-          } else if (typeof json === 'object' && json !== null && ('conteudo' in json || 'content' in json)) {
-            data = json as RawProject;
-            break;
-          }
-        } catch {
-          continue;
-        }
-      }
-      if (!data) {
-        setContentError('Não foi possível carregar o conteúdo do projeto.');
-      } else if (Array.isArray(data)) {
-        const item = data.find(p => p.id === project.id);
-        if (item && (item.conteudo || typeof item.content === 'string')) {
-          setProjectContent(item.conteudo ?? item.content!);
-        } else {
-          setContentError('Projeto não encontrado no array de resposta.');
-        }
+      
+      // Simular delay de carregamento para manter UX consistente
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // O conteúdo já está no projeto (dados estáticos)
+      if (project.conteudo) {
+        setProjectContent(project.conteudo);
       } else {
-        setProjectContent(data.conteudo ?? data.content!);
+        setContentError('Conteúdo não disponível para este projeto.');
       }
+      
       setIsLoading(false);
     };
-    fetchContent();
-  }, [project.id, retryCount]);
+    
+    loadContent();
+  }, [project.id, project.conteudo, retryCount]);
 
   const handleCopy = (text: string) => navigator.clipboard.writeText(text);
   const handleRetry = () => setRetryCount(prev => prev + 1);

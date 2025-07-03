@@ -1,22 +1,22 @@
-// src/hooks/useProjects.ts - Versão Melhorada
+// src/hooks/useProjects.ts - Versão com Dados Estáticos
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { apiService } from '@/services/api';
+import { staticProjects, staticCategories } from '@/data/staticData';
 import { ProjectCard, ProjectDetails, Category } from '@/types';
 
 export const useProjects = () => {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      console.log('🔄 useProjects: Starting fetch...');
-      const projects = await apiService.getCards();
-      console.log(`✅ useProjects: Retrieved ${projects?.length || 0} projects`);
-      return projects;
+      console.log('🔄 useProjects: Loading static data...');
+      // Simular delay de API para manter consistência
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log(`✅ useProjects: Retrieved ${staticProjects?.length || 0} projects`);
+      return staticProjects;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    retry: 1, // Reduzido já que são dados estáticos
   });
 };
 
@@ -24,14 +24,16 @@ export const useProjectDetails = (id: string) => {
   return useQuery({
     queryKey: ['project', id],
     queryFn: async () => {
-      console.log(`🔄 useProjectDetails: Fetching project ${id}...`);
-      const project = await apiService.getProjectDetails(id);
+      console.log(`🔄 useProjectDetails: Loading static project ${id}...`);
+      // Simular delay de API
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const project = staticProjects.find(p => p.id.toString() === id);
       console.log(`✅ useProjectDetails: Retrieved project "${project?.titulo}"`);
       return project;
     },
     enabled: !!id,
     staleTime: 10 * 60 * 1000, // 10 minutes
-    retry: 2,
+    retry: 1,
   });
 };
 
@@ -39,24 +41,24 @@ export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      console.log('🔄 useCategories: Starting fetch...');
-      const categories = await apiService.getCategories();
-      console.log(`✅ useCategories: Retrieved ${categories?.length || 0} categories`);
+      console.log('🔄 useCategories: Loading static categories...');
+      // Simular delay de API
+      await new Promise(resolve => setTimeout(resolve, 50));
+      console.log(`✅ useCategories: Retrieved ${staticCategories?.length || 0} categories`);
       
       // Log categorias para debug
-      if (categories && categories.length > 0) {
-        console.log('📂 Categories summary:', categories.map(cat => ({
+      if (staticCategories && staticCategories.length > 0) {
+        console.log('📂 Categories summary:', staticCategories.map(cat => ({
           name: cat.name,
           count: cat.count
         })));
       }
       
-      return categories;
+      return staticCategories;
     },
     staleTime: 15 * 60 * 1000, // 15 minutes
     gcTime: 20 * 60 * 1000, // 20 minutes
-    retry: 2,
-    retryDelay: 1000,
+    retry: 1,
   });
 };
 
@@ -64,10 +66,18 @@ export const useSearchProjects = (query: string) => {
   return useQuery({
     queryKey: ['search', query],
     queryFn: async () => {
-      console.log(`🔄 useSearchProjects: Searching for "${query}"...`);
-      const results = await apiService.searchProjects(query);
-      console.log(`✅ useSearchProjects: Found ${results?.length || 0} results`);
-      return results;
+      console.log(`🔄 useSearchProjects: Searching static data for "${query}"...`);
+      // Simular delay de busca
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const filtered = staticProjects.filter(project => 
+        project.titulo?.toLowerCase().includes(query.toLowerCase()) ||
+        project.descricao?.toLowerCase().includes(query.toLowerCase()) ||
+        project.categoria?.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      console.log(`✅ useSearchProjects: Found ${filtered?.length || 0} results`);
+      return filtered;
     },
     enabled: query.length > 2,
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -82,9 +92,11 @@ export const useRelatedProjects = (projectId: string, category: string) => {
     queryFn: async () => {
       console.log(`🔄 useRelatedProjects: Finding related projects for ${projectId} in category ${category}...`);
       
-      // Get all projects and filter by category, excluding current project
-      const allProjects = await apiService.getCards();
-      const related = allProjects
+      // Simular delay
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
+      // Filtrar projetos estáticos por categoria, excluindo o atual
+      const related = staticProjects
         .filter(project => 
           project.categoria === category && 
           project.id.toString() !== projectId
@@ -100,7 +112,7 @@ export const useRelatedProjects = (projectId: string, category: string) => {
   });
 };
 
-// New hook for project statistics
+// Hook para estatísticas dos projetos (usando dados estáticos)
 export const useProjectStats = () => {
   const { data: projects } = useProjects();
   const { data: categories } = useCategories();
