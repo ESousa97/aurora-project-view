@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FolderOpen } from 'lucide-react';
 
 import { useUIStore } from '@/stores/uiStore';
-import { useCategories } from '@/hooks/useProjects';
+import { useCategories } from '@/hooks/useCategories';
 import { navItems } from './constants';
 
 import { SiRocket } from '@/lib/languageColors/icons';

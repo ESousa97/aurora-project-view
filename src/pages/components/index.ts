@@ -9,3 +9,4 @@ export { CallToActionSection } from './CallToActionSection';
 export { EnhancedProjectCard } from './EnhancedProjectCard';
 export { LoadingState } from './LoadingState';
 export { EmptyState } from './EmptyState';
+export { ProjectsHeader } from './ProjectsHeader';
