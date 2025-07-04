@@ -2,23 +2,14 @@
 import React from 'react';
 import { Menu, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useUIStore, useSidebar } from '@/stores/uiStore';
+import { useUIStore } from '@/stores/uiStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaBrain } from '@/lib/languageColors/icons';
 
 export const Header = () => {
   const { theme, setTheme } = useUIStore();
-  const { 
-    // removido sidebarState
-    sidebarMode, 
-    isHidden, 
-    isOverlayMode,
-    toggle, 
-    expand,
-    // hideOverlay existe no hook; vamos renomear pra "hide" se quiser manter o nome original
-    hideOverlay: hide 
-  } = useSidebar();
+  const { collapsed, sidebarMode, toggleSidebar } = useUIStore();
   const navigate = useNavigate();
 
   const toggleTheme = () => {
@@ -27,13 +18,7 @@ export const Header = () => {
 
   // Lógica simplificada para o botão da sidebar
   const handleSidebarToggle = () => {
-    if (isHidden) {
-      expand();
-    } else if (isOverlayMode) {
-      hide();
-    } else {
-      toggle();
-    }
+    toggleSidebar();
   };
 
   return (

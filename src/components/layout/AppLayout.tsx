@@ -2,8 +2,7 @@
 import React, { useEffect } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { useUIStore, useSidebar, useResponsiveSidebar } from '@/stores/uiStore';
-import { keepAliveService } from '@/services/api';
+import { useUIStore } from '@/stores/uiStore';
 import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
@@ -11,34 +10,18 @@ interface AppLayoutProps {
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
-  const { theme, setTheme } = useUIStore();
-  const {
-    isHidden,
-    isOpen,
-    isMinimized,
-    isOverlayMode,
-  } = useSidebar();
-  
-  // Ajusta automaticamente a sidebar conforme o tamanho da tela
-  useResponsiveSidebar();
+  const { theme, setTheme, collapsed, sidebarMode } = useUIStore();
 
   // Sincroniza tema na montagem
   useEffect(() => {
     setTheme(theme);
   }, [theme, setTheme]);
 
-  // Mantém o keep-alive ativo enquanto o layout existir
-  useEffect(() => {
-    const cleanup = keepAliveService.start();
-    return cleanup;
-  }, []);
 
   // Calcula largura da sidebar conforme estado
   const sidebarWidth = () => {
-    if (isOverlayMode || isHidden) return 0;
-    if (isMinimized) return 64;   // 4rem
-    if (isOpen)      return 320;  // 20rem
-    return 0;
+    if (sidebarMode === 'overlay') return 0;
+    return collapsed ? 64 : 320;
   };
 
   return (
@@ -64,8 +47,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {/* Corpo principal */}
       <div className="relative">
-        {/* Renderiza a Sidebar somente se não estiver oculta */}
-        {!isHidden && <Sidebar />}
+        <Sidebar />
 
         {/* Área de conteúdo deslocada conforme a largura da sidebar */}
         <main

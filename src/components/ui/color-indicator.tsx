@@ -28,11 +28,11 @@ export const ColorIndicator: React.FC<ColorIndicatorProps> = ({
         return techConfig?.color || colors.variables.text['gray-400'];
       }
       case 'status': {
-        const statusConfig = colors.getStatusColor(variant as any);
+        const statusConfig = colors.getStatusColor(variant as keyof typeof colors.status);
         return statusConfig?.bg || colors.variables.text['gray-400'];
       }
       case 'state': {
-        const stateConfig = colors.getStateColor(variant as any);
+        const stateConfig = colors.getStateColor(variant as keyof typeof colors.state);
         return stateConfig?.bg || colors.variables.text['gray-400'];
       }
       default:

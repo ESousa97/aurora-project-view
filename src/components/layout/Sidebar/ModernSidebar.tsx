@@ -3,7 +3,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useUIStore } from '@/stores/uiStore';
-import { useCategories } from '@/hooks/useCategories';
+import { useCategories } from '@/hooks/useProjects';
 import { cn } from '@/lib/utils';
 import { getCategoryColor } from '@/lib/languageColors';
 import { 

@@ -1,19 +1,15 @@
-
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useProjectsWithLanguage } from '@/hooks/useCategories';
+import { useProjectDetails } from '@/hooks/useProjects';
 import { ProjectViewer } from '@/components/project/ProjectViewer';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Link } from 'react-router-dom';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: projects, isLoading } = useProjectsWithLanguage();
-  
-  const project = projects?.find(p => p.id === parseInt(id || '0'));
+  const { data: project, isLoading } = useProjectDetails(id || '');
 
   if (isLoading) {
     return (
@@ -42,15 +38,9 @@ const ProjectDetail: React.FC = () => {
     return (
       <AppLayout>
         <div className="min-h-screen flex items-center justify-center">
-          <motion.div 
-            className="text-center space-y-6 max-w-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
+          <motion.div className="text-center space-y-6 max-w-md" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="text-6xl mb-4">🔍</div>
-            <h1 className="text-3xl font-bold text-foreground">
-              Projeto não encontrado
-            </h1>
+            <h1 className="text-3xl font-bold text-foreground">Projeto não encontrado</h1>
             <p className="text-muted-foreground text-lg leading-relaxed">
               O projeto que você procura não existe ou foi removido do nosso portfólio.
             </p>

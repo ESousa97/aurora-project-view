@@ -1,8 +1,6 @@
-
-// src/components/project/RelatedProjects.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useRelatedProjects } from '@/hooks/useProjects';
+import { useProjects } from '@/hooks/useProjects';
 import { ProjectCard } from './ProjectCard';
 import { ProjectCard as ProjectCardType } from '@/types';
 
@@ -15,11 +13,17 @@ interface RelatedProjectsProps {
 export const RelatedProjects: React.FC<RelatedProjectsProps> = ({
   projectId,
   category,
-  currentProjectTitle,
 }) => {
-  const { data } = useRelatedProjects(projectId, category);
+  const { data: projects } = useProjects();
 
-  if (!data?.length) {
+  const related = React.useMemo(() => {
+    if (!projects) return [];
+    return projects.filter(
+      p => p.categoria === category && p.id.toString() !== projectId
+    ).slice(0, 5);
+  }, [projects, category, projectId]);
+
+  if (!related.length) {
     return <p className="text-center text-muted">Nenhum item relacionado.</p>;
   }
 
@@ -27,7 +31,7 @@ export const RelatedProjects: React.FC<RelatedProjectsProps> = ({
     <section>
       <h2 className="text-xl font-bold mb-4">Projetos Relacionados</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {data.map((proj: ProjectCardType) => (
+        {related.map((proj: ProjectCardType) => (
           <Link key={proj.id} to={`/projects/${proj.id}`}>
             <ProjectCard project={proj} compact />
           </Link>

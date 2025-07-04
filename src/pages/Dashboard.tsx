@@ -1,39 +1,50 @@
-// src/pages/Dashboard.tsx - Dashboard com ícones do sistema corrigidos
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useProjectStats, useCategories } from '@/hooks/useProjects';
+import { useProjects, useCategories } from '@/hooks/useProjects';
 import { Badge } from '@/components/ui/badge';
 import { ProjectStatsChart } from '@/components/dashboard/ProjectStatsChart';
-
-// Usar ícones do sistema languageColors (agora corrigidos)
-import { 
-  FaChartBar, FaTrendingUp, FaTarget, FaBolt 
-} from '@/lib/languageColors/icons';
+import { FaChartBar, FaChartLine, FaBullseye, FaBolt } from 'react-icons/fa';
 
 export const Dashboard = () => {
-  const { totalProjects, recentProjects, totalCategories, mostActiveCategory } = useProjectStats();
+  const { data: projects } = useProjects();
   const { data: categories } = useCategories();
+
+  const stats = React.useMemo(() => {
+    if (!projects || !categories) {
+      return { totalProjects: 0, recentProjects: 0, totalCategories: 0, mostActiveCategory: null };
+    }
+
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+
+    const recentProjects = projects.filter(p => new Date(p.data_modificacao) > lastMonth);
+    const mostActiveCategory = categories[0] || null;
+
+    return {
+      totalProjects: projects.length,
+      recentProjects: recentProjects.length,
+      totalCategories: categories.length,
+      mostActiveCategory,
+    };
+  }, [projects, categories]);
 
   return (
     <AppLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Visão geral da plataforma de projetos
-          </p>
+          <p className="text-muted-foreground">Visão geral da plataforma de projetos</p>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total de Projetos</CardTitle>
-              <FaTarget className="h-4 w-4 text-muted-foreground" />
+              <FaBullseye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalProjects || 0}</div>
+              <div className="text-2xl font-bold">{stats.totalProjects}</div>
               <p className="text-xs text-muted-foreground">projetos catalogados</p>
             </CardContent>
           </Card>
@@ -43,7 +54,7 @@ export const Dashboard = () => {
               <FaChartBar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{totalCategories || 0}</div>
+              <div className="text-2xl font-bold">{stats.totalCategories}</div>
               <p className="text-xs text-muted-foreground">áreas técnicas</p>
             </CardContent>
           </Card>
@@ -53,34 +64,31 @@ export const Dashboard = () => {
               <FaBolt className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{recentProjects || 0}</div>
+              <div className="text-2xl font-bold">{stats.recentProjects}</div>
               <p className="text-xs text-muted-foreground">no último mês</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Categoria Mais Ativa</CardTitle>
-              <FaTrendingUp className="h-4 w-4 text-muted-foreground" />
+              <FaChartLine className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-lg font-bold truncate">{mostActiveCategory?.name || 'N/A'}</div>
+              <div className="text-lg font-bold truncate">{stats.mostActiveCategory?.name || 'N/A'}</div>
               <p className="text-xs text-muted-foreground">com mais projetos</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts and Lists */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <ProjectStatsChart />
           </div>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Top Categorias</CardTitle>
-              <CardDescription>
-                Categorias com maior quantidade de projetos.
-              </CardDescription>
+              <CardDescription>Categorias com maior quantidade de projetos.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
               {categories?.slice(0, 6).map((category) => (

@@ -1,118 +1,76 @@
-// src/services/api.ts
-// Este arquivo agora usa apenas dados estáticos locais
-import { ProjectCard, ProjectDetails, Category } from '@/types';
-import { markdownProjectService } from './markdownProjectService';
+import { ProjectCard, Category } from '@/types';
 
-// Simular delays de rede para manter a experiência
-const simulateDelay = (min = 50, max = 200) =>
-  new Promise(resolve => setTimeout(resolve, Math.random() * (max - min) + min));
+const mockProjects: ProjectCard[] = [
+  {
+    id: 1,
+    titulo: 'Sistema React Avançado',
+    descricao: 'Sistema completo desenvolvido com React e TypeScript',
+    categoria: 'REACT',
+    imageurl: '',
+    data_criacao: '2024-01-15T10:30:00Z',
+    data_modificacao: '2024-01-20T15:45:00Z',
+    conteudo: '# Sistema React\n\nProjeto desenvolvido com React, TypeScript e Tailwind CSS.\n\n## Funcionalidades\n- Dashboard interativo\n- Gestão de dados\n- Interface responsiva'
+  },
+  {
+    id: 2,
+    titulo: 'API Python Flask',
+    descricao: 'API RESTful desenvolvida com Python e Flask',
+    categoria: 'PYTHON',
+    imageurl: '',
+    data_criacao: '2024-01-10T08:00:00Z',
+    data_modificacao: '2024-01-25T12:30:00Z',
+    conteudo: '# API Python\n\nAPI desenvolvida com Flask e SQLAlchemy.\n\n## Recursos\n- Autenticação JWT\n- CRUD completo\n- Documentação Swagger'
+  },
+  {
+    id: 3,
+    titulo: 'App Mobile Flutter',
+    descricao: 'Aplicativo mobile multiplataforma com Flutter',
+    categoria: 'FLUTTER',
+    imageurl: '',
+    data_criacao: '2024-01-05T14:20:00Z',
+    data_modificacao: '2024-01-30T09:15:00Z',
+    conteudo: '# App Flutter\n\nAplicativo mobile desenvolvido com Flutter.\n\n## Características\n- Interface nativa\n- Performance otimizada\n- Suporte Android e iOS'
+  }
+];
 
-// API Service completamente estático
 export const apiService = {
-  // Buscar todos os projetos
   getCards: async (): Promise<ProjectCard[]> => {
-    console.log('📋 Carregando projetos locais...');
-    await simulateDelay();
-    
-    const projects = await markdownProjectService.getProjects();
-    console.log(`✅ ${projects.length} projetos carregados`);
-    
-    return projects;
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockProjects;
   },
 
-  // Buscar projeto específico
-  getProjectDetails: async (id: string): Promise<ProjectDetails> => {
-    console.log(`📄 Carregando detalhes do projeto ${id}...`);
-    await simulateDelay();
-    
-    const project = await markdownProjectService.getProject(id);
-    
-    if (!project) {
-      throw new Error(`Projeto ${id} não encontrado`);
-    }
-    
-    console.log(`✅ Projeto "${project.titulo}" carregado`);
+  getProjectDetails: async (id: string): Promise<ProjectCard> => {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const project = mockProjects.find(p => p.id.toString() === id);
+    if (!project) throw new Error('Projeto não encontrado');
     return project;
   },
 
-  // Buscar categorias
   getCategories: async (): Promise<Category[]> => {
-    console.log('📂 Carregando categorias...');
-    await simulateDelay();
-    
-    const categories = await markdownProjectService.getCategories();
-    console.log(`✅ ${categories.length} categorias carregadas`);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    const categories = mockProjects.reduce((acc, project) => {
+      const existing = acc.find(cat => cat.name === project.categoria);
+      if (existing) {
+        existing.count++;
+        existing.projects.push(project);
+      } else {
+        acc.push({
+          name: project.categoria,
+          count: 1,
+          projects: [project]
+        });
+      }
+      return acc;
+    }, [] as Category[]);
     
     return categories;
   },
 
-  // Buscar projetos
   searchProjects: async (query: string): Promise<ProjectCard[]> => {
-    console.log(`🔍 Buscando projetos: "${query}"...`);
-    await simulateDelay(100, 300);
-    
-    const results = await markdownProjectService.searchProjects(query);
-    console.log(`✅ ${results.length} resultados encontrados`);
-    
-    return results;
-  },
-
-  // Criar novo projeto
-  createProject: async (project: Omit<ProjectCard, 'id' | 'data_criacao' | 'data_modificacao'>): Promise<ProjectCard> => {
-    console.log('➕ Criando novo projeto...');
-    await simulateDelay();
-    
-    const newProject = await markdownProjectService.createProject(project);
-    console.log(`✅ Projeto "${newProject.titulo}" criado com sucesso`);
-    
-    return newProject;
-  },
-
-  // Atualizar projeto
-  updateProject: async (id: string, updates: Partial<ProjectCard>): Promise<ProjectCard> => {
-    console.log(`✏️ Atualizando projeto ${id}...`);
-    await simulateDelay();
-    
-    const updated = await markdownProjectService.updateProject(id, updates);
-    
-    if (!updated) {
-      throw new Error(`Projeto ${id} não encontrado`);
-    }
-    
-    console.log(`✅ Projeto atualizado com sucesso`);
-    return updated;
-  },
-
-  // Deletar projeto
-  deleteProject: async (id: string): Promise<boolean> => {
-    console.log(`🗑️ Deletando projeto ${id}...`);
-    await simulateDelay();
-    
-    const success = await markdownProjectService.deleteProject(id);
-    
-    if (success) {
-      console.log('✅ Projeto deletado com sucesso');
-    } else {
-      console.log('❌ Falha ao deletar projeto');
-    }
-    
-    return success;
-  },
-
-  // Ping (mantido por compatibilidade)
-  ping: async (): Promise<boolean> => {
-    console.log('🏓 Sistema local - sempre online');
-    await simulateDelay(10, 50);
-    return true;
-  }
-};
-
-// Keep-alive service (não necessário para versão local, mas mantido por compatibilidade)
-export const keepAliveService = {
-  start: () => {
-    console.log('🚀 Sistema local - sem necessidade de keep-alive');
-    return () => {
-      console.log('🛑 Keep-alive finalizado');
-    };
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return mockProjects.filter(project =>
+      project.titulo.toLowerCase().includes(query.toLowerCase()) ||
+      project.descricao.toLowerCase().includes(query.toLowerCase())
+    );
   }
 };

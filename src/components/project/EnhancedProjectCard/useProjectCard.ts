@@ -1,7 +1,6 @@
 // src/components/project/EnhancedProjectCard/useProjectCard.ts
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from '@/components/ui/sonner';
 import { LANGUAGE_COLORS, LanguageColor } from '@/lib/languageColors';
 import type { EnhancedProjectCard as EnhancedProjectCardType } from '@/types/enhanced';
 
@@ -27,7 +26,6 @@ export const useProjectCard = ({ project, variant, onDiscover }: UseProjectCardP
     
     if (!revealed) {
       setRevealed(true);
-      toast.success(`Descobriu ${project.titulo}!`, { duration: 2000 });
       onDiscover?.(project.id);
       return;
     }

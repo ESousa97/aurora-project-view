@@ -20,7 +20,7 @@ export const hslWithOpacity = (colorVar: string, opacity: number): string => {
  */
 export const getColor = (path: string): string => {
   const keys = path.split('.');
-  let current: any = COLOR_VARIABLES;
+  let current: Record<string, unknown> | string = COLOR_VARIABLES as Record<string, unknown>;
   
   for (const key of keys) {
     current = current[key];
