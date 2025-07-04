@@ -1,80 +1,250 @@
-import { ProjectCard, Category } from '@/types';
+import axios from 'axios';
+import { ProjectCard, ProjectDetails, Category } from '@/types';
 
-const mockProjects: ProjectCard[] = [
-  {
-    id: 1,
-    titulo: 'Sistema React Avançado',
-    descricao: 'Sistema completo desenvolvido com React e TypeScript',
-    categoria: 'REACT',
-    imageurl: '',
-    data_criacao: '2024-01-15T10:30:00Z',
-    data_modificacao: '2024-01-20T15:45:00Z',
-    conteudo: '# Sistema React\n\nProjeto desenvolvido com React, TypeScript e Tailwind CSS.\n\n## Funcionalidades\n- Dashboard interativo\n- Gestão de dados\n- Interface responsiva'
+const API_BASE_URL = 'https://serverdatabase.onrender.com/api/v1';
+
+// Create axios instance with default config
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
   },
-  {
-    id: 2,
-    titulo: 'API Python Flask',
-    descricao: 'API RESTful desenvolvida com Python e Flask',
-    categoria: 'PYTHON',
-    imageurl: '',
-    data_criacao: '2024-01-10T08:00:00Z',
-    data_modificacao: '2024-01-25T12:30:00Z',
-    conteudo: '# API Python\n\nAPI desenvolvida com Flask e SQLAlchemy.\n\n## Recursos\n- Autenticação JWT\n- CRUD completo\n- Documentação Swagger'
+});
+
+// Request interceptor for logging
+api.interceptors.request.use(
+  (config) => {
+    console.log(`🔄 Making ${config.method?.toUpperCase()} request to ${config.url}`);
+    return config;
   },
-  {
-    id: 3,
-    titulo: 'App Mobile Flutter',
-    descricao: 'Aplicativo mobile multiplataforma com Flutter',
-    categoria: 'FLUTTER',
-    imageurl: '',
-    data_criacao: '2024-01-05T14:20:00Z',
-    data_modificacao: '2024-01-30T09:15:00Z',
-    conteudo: '# App Flutter\n\nAplicativo mobile desenvolvido com Flutter.\n\n## Características\n- Interface nativa\n- Performance otimizada\n- Suporte Android e iOS'
+  (error) => {
+    console.error('❌ Request error:', error);
+    return Promise.reject(error);
   }
-];
+);
 
-export const apiService = {
-  getCards: async (): Promise<ProjectCard[]> => {
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return mockProjects;
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => {
+    console.log(`✅ Response received from ${response.config.url}:`, response.status);
+    console.log('📊 Data preview:', Array.isArray(response.data) ? `Array with ${response.data.length} items` : typeof response.data);
+    return response;
   },
+  (error) => {
+    console.error('❌ Response error:', error);
+    console.error('🔍 Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url
+    });
+    
+    if (error.code === 'ECONNABORTED') {
+      console.error('⏰ Request timeout - server might be sleeping');
+    } else if (!error.response) {
+      console.error('🌐 Network error - server might be down or sleeping');
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
-  getProjectDetails: async (id: string): Promise<ProjectCard> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const project = mockProjects.find(p => p.id.toString() === id);
-    if (!project) throw new Error('Projeto não encontrado');
-    return project;
-  },
-
-  getCategories: async (): Promise<Category[]> => {
-    await new Promise(resolve => setTimeout(resolve, 200));
-    const categories = mockProjects.reduce((acc, project) => {
-      const existing = acc.find(cat => cat.name === project.categoria);
-      if (existing) {
-        existing.count++;
-        existing.projects.push(project);
-      } else {
-        acc.push({
-          name: project.categoria,
-          count: 1,
-          projects: [project]
-        });
+// Função para gerar categorias a partir dos projetos completos (fallback)
+const generateCategoriesFromProjects = (projects: ProjectCard[]): Category[] => {
+  console.log('📂 Generating categories from full projects (fallback)...');
+  
+  const categoryMap = new Map<string, ProjectCard[]>();
+  
+  projects.forEach(project => {
+    const categoryName = project.categoria?.trim();
+    if (categoryName) {
+      if (!categoryMap.has(categoryName)) {
+        categoryMap.set(categoryName, []);
       }
-      return acc;
-    }, [] as Category[]);
-
-    return categories;
-  },
-
-  searchProjects: async (query: string): Promise<ProjectCard[]> => {
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return mockProjects.filter(project =>
-      project.titulo.toLowerCase().includes(query.toLowerCase()) ||
-      project.descricao.toLowerCase().includes(query.toLowerCase())
-    );
-  }
+      categoryMap.get(categoryName)?.push(project);
+    }
+  });
+  
+  const categories = Array.from(categoryMap.entries()).map(([name, projectsInCategory]) => ({
+    name,
+    count: projectsInCategory.length,
+    projects: projectsInCategory
+  }));
+  
+  // Ordenar categorias por quantidade de projetos (decrescente)
+  categories.sort((a, b) => b.count - a.count);
+  
+  console.log(`📂 Generated ${categories.length} categories from fallback:`, 
+    categories.map(c => `${c.name} (${c.count})`));
+  
+  return categories;
 };
 
+// API functions
+export const apiService = {
+  // Get all project cards
+  getCards: async (): Promise<ProjectCard[]> => {
+    console.log('📋 Fetching project cards...');
+    const response = await api.get('/cards');
+    console.log(`📋 Retrieved ${response.data?.length || 0} project cards`);
+    
+    // Log sample data to understand structure
+    if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+      const sampleProject = response.data[0];
+      if (sampleProject && typeof sampleProject === 'object') {
+        console.log('📋 Sample project structure:', {
+          id: sampleProject.id,
+          titulo: sampleProject.titulo,
+          categoria: sampleProject.categoria,
+          data_criacao: sampleProject.data_criacao,
+          hasAllFields: !!(sampleProject.id && sampleProject.titulo)
+        });
+      }
+    }
+    
+    return response.data;
+  },
+
+  // Search projects
+  searchProjects: async (query: string): Promise<ProjectCard[]> => {
+    console.log(`🔍 Searching projects with query: "${query}"`);
+    try {
+      const response = await api.get(`/search?query=${encodeURIComponent(query)}`);
+      console.log(`🔍 Found ${response.data.length} projects matching "${query}"`);
+      return response.data;
+    } catch (error) {
+      console.warn('🔍 Search endpoint failed, falling back to client-side search');
+      const allProjects = await apiService.getCards();
+      const filtered = allProjects.filter(project => 
+        project.titulo?.toLowerCase().includes(query.toLowerCase()) ||
+        project.descricao?.toLowerCase().includes(query.toLowerCase()) ||
+        project.categoria?.toLowerCase().includes(query.toLowerCase())
+      );
+      console.log(`🔍 Client-side search found ${filtered.length} projects`);
+      return filtered;
+    }
+  },
+
+  // Get categories - combina dados de categories com cards para ter informação completa
+  getCategories: async (): Promise<Category[]> => {
+    console.log('📂 Fetching categories from server...');
+    
+    try {
+      // Buscar categorias com linguagens
+      const categoriesResponse = await api.get('/categories');
+      console.log(`📂 Server returned ${categoriesResponse.data?.length || 0} category entries`);
+      
+      // Buscar projetos completos para ter descrições e datas
+      const cardsResponse = await api.get('/cards');
+      console.log(`📋 Retrieved ${cardsResponse.data?.length || 0} complete project cards`);
+      
+      if (categoriesResponse.data && Array.isArray(categoriesResponse.data) && 
+          cardsResponse.data && Array.isArray(cardsResponse.data)) {
+        
+        // Criar mapa de projetos completos por ID
+        const fullProjectsMap = new Map();
+        cardsResponse.data.forEach((project: ProjectCard) => {
+          fullProjectsMap.set(project.id, project);
+        });
+        
+        // Processar categorias e enriquecer com dados completos dos projetos
+        const categoryMap = new Map<string, ProjectCard[]>();
+        
+        categoriesResponse.data.forEach((categoryItem: {id: number, titulo: string, categoria: string}) => {
+          const categoryName = categoryItem.categoria?.trim();
+          if (categoryName) {
+            if (!categoryMap.has(categoryName)) {
+              categoryMap.set(categoryName, []);
+            }
+            
+            // Buscar projeto completo ou criar um básico
+            const fullProject = fullProjectsMap.get(categoryItem.id) || {
+              id: categoryItem.id,
+              titulo: categoryItem.titulo,
+              categoria: categoryItem.categoria,
+              descricao: '',
+              imageurl: '',
+              data_criacao: '',
+              data_modificacao: '',
+              conteudo: ''
+            };
+            
+            // Garantir que a categoria vem dos dados corretos do banco
+            fullProject.categoria = categoryItem.categoria;
+            
+            categoryMap.get(categoryName)?.push(fullProject);
+          }
+        });
+        
+        // Converter para formato Category
+        const categories = Array.from(categoryMap.entries()).map(([name, projects]) => ({
+          name: name as string, // Fix: convert String to string
+          count: projects.length,
+          projects: projects
+        }));
+        
+        // Ordenar categorias por quantidade de projetos (decrescente)
+        categories.sort((a, b) => b.count - a.count);
+        
+        console.log(`📂 Processed ${categories.length} enriched categories:`, 
+          categories.map(c => `${c.name} (${c.count} projetos)`));
+        
+        return categories;
+      } else {
+        throw new Error('Invalid response format from categories or cards endpoint');
+      }
+    } catch (error) {
+      console.warn('📂 Categories endpoint failed, falling back to generating from projects');
+      console.error('Categories endpoint error:', error);
+      
+      // Fallback: gerar categorias a partir dos projetos
+      const projects = await apiService.getCards();
+      return generateCategoriesFromProjects(projects);
+    }
+  },
+
+  // Get project details
+  getProjectDetails: async (id: string): Promise<ProjectDetails> => {
+    console.log(`📄 Fetching project details for ID: ${id}`);
+    const response = await api.get(`/projects/${id}`);
+    console.log(`📄 Retrieved details for project: ${response.data.titulo}`);
+    return response.data;
+  },
+
+  // Keep-alive ping
+  ping: async (): Promise<boolean> => {
+    try {
+      console.log('🏓 Pinging server...');
+      const response = await api.get('/ping');
+      const isAlive = response.status === 200;
+      console.log(`🏓 Server ping: ${isAlive ? 'Success ✅' : 'Failed ❌'}`);
+      return isAlive;
+    } catch (error) {
+      console.log('🏓 Server ping: Failed ❌');
+      return false;
+    }
+  },
+};
+
+// Keep-alive service
 export const keepAliveService = {
-  start: () => () => {},
+  start: () => {
+    console.log('🚀 Starting keep-alive service...');
+    
+    // Initial ping
+    apiService.ping();
+    
+    // Ping every 5 minutes when user is active
+    const pingInterval = setInterval(async () => {
+      if (document.visibilityState === 'visible') {
+        await apiService.ping();
+      }
+    }, 5 * 60 * 1000);
+
+    return () => {
+      console.log('🛑 Stopping keep-alive service...');
+      clearInterval(pingInterval);
+    };
+  },
 };

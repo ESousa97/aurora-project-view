@@ -11,16 +11,16 @@ interface SidebarHeaderProps {
 }
 
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ onClose }) => {
-  const { sidebarMode, collapse, hideOverlay } = useSidebar();
+  const { sidebarMode, minimize, hide } = useSidebar();
 
-  const handleToggle = () => {
+  const handleMinimize = () => {
     if (sidebarMode === 'overlay') {
       // Em modo overlay, fechar completamente
-      hideOverlay();
+      hide();
       onClose?.();
     } else {
-      // Em modo push, minimizar (colapsar)
-      collapse();
+      // Em modo push, minimizar
+      minimize();
     }
   };
 
@@ -36,7 +36,7 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ onClose }) => {
       <Button
         variant="ghost"
         size="sm"
-        onClick={handleToggle}
+        onClick={handleMinimize}
         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800"
         title={sidebarMode === 'overlay' ? 'Fechar menu' : 'Minimizar sidebar'}
       >

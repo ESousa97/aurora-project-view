@@ -1,1 +1,0 @@
-export type { StatsType, IconPosition, IconProps, FloatingIconData, MousePosition } from './hero';

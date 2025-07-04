@@ -1,8 +1,7 @@
-// src/components/project/ProjectCard.tsx
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { BaseCard } from '@/components/ui/BaseCard';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, Code2 } from 'lucide-react';
 import { detectLanguage } from '@/lib/languageColors';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -17,9 +16,11 @@ interface ProjectCardProps {
 const hoverEffects = { scale: 1.02, boxShadow: '0 8px 24px rgba(0,0,0,0.05)' };
 
 export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, compact = false }) => {
+  // MELHORADO: Detecta múltiplas linguagens e usa gradiente
   const languageConfig = detectLanguage(project);
   const { gradient, icon: Icon } = languageConfig;
 
+  // Memoize parsed date to avoid unnecessary re-renders
   const modified = useMemo(
     () => new Date(project.data_modificacao),
     [project.data_modificacao]
@@ -46,14 +47,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
       >
         <BaseCard className={`flex ${compact ? 'items-center gap-4 p-4' : 'flex-col'} transition-colors`}>
 
+          {/* Badge de novidade para efeito de novidade */}
           {isNew && !compact && (
             <span className="absolute top-2 right-2 px-2 py-0.5 text-xs font-medium rounded-full bg-primary text-white">
               Novo
             </span>
           )}
 
+          {/* Ícone ou imagem com gradiente */}
           <div
-            className={`flex-shrink-0 flex items-center justify-center rounded-lg bg-gradient-to-br ${gradient} ${compact ? 'w-10 h-10' : 'w-full h-32'}`}
+            className={`flex-shrink-0 flex items-center justify-center rounded-lg bg-gradient-to-br ${gradient} ${compact ? 'w-10 h-10' : 'w-full h-40'}`}
           >
             {compact ? (
               <Icon className="w-5 h-5 text-white" />
@@ -68,6 +71,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
             )}
           </div>
 
+          {/* Conteúdo de texto */}
           <div className={`${compact ? 'flex-1 min-w-0' : 'p-4 flex-1 flex flex-col'} ${!compact && 'group relative'}`}
           >
             <h3 className="font-semibold text-base truncate">{project.titulo}</h3>
@@ -82,6 +86,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
                   {project.descricao || '—'}
                 </motion.p>
 
+                {/* Badge da linguagem com gradiente */}
                 {languageConfig.displayName && (
                   <div className="mt-3">
                     <span 
@@ -95,8 +100,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
               </>
             )}
 
-            <div className={`${compact ? '' : 'mt-4 flex items-center justify-between text-xs text-muted'}`}
-            >
+            {/* Rodapé com data e CTA */}
+            <div className={`${compact ? '' : 'mt-4 flex items-center justify-between text-xs text-muted'}`}>
               <span className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 {dateLabel}
