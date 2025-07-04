@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Projects from "./pages/Projects";
 import ProjectDetail from "./pages/ProjectDetail";
 import NewProject from "./pages/NewProject";
+import ContentViewer from "./pages/ContentViewer";
 import { Dashboard } from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 
@@ -34,6 +35,7 @@ const App = () => (
           <Route path="/projects/new" element={<NewProject />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
           <Route path="/projects/:id/edit" element={<NewProject />} />
+          <Route path="/content/:projectId" element={<ContentViewer />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

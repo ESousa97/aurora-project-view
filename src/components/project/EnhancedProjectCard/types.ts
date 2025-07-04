@@ -4,7 +4,7 @@ import type { LanguageColor } from '@/lib/languageColors';
 
 export interface EnhancedProjectCardProps {
   project: EnhancedProjectCardType | null | undefined;
-  variant?: 'default' | 'compact' | 'mystery' | 'featured';
+  variant?: 'default' | 'compact' | 'grid' | 'featured';
   index?: number;
   onDiscover?: (id: number) => void;
   isDiscovered?: boolean;

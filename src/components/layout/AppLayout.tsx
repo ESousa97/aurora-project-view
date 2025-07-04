@@ -1,7 +1,7 @@
 // src/components/layout/AppLayout.tsx
 import React, { useEffect } from 'react';
 import { Header } from './Header';
-import { Sidebar } from './Sidebar';
+import { ModernSidebar } from './Sidebar/ModernSidebar';
 import { useUIStore, useSidebar, useResponsiveSidebar } from '@/stores/uiStore';
 import { keepAliveService } from '@/services/api';
 import { cn } from '@/lib/utils';
@@ -65,7 +65,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Corpo principal */}
       <div className="relative">
         {/* Renderiza a Sidebar somente se não estiver oculta */}
-        {!isHidden && <Sidebar />}
+        {!isHidden && <ModernSidebar />}
 
         {/* Área de conteúdo deslocada conforme a largura da sidebar */}
         <main
