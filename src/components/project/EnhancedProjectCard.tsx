@@ -2,7 +2,7 @@
 import React from 'react';
 import { useProjectEngagement } from '@/hooks/useProjectEngagement';
 import { useProjectCard } from './EnhancedProjectCard/useProjectCard';
-import { ModernCard } from './EnhancedProjectCard/ModernCard';
+import { VariantRenderer } from './EnhancedProjectCard/VariantRenderer';
 import { EnhancedProjectCardProps } from './EnhancedProjectCard/types';
 
 export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = React.memo(({ 
@@ -24,9 +24,11 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = React.mem
   if (!project?.id) return null;
 
   return (
-    <ModernCard
-      project={project}
+    <VariantRenderer
       variant={variant}
+      project={project}
+      revealed={revealed}
+      langConfig={langConfig}
       index={index}
       onClick={handleClick}
     />

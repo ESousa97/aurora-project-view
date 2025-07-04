@@ -25,7 +25,7 @@ export default defineConfig({
     react(),
     markdownPlugin()
   ],
-  server: {
+    server: {
     port: 8080
   },
   resolve: {
