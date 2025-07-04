@@ -1,7 +1,8 @@
-// src/pages/Index.tsx
+// src/pages/Index.tsx (versão atualizada com indicador)
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
+import { StaticModeIndicator } from '@/components/StaticModeIndicator';
 import { isWithinInterval, subDays } from 'date-fns';
 
 // Importações dos componentes modulares
@@ -95,7 +96,7 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-white dark:bg-gray-950">
+      <div className="">
         <div className="space-y-20">
           <HeroSection stats={stats} />
           
@@ -116,6 +117,9 @@ const Index = () => {
           <CallToActionSection />
         </div>
       </div>
+      
+      {/* Indicador de Modo Estático */}
+      <StaticModeIndicator />
     </AppLayout>
   );
 };
