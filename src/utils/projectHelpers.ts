@@ -61,7 +61,7 @@ export const detectProjectTechnologies = (project: ProjectCardType | null | unde
     { pattern: /spring/i, tech: 'spring' },
     { pattern: /\.net|dotnet/i, tech: 'dotnet' },
     { pattern: /flutter/i, tech: 'flutter' },
-    { pattern: /react.native/i, tech: 'react-native' },
+    { pattern: /react[-\s]?native/i, tech: 'react-native' },
     { pattern: /mongodb/i, tech: 'mongodb' },
     { pattern: /mysql/i, tech: 'mysql' },
     { pattern: /postgresql|postgres/i, tech: 'postgresql' },
