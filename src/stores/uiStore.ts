@@ -88,7 +88,7 @@ export const useUIStore = create<UIStore>()(
   persist(
     (set, get) => ({
       /* ---------- State ---------- */
-      theme: 'system',
+      theme: 'dark',
       viewMode: 'grid',
       selectedCategory: '',
       searchQuery: '',
@@ -227,6 +227,9 @@ export const useResponsiveSidebar = () => {
 export const useSidebar = () => {
   const store = useUIStore();
   return {
+    // ADICIONAR ESTA LINHA:
+    sidebarState: store.sidebarState, // compatibilidade para o AppLayout
+
     /* estado */
     collapsed: store.collapsed,
     sidebarMode: store.sidebarMode,

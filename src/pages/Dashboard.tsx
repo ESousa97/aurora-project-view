@@ -1,96 +1,62 @@
-// src/pages/Dashboard.tsx - Dashboard com ícones do sistema corrigidos
+// src/pages/Dashboard.tsx
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useProjectStats, useCategories } from '@/hooks/useProjects';
-import { Badge } from '@/components/ui/badge';
 import { ProjectStatsChart } from '@/components/dashboard/ProjectStatsChart';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { getStaticStats } from '@/static-data';
 
-// Usar ícones do sistema languageColors (agora corrigidos)
-import { 
-  FaChartBar, FaTrendingUp, FaTarget, FaBolt 
-} from '@/lib/languageColors/icons';
-
-export const Dashboard = () => {
-  const { totalProjects, recentProjects, totalCategories, mostActiveCategory } = useProjectStats();
-  const { data: categories } = useCategories();
+export const Dashboard: React.FC = () => {
+  const stats = getStaticStats();
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Visão geral da plataforma de projetos
-          </p>
-        </div>
+      <div className="space-y-8">
+        <header className="space-y-2">
+          <h1 className="text-4xl font-bold">Centro de Comando</h1>
+          <p className="text-muted-foreground">Uma visão geral da atividade do seu portfólio.</p>
+        </header>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Projetos</CardTitle>
-              <FaTarget className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalProjects || 0}</div>
-              <p className="text-xs text-muted-foreground">projetos catalogados</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Categorias</CardTitle>
-              <FaChartBar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalCategories || 0}</div>
-              <p className="text-xs text-muted-foreground">áreas técnicas</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Atualizações Recentes</CardTitle>
-              <FaBolt className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{recentProjects || 0}</div>
-              <p className="text-xs text-muted-foreground">no último mês</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Categoria Mais Ativa</CardTitle>
-              <FaTrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold truncate">{mostActiveCategory?.name || 'N/A'}</div>
-              <p className="text-xs text-muted-foreground">com mais projetos</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts and Lists */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <ProjectStatsChart />
-          </div>
-          
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader>
-              <CardTitle>Top Categorias</CardTitle>
-              <CardDescription>
-                Categorias com maior quantidade de projetos.
-              </CardDescription>
+              <CardTitle>Total de Projetos</CardTitle>
+              <CardDescription>Número de projetos no portfólio</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {categories?.slice(0, 6).map((category) => (
-                <div key={category.name} className="flex items-center justify-between">
-                  <span className="text-sm">{category.name}</span>
-                  <Badge variant="secondary">{category.count}</Badge>
-                </div>
-              ))}
+            <CardContent>
+              <p className="text-4xl font-bold">{stats.totalProjects}</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Categorias Ativas</CardTitle>
+              <CardDescription>Territórios com pelo menos um projeto</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-4xl font-bold">{stats.totalCategories}</p>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle>Categoria Popular</CardTitle>
+              <CardDescription>O território mais explorado</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{stats.mostActiveCategory?.name || 'N/A'}</p>
+            </CardContent>
+          </Card>
+           <Card>
+            <CardHeader>
+              <CardTitle>Projetos Recentes</CardTitle>
+              <CardDescription>Adicionados no último ano</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-4xl font-bold">{stats.recentProjects}</p>
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid gap-6">
+          <ProjectStatsChart />
         </div>
       </div>
     </AppLayout>

@@ -70,7 +70,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             marginLeft: `${sidebarWidth()}px`
           }}
         >
-          <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="max-w-7xl mx-auto px-3 py-3">
             {children}
           </div>
         </main>
