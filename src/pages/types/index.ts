@@ -1,27 +1,29 @@
 // src/pages/types/index.ts
 
+import { LanguageColor } from '@/lib/languageColors';
+
 export interface ProjectType {
   id: number;
-  titulo?: string;
+  titulo: string;
   nome?: string;
-  descricao?: string;
+  descricao: string;
   data_modificacao: string;
   data_criacao: string;
-  detectedLanguage: {
-    name: string;
-    gradient: string;
-    color: string;
-    icon?: React.ComponentType<{ className?: string }>;
+  detectedLanguage: LanguageColor;
+  categoria: string;
+  conteudo: string;
+  imageurl: string;
+  languageMetadata: {
+    detectedAt: string;
+    confidence: number;
   };
-  categoria?: string;
-  conteudo?: string;
-  imageurl?: string;
 }
 
 export interface CategoryType {
   name: string;
   count: number;
   projects?: ProjectType[];
+  languageConfig?: LanguageColor;
 }
 
 export interface StatsType {

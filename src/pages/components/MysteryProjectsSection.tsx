@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Crown } from 'lucide-react';
 import { ProjectType } from '../types';
-import { EnhancedProjectCard } from './EnhancedProjectCard';
+import { EnhancedProjectCard } from '@/components/project/EnhancedProjectCard';
 
 interface MysteryProjectsSectionProps {
   projects: ProjectType[];

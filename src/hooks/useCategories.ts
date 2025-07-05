@@ -11,7 +11,7 @@ export const useCategories = () => {
       const categories = await apiService.getCategories();
       console.log(`✅ useCategories: Retrieved ${categories?.length || 0} categories`);
       
-      // SINCRONIZAÇÃO: Enriquecer categorias com informações de linguagem consistentes
+// SINCRONIZAÇÃO: Enriquecer categorias com informações de linguagem consistentes
       const enrichedCategories = categories.map(category => {
         // Buscar um projeto representativo da categoria para detectar linguagem
         const sampleProject = category.projects[0];
@@ -26,7 +26,11 @@ export const useCategories = () => {
           languageConfig,
           projects: category.projects.map(project => ({
             ...project,
-            detectedLanguage: detectLanguage(project) // Garantir que cada projeto tenha linguagem detectada
+            detectedLanguage: detectLanguage(project), // Garantir que cada projeto tenha linguagem detectada
+            languageMetadata: {
+              detectedAt: new Date().toISOString(),
+              confidence: 100
+            }
           }))
         };
       });
