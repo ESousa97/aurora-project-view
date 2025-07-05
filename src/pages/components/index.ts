@@ -4,6 +4,7 @@ export { HeroSection } from './HeroSection';
 export { StatsSection } from './StatsSection';
 export { FeaturedProjectsSection } from './FeaturedProjectsSection';
 export { MysteryProjectsSection } from './MysteryProjectsSection';
+export { MysteryCompletedSection } from './MysteryCompletedSection';
 export { CategoriesSection } from './CategoriesSection';
 export { CallToActionSection } from './CallToActionSection';
 export { EnhancedProjectCard } from './EnhancedProjectCard';

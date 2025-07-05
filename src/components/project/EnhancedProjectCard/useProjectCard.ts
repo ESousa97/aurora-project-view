@@ -63,7 +63,12 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
     if (project?.id) {
       // SEMPRE marcar como revelado quando visualizado, independente da seção
       revealProject(project.id);
-      console.log('👁️ Project viewed in viewport:', project.id, project.titulo, 'variant:', variant);
+      console.log('👁️ Project viewed in viewport:', {
+        id: project.id,
+        title: project.titulo,
+        variant,
+        section: variant === 'mystery' ? 'Mystery' : variant === 'compact' ? 'Exploração Completa' : 'Território'
+      });
       
       // Para mystery cards, também mostrar toast e disparar onDiscover
       if (variant === 'mystery' && !revealed) {
@@ -78,7 +83,9 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
   const viewportRef = useViewportReveal({
     enabled: true, // SEMPRE ativo para todas as seções (sincronização)
     onReveal: handleViewportReveal,
-    threshold: 0.3 // Threshold um pouco menor para melhor UX
+    threshold: 0.3, // Threshold otimizado para melhor UX
+    debounceMs: 300, // Debounce para evitar múltiplas chamadas
+    projectId: project?.id // Para debugging e tracking
   });
 
   return {

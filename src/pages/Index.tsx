@@ -12,6 +12,7 @@ import {
   StatsSection,
   FeaturedProjectsSection,
   MysteryProjectsSection,
+  MysteryCompletedSection,
   CategoriesSection,
   CallToActionSection,
   LoadingState,
@@ -24,7 +25,7 @@ import { ProjectType } from './types';
 const Index = () => {
   const { data: projects, isLoading: projectsLoading } = useProjectsWithLanguage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const { revealedProjects, revealProject, isProjectRevealed } = useRevealedProjects();
+  const { revealedProjects, revealProject, isProjectRevealed, clearRevealedProjects } = useRevealedProjects();
 
   // Debug logs
   console.log('🏠 Index: projects data:', projects?.length || 0, projects);
@@ -65,7 +66,7 @@ const Index = () => {
     return featured;
   }, [projects]);
 
-  // Projetos mistério - APENAS projetos que ainda NÃO foram revelados/visualizados
+  // Projetos mistério - EXCLUSIVAMENTE projetos não visualizados (sincronização avançada)
   const mysteryProjects = React.useMemo(() => {
     console.log('🔮 Computing mysteryProjects, projects:', projects?.length || 0);
     if (!projects) {
@@ -73,28 +74,38 @@ const Index = () => {
       return [];
     }
     
-    // FILTRAR apenas projetos que ainda NÃO foram revelados
-    const unrevealedProjects = projects.filter(project => !isProjectRevealed(project.id));
-    console.log('🔮 Unrevealed projects found:', unrevealedProjects.length);
+    // FILTRAR rigorosamente apenas projetos NÃO visualizados
+    const unrevealedProjects = projects.filter(project => {
+      const isRevealed = isProjectRevealed(project.id);
+      console.log(`🔮 Project ${project.id} (${project.titulo}):`, isRevealed ? 'REVEALED ❌' : 'UNREVEALED ✅');
+      return !isRevealed;
+    });
     
-    // Se não há projetos não revelados, mostrar uma mensagem ou projetos aleatórios
+    console.log('🔮 Total unrevealed projects found:', unrevealedProjects.length);
+    console.log('🔮 Unrevealed project titles:', unrevealedProjects.map(p => p.titulo));
+    
+    // Estratégia adaptativa baseada na quantidade de projetos não revelados
     if (unrevealedProjects.length === 0) {
-      console.log('🔮 All projects revealed! Showing random selection for variety');
-      const randomSelection = projects
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3) as ProjectType[]; // Menos projetos se todos já foram revelados
-      return randomSelection;
+      console.log('🔮 All projects revealed! Mystery section will show completion message');
+      return []; // Seção vazia ou mensagem de conclusão
     }
     
-    // Embaralhar e limitar projetos não revelados
-    const mystery = unrevealedProjects
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 6) as ProjectType[]; // Máximo 6 projetos na seção mistério
+    if (unrevealedProjects.length <= 3) {
+      console.log('🔮 Few projects remaining, showing all unrevealed');
+      // Mostrar todos os não revelados se poucos restam
+      return unrevealedProjects.sort(() => Math.random() - 0.5) as ProjectType[];
+    }
     
-    console.log('🔮 Final mystery projects (unrevealed):', mystery.length, mystery.map(p => p.titulo));
-    console.log('🔮 All should be HIDDEN:', mystery.map(p => `${p.titulo}: ${isProjectRevealed(p.id) ? 'REVEALED' : 'HIDDEN'}`));
-    return mystery;
-  }, [projects, isProjectRevealed]);
+    // Mostrar seleção estratégica de projetos não revelados
+    const selectedMystery = unrevealedProjects
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 6) as ProjectType[]; // Máximo 6 para não sobrecarregar
+    
+    console.log('🔮 Final mystery selection:', selectedMystery.length, 'projects');
+    console.log('🔮 Mystery titles:', selectedMystery.map(p => p.titulo));
+    
+    return selectedMystery;
+  }, [projects, isProjectRevealed, revealedProjects]); // Adicionar revealedProjects para re-trigger
 
   // Estatísticas dinâmicas
   const stats = React.useMemo(() => {
@@ -129,6 +140,11 @@ const Index = () => {
     revealProject(projectId);
   }, [revealProject]);
 
+  const handleResetDiscoveries = React.useCallback(() => {
+    clearRevealedProjects();
+    console.log('🔄 User reset all discoveries');
+  }, [clearRevealedProjects]);
+
   // Estados de carregamento e vazio
   if (projectsLoading || categoriesLoading) {
     return <LoadingState />;
@@ -150,12 +166,19 @@ const Index = () => {
             projects={featuredProjects}
           />
           
-          <MysteryProjectsSection
-            projects={mysteryProjects}
-            revealedProjects={revealedProjects}
-            onProjectReveal={handleProjectReveal}
-            isProjectRevealed={isProjectRevealed}
-          />
+          {mysteryProjects.length > 0 ? (
+            <MysteryProjectsSection
+              projects={mysteryProjects}
+              revealedProjects={revealedProjects}
+              onProjectReveal={handleProjectReveal}
+              isProjectRevealed={isProjectRevealed}
+            />
+          ) : (
+            <MysteryCompletedSection
+              onReset={handleResetDiscoveries}
+              totalProjects={projects?.length || 0}
+            />
+          )}
           
           <CategoriesSection categories={categories} />
           
