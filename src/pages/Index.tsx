@@ -29,6 +29,13 @@ const Index = () => {
   console.log('🏠 Index: projects data:', projects?.length || 0, projects);
   console.log('🏠 Index: projectsLoading:', projectsLoading);
   console.log('🏠 Index: categories data:', categories?.length || 0);
+  console.log('🏠 Index: React Query state check');
+
+  // Force render log
+  React.useEffect(() => {
+    console.log('🏠 Index: Effect - projects changed:', projects?.length || 0);
+    console.log('🏠 Index: Effect - categories changed:', categories?.length || 0);
+  }, [projects, categories]);
 
   // Projetos em destaque (mais recentes e interessantes)
   const featuredProjects = React.useMemo(() => {
