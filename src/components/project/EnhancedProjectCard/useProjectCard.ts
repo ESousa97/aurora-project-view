@@ -81,7 +81,7 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
   }, [project, revealProject, variant, revealed, onDiscover]);
 
   const viewportRef = useViewportReveal({
-    enabled: true, // SEMPRE ativo para todas as seções (sincronização)
+    enabled: variant !== 'mystery', // DESABILITADO para mystery cards - só revelação manual
     onReveal: handleViewportReveal,
     threshold: 0.3, // Threshold otimizado para melhor UX
     debounceMs: 300, // Debounce para evitar múltiplas chamadas
