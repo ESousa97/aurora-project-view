@@ -35,8 +35,13 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
 const KNOWN_PROJECTS = [
   'projects0001',
-  'projects0002'
-  // Adicione mais projetos conforme necessário
+  'projects0002',
+  'projects0003',
+  'projects0004',
+  'projects0005',
+  'projects0006',
+  'projects0007',
+  'projects0008'
 ];
 
 // ===== FUNÇÃO PARA CARREGAR ARQUIVO MDX DO PUBLIC =====

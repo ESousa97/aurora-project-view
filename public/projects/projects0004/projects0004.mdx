@@ -1,0 +1,99 @@
+
+---
+id: 4
+titulo: "API RESTful Node.js"
+descricao: "API robusta desenvolvida em Node.js com autenticação JWT, documentação Swagger e testes automatizados."
+categoria: "Backend Development"
+data_criacao: "2024-05-10"
+data_modificacao: "2024-05-25"
+imageurl: "/placeholder.svg?height=300&width=400&text=Node.js+API"
+tecnologias: ["Node.js", "Express", "MongoDB", "JWT", "Swagger"]
+dificuldade: 3
+featured: false
+tags: ["nodejs", "api", "rest", "mongodb", "express"]
+repositorio: "https://github.com/exemplo/nodejs-api"
+demo: "https://api-docs.herokuapp.com"
+---
+
+# API RESTful Node.js
+
+API robusta e escalável desenvolvida com Node.js e Express, incluindo autenticação, documentação e testes.
+
+## 🌟 Características
+
+- **Arquitetura RESTful** - Endpoints bem estruturados
+- **Autenticação JWT** - Sistema seguro de autenticação
+- **Documentação Swagger** - Documentação interativa
+- **Testes Automatizados** - Cobertura completa de testes
+- **Validação de Dados** - Validação robusta com Joi
+
+## 🛠️ Stack Tecnológica
+
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **MongoDB** - Banco de dados NoSQL
+- **Mongoose** - ODM para MongoDB
+- **JWT** - JSON Web Tokens
+- **Swagger** - Documentação da API
+- **Jest** - Framework de testes
+
+## 📚 Endpoints Principais
+
+### Autenticação
+- `POST /auth/register` - Registro de usuário
+- `POST /auth/login` - Login de usuário
+- `POST /auth/refresh` - Renovar token
+
+### Usuários
+- `GET /users` - Listar usuários
+- `GET /users/:id` - Obter usuário
+- `PUT /users/:id` - Atualizar usuário
+- `DELETE /users/:id` - Remover usuário
+
+### Produtos
+- `GET /products` - Listar produtos
+- `POST /products` - Criar produto
+- `PUT /products/:id` - Atualizar produto
+- `DELETE /products/:id` - Remover produto
+
+## 🔒 Segurança
+
+- Autenticação JWT
+- Criptografia de senhas com bcrypt
+- Rate limiting
+- Validação de entrada
+- Headers de segurança
+- CORS configurado
+
+## 📋 Middleware
+
+- Autenticação
+- Validação de dados
+- Rate limiting
+- Logging de requisições
+- Tratamento de erros
+
+## 🧪 Testes
+
+```bash
+npm test
+npm run test:coverage
+```
+
+- Testes unitários
+- Testes de integração
+- Cobertura de código > 90%
+
+## 📖 Documentação
+
+Acesse `/api-docs` para ver a documentação Swagger interativa.
+
+## 🚀 Deploy
+
+Configurado para deploy em:
+- Heroku
+- AWS
+- DigitalOcean
+- Docker
+
+Esta API serve como base sólida para aplicações web modernas.
