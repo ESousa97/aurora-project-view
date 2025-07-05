@@ -8,8 +8,8 @@ import { ProjectCard, Category } from '@/types';
 // 2. IMPORTAR DADOS COM 'IMPORT'
 // Usar a sintaxe de import do ES6 é mais moderno e consistente
 // com o resto do seu código do que usar 'require()'.
-import { staticProjects } from './projects';
-import { combinedCategories } from './categories';
+import { getStaticProjects } from './projects';
+import { getAllCategories } from './categories';
 
 // Re-exportar tudo dos outros módulos para que possam ser importados a partir daqui
 export * from './projects';
@@ -24,10 +24,10 @@ export const staticUser = {
 };
 
 // Estatísticas estáticas
-export const getStaticStats = () => {
+export const getStaticStats = async () => {
   // Atribuir os dados importados a variáveis para clareza
-  const projects: ProjectCard[] = staticProjects;
-  const categories: Category[] = combinedCategories;
+  const projects: ProjectCard[] = await getStaticProjects();
+  const categories: Category[] = await getAllCategories();
   
   const now = new Date();
   // A data de modificação "2025-01-02T14:30:00Z" no seu primeiro projeto

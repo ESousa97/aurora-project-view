@@ -253,17 +253,21 @@ async function loadAllMDXProjects(): Promise<MDXProject[]> {
   }
 
   console.log('📋 Loading all MDX projects from public directory...');
+  console.log('📁 Known projects list:', KNOWN_PROJECTS);
   
   const projects: MDXProject[] = [];
   const failedProjects: string[] = [];
   
   // Carregar todos os projetos conhecidos
   for (const projectSlug of KNOWN_PROJECTS) {
+    console.log(`📖 Processing project: ${projectSlug}`);
     const project = await loadMDXProject(projectSlug);
     if (project) {
       projects.push(project);
+      console.log(`✅ Successfully added project: ${project.titulo} (ID: ${project.id})`);
     } else {
       failedProjects.push(projectSlug);
+      console.warn(`❌ Failed to load project: ${projectSlug}`);
     }
   }
 
@@ -282,6 +286,7 @@ async function loadAllMDXProjects(): Promise<MDXProject[]> {
   lastCacheTime = now;
 
   console.log(`✅ Loaded ${projects.length} MDX projects from public directory`);
+  console.log('📊 Project titles:', projects.map(p => `${p.titulo} (${p.categoria})`));
   return projects;
 }
 

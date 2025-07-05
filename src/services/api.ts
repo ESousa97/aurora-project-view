@@ -1,11 +1,11 @@
 // src/services/api.ts
 import { ProjectCard, ProjectDetails, Category } from '@/types';
 import { 
-  staticProjects, 
+  getStaticProjects,
   getProjectById, 
   getProjectsByCategory,
   searchProjects as staticSearchProjects,
-  combinedCategories,
+  getAllCategories,
   getCategoryByName
 } from '@/static-data';
 
@@ -19,8 +19,9 @@ export const apiService = {
   getCards: async (): Promise<ProjectCard[]> => {
     console.log('📋 Fetching static project cards...');
     await simulateDelay(200);
-    console.log(`📋 Retrieved ${staticProjects.length} project cards`);
-    return [...staticProjects];
+    const projects = await getStaticProjects(); // Garante que os projetos MDX sejam carregados
+    console.log(`📋 Retrieved ${projects.length} project cards`);
+    return [...projects];
   },
 
   // Search projects
@@ -36,8 +37,9 @@ export const apiService = {
   getCategories: async (): Promise<Category[]> => {
     console.log('📂 Fetching static categories...');
     await simulateDelay(100);
-    console.log(`📂 Retrieved ${combinedCategories.length} categories`);
-    return [...combinedCategories];
+    const categories = await getAllCategories();
+    console.log(`📂 Retrieved ${categories.length} categories`);
+    return [...categories];
   },
 
   // Get project details
