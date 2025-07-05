@@ -41,6 +41,8 @@ const Index = () => {
   const featuredProjects = React.useMemo(() => {
     if (!projects) return [];
     
+    console.log('⭐ Computing featuredProjects, total projects:', projects.length);
+    
     const recentProjects = projects.filter(project => 
       project.data_modificacao && isWithinInterval(new Date(project.data_modificacao), {
         start: subDays(new Date(), 14),
@@ -48,11 +50,18 @@ const Index = () => {
       })
     );
 
-    const sourceProjects = recentProjects.length > 0 ? recentProjects : projects;
+    console.log('⭐ Recent projects (last 14 days):', recentProjects.length);
 
-    return sourceProjects
+    const sourceProjects = recentProjects.length > 0 ? recentProjects : projects;
+    console.log('⭐ Source projects for featured selection:', sourceProjects.length);
+
+    // Limitar a apenas 1 projeto featured para deixar outros para mystery
+    const featured = sourceProjects
       .sort((a, b) => new Date(b.data_modificacao).getTime() - new Date(a.data_modificacao).getTime())
-      .slice(0, 3) as ProjectType[];
+      .slice(0, 1) as ProjectType[];
+      
+    console.log('⭐ Final featured projects:', featured.length, featured.map(p => p.titulo));
+    return featured;
   }, [projects]);
 
   // Projetos mistério para descoberta
