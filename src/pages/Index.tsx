@@ -25,6 +25,11 @@ const Index = () => {
   const { data: categories, isLoading: categoriesLoading } = useCategories();
   const [discoveredProjects, setDiscoveredProjects] = React.useState<Set<number>>(new Set());
 
+  // Debug logs
+  console.log('🏠 Index: projects data:', projects?.length || 0, projects);
+  console.log('🏠 Index: projectsLoading:', projectsLoading);
+  console.log('🏠 Index: categories data:', categories?.length || 0);
+
   // Projetos em destaque (mais recentes e interessantes)
   const featuredProjects = React.useMemo(() => {
     if (!projects) return [];
@@ -45,11 +50,19 @@ const Index = () => {
 
   // Projetos mistério para descoberta
   const mysteryProjects = React.useMemo(() => {
-    if (!projects) return [];
-    return projects
-      .filter(p => !featuredProjects.some(fp => fp.id === p.id))
+    console.log('🔮 Computing mysteryProjects, projects:', projects?.length || 0);
+    console.log('🔮 Featured projects:', featuredProjects?.length || 0);
+    if (!projects) {
+      console.log('🔮 No projects available for mystery');
+      return [];
+    }
+    const filtered = projects.filter(p => !featuredProjects.some(fp => fp.id === p.id));
+    console.log('🔮 Filtered projects for mystery:', filtered.length);
+    const mystery = filtered
       .sort(() => Math.random() - 0.5)
       .slice(0, 3) as ProjectType[];
+    console.log('🔮 Final mystery projects:', mystery.length, mystery.map(p => p.titulo));
+    return mystery;
   }, [projects, featuredProjects]);
 
   // Estatísticas dinâmicas
