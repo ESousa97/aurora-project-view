@@ -1,4 +1,4 @@
-// src/hooks/useContentProcessor.ts (Adaptado para MDX)
+// src/hooks/useContentProcessor.ts - VERSÃO CORRIGIDA
 import { useEffect, useState } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
@@ -28,26 +28,15 @@ export const useContentProcessor = () => {
       (_, content) => `<span class="highlight-text">${content.trim()}</span>`
     );
 
-    // 2. Marcar botões de cópia @@texto@@ para não serem processados pelo markdown
-    const copyButtons: string[] = [];
-    processedContent = processedContent.replace(
-      /@@(.+?)@@/g,
-      (match, content) => {
-        copyButtons.push(content.trim());
-        return `__COPY_BUTTON_${copyButtons.length - 1}__`;
-      }
-    );
+    // 2. CORREÇÃO: Preservar botões de cópia @@texto@@ sem alterar
+    // Não vamos substituir por placeholders, deixamos @@texto@@ intacto
+    // O markdown não deve processar @@texto@@ pois não é sintaxe markdown válida
 
-    // 3. Processar markdown normalmente
-    let markdownResult = marked.parse(processedContent.replace(/\\n/g, '\n'), { async: false }) as string;
+    // 3. Processar markdown normalmente (@@texto@@ ficará intacto)
+    const markdownResult = marked.parse(processedContent.replace(/\\n/g, '\n'), { async: false }) as string;
 
-    // 4. Restaurar botões de cópia após processamento markdown
-    copyButtons.forEach((content, index) => {
-      markdownResult = markdownResult.replace(
-        `__COPY_BUTTON_${index}__`,
-        `@@${content}@@`
-      );
-    });
+    // 4. Os @@texto@@ ainda estarão presentes no resultado final
+    // O MDXContentRenderer vai processá-los depois
 
     return markdownResult;
   };

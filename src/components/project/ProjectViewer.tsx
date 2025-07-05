@@ -1,4 +1,4 @@
-// src/components/project/ProjectViewer.tsx (Versão com Layout Otimizado)
+// src/components/project/ProjectViewer.tsx - VERSÃO SEM TOAST DUPLICADO
 import React, { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Share2, BookOpen, Clock, User, Tag, ExternalLink, Github } from 'lucide-react';
@@ -25,13 +25,11 @@ export const ProjectViewer: React.FC<ProjectViewerProps> = ({ project }) => {
   // Obter metadados adicionais do MDX
   const mdxMetadata = getMDXProjectMetadata(project.id);
 
-  // Função para copiar conteúdo
+  // CORREÇÃO: Função para copiar conteúdo SEM toast (já é tratado no useCopyHandler)
   const handleCopy = useCallback((text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast.success('Conteúdo copiado para a área de transferência!');
-    }).catch(() => {
-      toast.error('Erro ao copiar conteúdo');
-    });
+    // Removido toast.success daqui para evitar duplicação
+    // O useCopyHandler já cuida do feedback visual
+    console.log('Texto copiado:', text);
   }, []);
 
   // Função para compartilhar projeto
