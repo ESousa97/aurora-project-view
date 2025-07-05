@@ -14,6 +14,7 @@ export const FeaturedVariant: React.FC<ProjectCardVariantProps> = ({
   langConfig,
   index,
   onClick,
+  viewportRef, // não usado mas aceito por compatibilidade
 }) => {
   return (
     <motion.div

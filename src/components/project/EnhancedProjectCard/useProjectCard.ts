@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import { LANGUAGE_COLORS, LanguageColor } from '@/lib/languageColors';
 import { useRevealedProjects } from '@/hooks/useRevealedProjects';
+import { useViewportReveal } from '@/hooks/useViewportReveal';
 import type { EnhancedProjectCard as EnhancedProjectCardType } from '@/types/enhanced';
 
 interface UseProjectCardProps {
@@ -17,8 +18,8 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
   const navigate = useNavigate();
   const { revealProject } = useRevealedProjects();
   
-  // Usar isDiscovered do localStorage se disponível, senão usar a lógica padrão
-  const [revealed, setRevealed] = useState(isDiscovered ?? (variant !== 'mystery'));
+  // APENAS cards mystery começam não revelados
+  const [revealed, setRevealed] = useState(variant !== 'mystery' ? true : (isDiscovered ?? false));
 
   // Sincronizar com isDiscovered quando ele mudar (importante para localStorage)
   useEffect(() => {
@@ -52,10 +53,28 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
     navigate(`/projects/${project.id}`);
   }, [project, revealed, navigate, onDiscover, revealProject]);
 
+  // Auto-reveal no viewport para cards mystery
+  const handleViewportReveal = useCallback(() => {
+    if (variant === 'mystery' && !revealed && project?.id) {
+      setRevealed(true);
+      revealProject(project.id);
+      onDiscover?.(project.id);
+      toast.success(`Descobriu ${project.titulo}!`, { duration: 2000 });
+      console.log('🔍 Auto-revealed project via viewport:', project.id, project.titulo);
+    }
+  }, [variant, revealed, project, revealProject, onDiscover]);
+
+  const viewportRef = useViewportReveal({
+    enabled: variant === 'mystery' && !revealed,
+    onReveal: handleViewportReveal,
+    threshold: 0.4
+  });
+
   return {
     revealed,
     langConfig,
     handleClick,
     ProjectIcon: langConfig.icon,
+    viewportRef,
   };
 };

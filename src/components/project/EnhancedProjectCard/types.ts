@@ -16,4 +16,5 @@ export interface ProjectCardVariantProps {
   langConfig: LanguageColor;
   index: number;
   onClick: () => void;
+  viewportRef?: React.RefObject<HTMLDivElement>;
 }

@@ -14,7 +14,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = React.mem
 }) => {
   // Custom hooks
   useProjectEngagement(project);
-  const { revealed, langConfig, handleClick } = useProjectCard({
+  const { revealed, langConfig, handleClick, viewportRef } = useProjectCard({
     project,
     variant,
     onDiscover,
@@ -32,6 +32,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = React.mem
       langConfig={langConfig}
       index={index}
       onClick={handleClick}
+      viewportRef={viewportRef}
     />
   );
 });

@@ -11,6 +11,7 @@ export const CompactVariant: React.FC<ProjectCardVariantProps> = ({
   langConfig,
   index,
   onClick,
+  viewportRef, // não usado mas aceito por compatibilidade
 }) => {
   const ProjectIcon = langConfig.icon;
 
