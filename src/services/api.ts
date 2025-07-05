@@ -17,11 +17,25 @@ const simulateDelay = (ms: number = 300) =>
 export const apiService = {
   // Get all project cards
   getCards: async (): Promise<ProjectCard[]> => {
-    console.log('📋 Fetching static project cards...');
+    console.log('🎯 API: getCards() called');
+    console.log('📋 API: Loading projects via static data service...');
     await simulateDelay(200);
-    const projects = await getStaticProjects(); // Garante que os projetos MDX sejam carregados
-    console.log(`📋 Retrieved ${projects.length} project cards`);
-    return [...projects];
+    
+    try {
+      const projects = await getStaticProjects(); // Garante que os projetos MDX sejam carregados
+      console.log(`🎯 API: Retrieved ${projects?.length || 0} projects from static data`);
+      
+      if (!projects || projects.length === 0) {
+        console.warn('⚠️ API: No projects returned from getStaticProjects');
+        return [];
+      }
+      
+      console.log('📝 API: Project titles:', projects.map(p => `${p.titulo} (${p.categoria})`));
+      return [...projects];
+    } catch (error) {
+      console.error('❌ API: Error in getCards:', error);
+      return [];
+    }
   },
 
   // Search projects

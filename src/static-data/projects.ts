@@ -7,13 +7,22 @@ let cachedProjects: ProjectCard[] | null = null;
 
 // Função principal para obter projetos (agora usando MDX)
 export const getStaticProjects = async (): Promise<ProjectCard[]> => {
+  console.log('🔄 getStaticProjects called');
+  
   if (cachedProjects) {
+    console.log('📋 Returning cached projects:', cachedProjects.length);
     return cachedProjects;
   }
   
   console.log('🔄 Loading projects from MDX files...');
-  cachedProjects = await getAllMDXProjects();
-  return cachedProjects;
+  try {
+    cachedProjects = await getAllMDXProjects();
+    console.log(`✅ getStaticProjects: Loaded ${cachedProjects.length} projects from MDX`);
+    return cachedProjects;
+  } catch (error) {
+    console.error('❌ getStaticProjects: Error loading MDX projects:', error);
+    return [];
+  }
 };
 
 // Projetos estáticos (mantido para compatibilidade, mas agora vem do MDX)

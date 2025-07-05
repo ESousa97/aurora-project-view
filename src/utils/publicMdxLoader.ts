@@ -246,9 +246,11 @@ async function loadMDXProject(projectSlug: string): Promise<MDXProject | null> {
 async function loadAllMDXProjects(): Promise<MDXProject[]> {
   const now = Date.now();
   
+  console.log('🔄 loadAllMDXProjects called - starting fresh load');
+  
   // Verificar cache
   if (projectsCache && (now - lastCacheTime) < CACHE_DURATION) {
-    console.log('📋 Using cached MDX projects');
+    console.log('📋 Using cached MDX projects:', projectsCache.length);
     return projectsCache;
   }
 
@@ -296,24 +298,39 @@ async function loadAllMDXProjects(): Promise<MDXProject[]> {
  * Obter todos os projetos MDX
  */
 export async function getAllMDXProjects(): Promise<ProjectCard[]> {
-  console.log('📚 Getting all MDX projects...');
+  console.log('📚 getAllMDXProjects called - Getting all MDX projects...');
   
-  const mdxProjects = await loadAllMDXProjects();
-  
-  // Converter para formato ProjectCard
-  const projectCards: ProjectCard[] = mdxProjects.map(project => ({
-    id: project.id,
-    titulo: project.titulo,
-    descricao: project.descricao,
-    categoria: project.categoria,
-    data_criacao: project.data_criacao,
-    data_modificacao: project.data_modificacao,
-    imageurl: project.imageurl,
-    conteudo: project.content
-  }));
+  try {
+    const mdxProjects = await loadAllMDXProjects();
+    console.log('🎯 Raw MDX projects loaded:', mdxProjects.length);
+    
+    if (mdxProjects.length === 0) {
+      console.warn('⚠️ No MDX projects found!');
+      return [];
+    }
+    
+    // Converter para formato ProjectCard
+    const projectCards: ProjectCard[] = mdxProjects.map(project => {
+      console.log(`🔄 Converting project: ${project.titulo} (ID: ${project.id})`);
+      return {
+        id: project.id,
+        titulo: project.titulo,
+        descricao: project.descricao,
+        categoria: project.categoria,
+        data_criacao: project.data_criacao,
+        data_modificacao: project.data_modificacao,
+        imageurl: project.imageurl,
+        conteudo: project.content
+      };
+    });
 
-  console.log(`📚 Returned ${projectCards.length} project cards`);
-  return projectCards;
+    console.log(`📚 Successfully returned ${projectCards.length} project cards`);
+    console.log('📝 Project cards preview:', projectCards.map(p => `${p.titulo} (${p.categoria})`));
+    return projectCards;
+  } catch (error) {
+    console.error('❌ Error in getAllMDXProjects:', error);
+    return [];
+  }
 }
 
 /**
