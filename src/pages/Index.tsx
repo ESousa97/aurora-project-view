@@ -3,6 +3,7 @@ import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
 import { StaticModeIndicator } from '@/components/StaticModeIndicator';
+import { useRevealedProjects } from '@/hooks/useRevealedProjects';
 import { isWithinInterval, subDays } from 'date-fns';
 
 // Importações dos componentes modulares
@@ -23,7 +24,7 @@ import { ProjectType } from './types';
 const Index = () => {
   const { data: projects, isLoading: projectsLoading } = useProjectsWithLanguage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
-  const [discoveredProjects, setDiscoveredProjects] = React.useState<Set<number>>(new Set());
+  const { revealedProjects, revealProject, isProjectRevealed } = useRevealedProjects();
 
   // Debug logs
   console.log('🏠 Index: projects data:', projects?.length || 0, projects);
@@ -64,22 +65,23 @@ const Index = () => {
     return featured;
   }, [projects]);
 
-  // Projetos mistério para descoberta
+  // Projetos mistério para descoberta - todos os projetos, mas mostrados como revelados ou não baseado no localStorage
   const mysteryProjects = React.useMemo(() => {
     console.log('🔮 Computing mysteryProjects, projects:', projects?.length || 0);
-    console.log('🔮 Featured projects:', featuredProjects?.length || 0);
     if (!projects) {
       console.log('🔮 No projects available for mystery');
       return [];
     }
-    const filtered = projects.filter(p => !featuredProjects.some(fp => fp.id === p.id));
-    console.log('🔮 Filtered projects for mystery:', filtered.length);
-    const mystery = filtered
+    
+    // Mostrar todos os projetos como mystery (alguns já revelados, outros não)
+    const mystery = projects
       .sort(() => Math.random() - 0.5)
-      .slice(0, 3) as ProjectType[];
+      .slice(0, 6) as ProjectType[]; // Máximo 6 projetos na seção mistério
+    
     console.log('🔮 Final mystery projects:', mystery.length, mystery.map(p => p.titulo));
+    console.log('🔮 Revealed status:', mystery.map(p => `${p.titulo}: ${isProjectRevealed(p.id) ? 'REVEALED' : 'HIDDEN'}`));
     return mystery;
-  }, [projects, featuredProjects]);
+  }, [projects, isProjectRevealed]);
 
   // Estatísticas dinâmicas
   const stats = React.useMemo(() => {
@@ -111,8 +113,8 @@ const Index = () => {
   }, [projects, categories]);
 
   const handleProjectReveal = React.useCallback((projectId: number) => {
-    setDiscoveredProjects(prev => new Set([...prev, projectId]));
-  }, []);
+    revealProject(projectId);
+  }, [revealProject]);
 
   // Estados de carregamento e vazio
   if (projectsLoading || categoriesLoading) {
@@ -137,8 +139,9 @@ const Index = () => {
           
           <MysteryProjectsSection
             projects={mysteryProjects}
-            discoveredProjects={discoveredProjects}
+            revealedProjects={revealedProjects}
             onProjectReveal={handleProjectReveal}
+            isProjectRevealed={isProjectRevealed}
           />
           
           <CategoriesSection categories={categories} />

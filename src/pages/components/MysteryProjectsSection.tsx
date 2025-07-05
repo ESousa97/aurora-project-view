@@ -7,14 +7,16 @@ import { EnhancedProjectCard } from '@/components/project/EnhancedProjectCard';
 
 interface MysteryProjectsSectionProps {
   projects: ProjectType[];
-  discoveredProjects: Set<number>;
+  revealedProjects: Set<number>;
   onProjectReveal: (projectId: number) => void;
+  isProjectRevealed: (projectId: number) => boolean;
 }
 
 export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({ 
   projects, 
-  discoveredProjects, 
-  onProjectReveal 
+  revealedProjects,
+  onProjectReveal,
+  isProjectRevealed
 }) => {
   return (
     <section className="space-y-12 py-20 rounded-3xl mx-4 bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm shadow-xl border border-gray-200 dark:border-gray-700">
@@ -50,7 +52,7 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
               variant="mystery"
               index={index}
               onDiscover={onProjectReveal}
-              isDiscovered={discoveredProjects.has(project.id)}
+              isDiscovered={isProjectRevealed(project.id)}
             />
           ))}
         </div>
