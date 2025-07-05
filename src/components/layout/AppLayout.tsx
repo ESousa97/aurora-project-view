@@ -1,7 +1,7 @@
 // src/components/layout/AppLayout.tsx - Versão Simplificada e Corrigida
 import React, { useEffect } from 'react';
 import { Header } from './Header';
-import { Sidebar } from './Sidebar';
+import { ModernSidebar } from './Sidebar/ModernSidebar';
 import { useUIStore, useSidebar, useResponsiveSidebar } from '@/stores/uiStore';
 import { keepAliveService } from '@/services/api';
 import { cn } from '@/lib/utils';
@@ -58,7 +58,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       {/* Layout principal */}
       <div className="relative">
         {/* Sidebar */}
-        {sidebarState !== 'hidden' && <Sidebar />}
+        {sidebarState !== 'hidden' && <ModernSidebar />}
 
         {/* Conteúdo principal */}
         <main 

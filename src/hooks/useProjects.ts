@@ -150,3 +150,32 @@ export const useProjectStats = () => {
     };
   }, [projects, categories]);
 };
+
+// Hook para stack categories (nova funcionalidade moderna)
+export const useStackCategories = () => {
+  return useQuery({
+    queryKey: ['stack-categories'],
+    queryFn: async () => {
+      console.log('🔄 useStackCategories: Loading stack-based categories...');
+      const { getStackCategories } = await import('@/utils/stackCategorization');
+      const stackCategories = await getStackCategories();
+      console.log(`✅ useStackCategories: Retrieved ${stackCategories?.length || 0} stack categories`);
+      
+      // Log stack categories para debug
+      if (stackCategories && stackCategories.length > 0) {
+        console.log('🏗️ Stack Categories summary:', stackCategories.map(stack => ({
+          name: stack.name,
+          type: stack.type,
+          count: stack.count,
+          technologies: stack.technologies
+        })));
+      }
+      
+      return stackCategories;
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 15 * 60 * 1000, // 15 minutes
+    retry: 2,
+    retryDelay: 1500,
+  });
+};

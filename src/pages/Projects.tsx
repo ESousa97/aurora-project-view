@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { EnhancedProjectCard } from '@/components/project/EnhancedProjectCard';
 import { ProjectCardSkeleton, StatsLoading } from '@/components/ui/loading';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
+import { useStackCategories } from '@/hooks/useProjects';
 import { useUIStore } from '@/stores/uiStore';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,13 +19,14 @@ import { isWithinInterval, subDays } from 'date-fns';
 const Projects = () => {
   const { data: allProjects, isLoading: projectsLoading } = useProjectsWithLanguage();
   const { data: categories, isLoading: categoriesLoading } = useCategories();
+  const { data: stackCategories, isLoading: stackCategoriesLoading } = useStackCategories();
   const { viewMode, setViewMode, selectedCategory, setSelectedCategory } = useUIStore();
   
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get('category');
   const [sortBy, setSortBy] = React.useState<'date' | 'title'>('date');
 
-  const isLoading = projectsLoading || categoriesLoading;
+  const isLoading = projectsLoading || categoriesLoading || stackCategoriesLoading;
 
   React.useEffect(() => {
     if (categoryParam && categoryParam !== selectedCategory) {
@@ -33,18 +35,35 @@ const Projects = () => {
   }, [categoryParam, selectedCategory, setSelectedCategory]);
 
   const processedProjects = React.useMemo(() => {
-    if (!allProjects || !categories) return [];
+    if (!allProjects || (!categories && !stackCategories)) return [];
 
     let projectsToDisplay = [];
 
     if (selectedCategory) {
-      const categoryData = categories.find(cat => cat.name.toLowerCase() === selectedCategory.toLowerCase());
+      // Primeiro tentar encontrar na stack categories (nova lógica)
+      const stackCategory = stackCategories?.find(stack => 
+        stack.name.toLowerCase() === selectedCategory.toLowerCase()
+      );
       
-      if (categoryData) {
-        const projectIds = new Set(categoryData.projects.map(p => p.id));
+      if (stackCategory) {
+        // Filtrar projetos que pertencem a esta stack category
+        const projectIds = new Set(stackCategory.projects.map(p => p.id));
         projectsToDisplay = allProjects.filter(p => projectIds.has(p.id));
+        console.log(`📚 Filtering by stack category "${selectedCategory}": ${projectsToDisplay.length} projects`);
       } else {
-        projectsToDisplay = [];
+        // Se não for stack category, tentar categoria tradicional
+        const categoryData = categories?.find(cat => 
+          cat.name.toLowerCase() === selectedCategory.toLowerCase()
+        );
+        
+        if (categoryData) {
+          const projectIds = new Set(categoryData.projects.map(p => p.id));
+          projectsToDisplay = allProjects.filter(p => projectIds.has(p.id));
+          console.log(`📂 Filtering by traditional category "${selectedCategory}": ${projectsToDisplay.length} projects`);
+        } else {
+          projectsToDisplay = [];
+          console.log(`⚠️ Category "${selectedCategory}" not found in either stack or traditional categories`);
+        }
       }
     } else {
       projectsToDisplay = allProjects;
@@ -61,7 +80,7 @@ const Projects = () => {
       }
       return 0;
     });
-  }, [allProjects, categories, selectedCategory, sortBy]);
+  }, [allProjects, categories, stackCategories, selectedCategory, sortBy]);
 
   const clearCategory = () => {
     setSelectedCategory('');
