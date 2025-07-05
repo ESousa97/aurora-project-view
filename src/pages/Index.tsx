@@ -1,4 +1,4 @@
-// src/pages/Index.tsx (versão atualizada com indicador)
+// src/pages/Index.tsx (versão refatorada sem duplicação)
 import React from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useProjectsWithLanguage, useCategories } from '@/hooks/useCategories';
@@ -66,46 +66,89 @@ const Index = () => {
     return featured;
   }, [projects]);
 
-  // Projetos mistério - EXCLUSIVAMENTE projetos não visualizados (sincronização avançada)
+  // Projetos mistério - LÓGICA ATUALIZADA com timer de 5 minutos
   const mysteryProjects = React.useMemo(() => {
-    console.log('🔮 Computing mysteryProjects, projects:', projects?.length || 0);
+    console.log('🔮 Computing mysteryProjects with 5min timer, projects:', projects?.length || 0);
     if (!projects) {
       console.log('🔮 No projects available for mystery');
       return [];
     }
     
-    // FILTRAR rigorosamente apenas projetos NÃO visualizados
-    const unrevealedProjects = projects.filter(project => {
-      const isRevealed = isProjectRevealed(project.id);
-      console.log(`🔮 Project ${project.id} (${project.titulo}):`, isRevealed ? 'REVEALED ❌' : 'UNREVEALED ✅');
-      return !isRevealed;
+    console.log('🔮 Current revealed projects state:', Array.from(revealedProjects));
+    
+    // NOVA LÓGICA: Separar projetos em categorias
+    const allProjects = projects.map(project => {
+      const isCurrentlyRevealed = isProjectRevealed(project.id); // Considera o timer de 5min
+      const wasEverRevealed = revealedProjects.has(project.id); // Verifica se já foi revelado alguma vez
+      
+      console.log(`🔮 Project ${project.id} (${project.titulo}):`, {
+        isCurrentlyRevealed,
+        wasEverRevealed,
+        status: isCurrentlyRevealed ? 'REVEALED ✅' : wasEverRevealed ? 'EXPIRED ⏰' : 'UNREVEALED 🔒'
+      });
+      
+      return {
+        ...project,
+        isCurrentlyRevealed,
+        wasEverRevealed
+      };
     });
     
-    console.log('🔮 Total unrevealed projects found:', unrevealedProjects.length);
-    console.log('🔮 Unrevealed project titles:', unrevealedProjects.map(p => p.titulo));
+    // Prioridade 1: Projetos atualmente revelados (dentro dos 5 minutos) - SEMPRE mostrar
+    const currentlyRevealed = allProjects.filter(p => p.isCurrentlyRevealed);
     
-    // Estratégia adaptativa baseada na quantidade de projetos não revelados
-    if (unrevealedProjects.length === 0) {
-      console.log('🔮 All projects revealed! Mystery section will show completion message');
-      return []; // Seção vazia ou mensagem de conclusão
+    // Prioridade 2: Projetos nunca revelados - candidatos a mystery
+    const neverRevealed = allProjects.filter(p => !p.wasEverRevealed);
+    
+    // Prioridade 3: Projetos que expiraram (foram revelados mas passaram os 5 minutos) - podem voltar como mystery
+    const expired = allProjects.filter(p => p.wasEverRevealed && !p.isCurrentlyRevealed);
+    
+    console.log('🔮 Mystery project categories:', {
+      currentlyRevealed: currentlyRevealed.length,
+      neverRevealed: neverRevealed.length,
+      expired: expired.length
+    });
+    
+    // Montar lista de projetos mystery (máximo 3)
+    let mysterySelection: typeof projects = [];
+    
+    // 1. SEMPRE incluir projetos atualmente revelados (para mostrar por 5 min)
+    mysterySelection.push(...currentlyRevealed.slice(0, 3));
+    console.log('🔮 Added currently revealed projects:', currentlyRevealed.length);
+    
+    // 2. Completar com projetos nunca revelados se houver espaço
+    const remainingSlots = 3 - mysterySelection.length;
+    if (remainingSlots > 0 && neverRevealed.length > 0) {
+      const shuffledNever = neverRevealed
+        .sort(() => Math.random() - 0.5) // Embaralhar para variedade
+        .slice(0, remainingSlots);
+      mysterySelection.push(...shuffledNever);
+      console.log('🔮 Added never revealed projects:', shuffledNever.length);
     }
     
-    // Limitar a máximo 3 cards e mínimo 1 na seção mystery
-    const maxMysteryCards = 3;
-    const selectedCount = Math.min(unrevealedProjects.length, maxMysteryCards);
+    // 3. Se ainda houver espaço, incluir projetos expirados (podem ser re-revelados)
+    const finalRemainingSlots = 3 - mysterySelection.length;
+    if (finalRemainingSlots > 0 && expired.length > 0) {
+      const shuffledExpired = expired
+        .sort(() => Math.random() - 0.5) // Embaralhar para variedade
+        .slice(0, finalRemainingSlots);
+      mysterySelection.push(...shuffledExpired);
+      console.log('🔮 Added expired projects:', shuffledExpired.length);
+    }
     
-    console.log('🔮 Mystery card limits: max=3, available=', unrevealedProjects.length, 'selecting=', selectedCount);
+    // Garantir máximo de 3 projetos
+    mysterySelection = mysterySelection.slice(0, 3);
     
-    // Mostrar seleção limitada de projetos não revelados (máximo 3)
-    const selectedMystery = unrevealedProjects
-      .sort(() => Math.random() - 0.5)
-      .slice(0, selectedCount) as ProjectType[];
+    console.log('🔮 Final mystery selection:', mysterySelection.length, 'projects');
+    console.log('🔮 Mystery details:', mysterySelection.map(p => ({
+      id: p.id,
+      title: p.titulo,
+      isRevealed: isProjectRevealed(p.id),
+      status: isProjectRevealed(p.id) ? 'REVEALED_ACTIVE' : 'LOCKED'
+    })));
     
-    console.log('🔮 Final mystery selection:', selectedMystery.length, 'projects');
-    console.log('🔮 Mystery titles:', selectedMystery.map(p => p.titulo));
-    
-    return selectedMystery;
-  }, [projects, isProjectRevealed, revealedProjects]); // Adicionar revealedProjects para re-trigger
+    return mysterySelection;
+  }, [projects, isProjectRevealed, revealedProjects]); // Dependências corretas para re-trigger
 
   // Estatísticas dinâmicas
   const stats = React.useMemo(() => {
@@ -136,8 +179,13 @@ const Index = () => {
     };
   }, [projects, categories]);
 
+  // HANDLERS - Seção unificada para todos os callbacks
   const handleProjectReveal = React.useCallback((projectId: number) => {
+    console.log('🔓 Revealing mystery project:', projectId);
     revealProject(projectId);
+    
+    // O projeto agora ficará visível por 5 minutos antes de ser substituído
+    console.log('⏰ Project will be visible for 5 minutes before being replaced');
   }, [revealProject]);
 
   const handleResetDiscoveries = React.useCallback(() => {

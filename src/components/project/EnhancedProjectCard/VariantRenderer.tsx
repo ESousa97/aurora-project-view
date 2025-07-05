@@ -3,6 +3,7 @@ import React from 'react';
 import { CompactVariant } from './CompactVariant';
 import { DefaultVariant } from './DefaultVariant';
 import { FeaturedVariant } from './FeaturedVariant';
+import { MysteryVariant } from './MysteryVariant';
 import { ProjectCardVariantProps } from './types';
 
 interface VariantRendererProps extends ProjectCardVariantProps {
@@ -16,6 +17,7 @@ export const VariantRenderer: React.FC<VariantRendererProps> = ({ variant, ...pr
     case 'featured':
       return <FeaturedVariant {...props} />;
     case 'mystery':
+      return <MysteryVariant {...props} />;
     case 'default':
     default:
       return <DefaultVariant {...props} />;

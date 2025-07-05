@@ -1,10 +1,12 @@
+/* Importar estilos cyberpunk */
+@import url('./styles/mystery-cyberpunk.css');
+@import url('./styles/mystery-effects.css');
+@import url('./styles/enhanced-mystery.css');
+
 /* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Importar estilos cyberpunk */
-@import url('./styles/mystery-cyberpunk.css');
 
 @layer base {
   :root {
@@ -245,5 +247,66 @@
   ::selection {
     background: rgb(var(--brand-500) / 0.3);
     color: rgb(var(--foreground));
+  }
+}
+
+/* Estilos específicos para mystery cards */
+.mystery-card-wrapper {
+  position: relative;
+  perspective: 1000px;
+}
+
+.mystery-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.mystery-card-wrapper.revealed .mystery-card-inner {
+  transform: rotateY(180deg);
+}
+
+.mystery-card-front,
+.mystery-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+}
+
+.mystery-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Garantir que os estilos cyberpunk sejam aplicados */
+.mystery-project {
+  font-family: 'Courier New', 'Lucida Console', monospace;
+}
+
+.mystery-project .mystery-text {
+  text-shadow: 0 0 10px currentColor;
+}
+
+.mystery-project .mystery-border {
+  box-shadow: 
+    0 0 5px currentColor,
+    inset 0 0 5px currentColor;
+}
+
+/* Efeitos de hover para mystery cards */
+.mystery-hover-effects:hover {
+  animation: mystery-glow 0.5s ease-in-out;
+}
+
+@keyframes mystery-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.6);
   }
 }

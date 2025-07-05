@@ -10,10 +10,13 @@ import {
   Star,
   Zap,
   Atom,
-  MousePointer
+  MousePointer,
+  Clock,
+  Timer
 } from 'lucide-react';
 import { EnhancedProjectCard } from '@/components/project/EnhancedProjectCard';
 import { ProjectType } from '../types';
+import { useRevealedProjects } from '@/hooks/useRevealedProjects';
 
 interface MysteryProjectsSectionProps {
   projects: ProjectType[];
@@ -22,7 +25,88 @@ interface MysteryProjectsSectionProps {
   isProjectRevealed: (projectId: number) => boolean;
 }
 
-// Componente de partículas flutuantes
+// Componente de timer para projeto revelado
+const ProjectTimer: React.FC<{ 
+  projectId: number; 
+  getProjectTimeRemaining: (id: number) => number;
+  onExpire: () => void;
+}> = ({ projectId, getProjectTimeRemaining, onExpire }) => {
+  const [timeRemaining, setTimeRemaining] = useState(0);
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const remaining = getProjectTimeRemaining(projectId);
+      setTimeRemaining(remaining);
+      
+      if (remaining <= 0) {
+        onExpire();
+      }
+    };
+
+    updateTimer(); // Atualização inicial
+    const interval = setInterval(updateTimer, 1000); // Atualizar a cada segundo
+
+    return () => clearInterval(interval);
+  }, [projectId, getProjectTimeRemaining, onExpire]);
+
+  if (timeRemaining <= 0) return null;
+
+  const minutes = Math.floor(timeRemaining / (1000 * 60));
+  const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+  const percentage = (timeRemaining / (5 * 60 * 1000)) * 100; // 5 minutos = 100%
+
+  return (
+    <div className="absolute top-3 left-3 z-20">
+      <motion.div
+        className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-900/80 backdrop-blur-sm border border-green-400/30"
+        animate={{
+          opacity: percentage < 20 ? [1, 0.5, 1] : 1, // Piscar quando restam menos de 20%
+          scale: percentage < 10 ? [1, 1.05, 1] : 1   // Pulsar quando crítico
+        }}
+        transition={{ 
+          duration: percentage < 20 ? 0.5 : 1,
+          repeat: percentage < 20 ? Infinity : 0 
+        }}
+      >
+        <Timer className="h-3 w-3 text-green-400" />
+        <span className="text-xs font-mono text-green-300">
+          {minutes}:{seconds.toString().padStart(2, '0')}
+        </span>
+        
+        {/* Barra de progresso circular */}
+        <div className="relative w-4 h-4">
+          <svg className="w-4 h-4 transform -rotate-90" viewBox="0 0 16 16">
+            <circle
+              cx="8"
+              cy="8"
+              r="6"
+              stroke="rgb(34 197 94 / 0.3)"
+              strokeWidth="2"
+              fill="none"
+            />
+            <motion.circle
+              cx="8"
+              cy="8"
+              r="6"
+              stroke="rgb(34 197 94)"
+              strokeWidth="2"
+              fill="none"
+              strokeDasharray={`${2 * Math.PI * 6}`}
+              strokeDashoffset={`${2 * Math.PI * 6 * (1 - percentage / 100)}`}
+              strokeLinecap="round"
+              animate={{
+                strokeDashoffset: `${2 * Math.PI * 6 * (1 - percentage / 100)}`
+              }}
+              transition={{ duration: 0.5 }}
+            />
+          </svg>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// Componente de partículas flutuantes (mantido do original)
 const FloatingParticles = () => {
   const particles = Array.from({ length: 15 }, (_, i) => ({
     id: i,
@@ -63,11 +147,10 @@ const FloatingParticles = () => {
   );
 };
 
-// Componente de névoa misteriosa
+// Componente de névoa misteriosa (mantido do original)
 const MysteriousFog = () => {
   return (
     <>
-      {/* Névoa de fundo */}
       <motion.div
         className="absolute inset-0 opacity-30"
         animate={{
@@ -85,7 +168,6 @@ const MysteriousFog = () => {
         }}
       />
       
-      {/* Brilhos místicos */}
       <motion.div
         className="absolute top-10 left-10 w-96 h-96 rounded-full blur-3xl"
         style={{
@@ -133,8 +215,12 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
   isProjectRevealed
 }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [refreshKey, setRefreshKey] = useState(0); // Para forçar re-render quando projetos expiram
   const { scrollYProgress } = useScroll();
   const parallaxY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  
+  // Hook atualizado para obter tempo restante
+  const { getProjectTimeRemaining } = useRevealedProjects();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -151,31 +237,42 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
     return () => document.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Callback para quando um projeto expira (força re-render)
+  const handleProjectExpire = React.useCallback(() => {
+    console.log('⏰ Project expired, forcing refresh of mystery section');
+    setRefreshKey(prev => prev + 1);
+  }, []);
+
+  // Estatísticas atualizadas
+  const stats = React.useMemo(() => {
+    const currentlyRevealed = projects.filter(p => isProjectRevealed(p.id));
+    const totalRevealed = Array.from(revealedProjects).length;
+    
+    return {
+      total: projects.length,
+      revealed: currentlyRevealed.length,
+      totalEverRevealed: totalRevealed
+    };
+  }, [projects, isProjectRevealed, revealedProjects]); // refreshKey para re-calcular
+
   return (
     <section 
       id="mystery-section"
-      className="relative py-24 px-4 overflow-hidden rounded-3xl mx-4"
+      className="relative py-4 px-4 overflow-hidden rounded-3xl mx-4"
       style={{
         background: "linear-gradient(135deg, #0f0f23 0%, #1a103d 50%, #2d1b69 100%)"
       }}
     >
-      {/* Background effects */}
+      {/* Background effects (mantidos do original) */}
       <div className="absolute inset-0">
-        {/* Gradiente dinâmico que segue o mouse */}
         <motion.div
           className="absolute inset-0 opacity-40"
           style={{
             background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(147, 51, 234, 0.3), rgba(59, 130, 246, 0.2), transparent 50%)`,
           }}
         />
-        
-        {/* Névoa misteriosa */}
         <MysteriousFog />
-        
-        {/* Partículas flutuantes */}
         <FloatingParticles />
-        
-        {/* Grid pattern sutil */}
         <div 
           className="absolute inset-0 opacity-10"
           style={{
@@ -189,21 +286,16 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
       </div>
 
       {/* Content */}
-      <motion.div 
-        className="relative z-10 max-w-7xl mx-auto"
-        style={{ y: parallaxY }}
-      >
-        {/* Header section */}
+        {/* Header section (mantido do original) */}
         <motion.div 
-          className="text-center space-y-8 mb-16"
+          className="text-center space-y-8 mb-4"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          {/* Badge */}
           <motion.div
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full backdrop-blur-xl border border-white/20 bg-white/10"
+            className="inline-flex items-center gap-3 px-6 py-1 rounded-full backdrop-blur-xl border border-white/20 bg-white/10"
             whileHover={{ scale: 1.05, y: -2 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
@@ -237,15 +329,14 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
             </motion.div>
           </motion.div>
 
-          {/* Main title */}
           <motion.h2 
-            className="text-5xl md:text-7xl font-black tracking-tight"
+            className="text-5xl md:text-7xl font-black tracking-tight flex flex-wrap justify-center gap-2"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.8 }}
           >
             <motion.span 
-              className="block bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent"
+              className="inline-block bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent"
               style={{ backgroundSize: "200% 200%" }}
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
@@ -259,7 +350,7 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
               O que Está
             </motion.span>
             <motion.span 
-              className="block bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent mt-2"
+              className="inline-block bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent"
               style={{ backgroundSize: "200% 200%" }}
               animate={{
                 backgroundPosition: ["100% 50%", "0% 50%", "100% 50%"]
@@ -275,7 +366,6 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
             </motion.span>
           </motion.h2>
 
-          {/* Description */}
           <motion.div
             className="max-w-4xl mx-auto space-y-4"
             initial={{ opacity: 0, y: 20 }}
@@ -305,9 +395,8 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
               </strong>
               {' '}que podem revolucionar sua visão sobre desenvolvimento.
             </p>
-          </motion.div>
 
-          {/* Stats */}
+          {/* Stats atualizadas */}
           <motion.div 
             className="flex justify-center gap-8 pt-4"
             initial={{ opacity: 0 }}
@@ -316,39 +405,55 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
           >
             <div className="text-center">
               <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                {projects.length}
+                {stats.total}
               </div>
               <div className="text-sm text-gray-400">Mistérios</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-                {Array.from(revealedProjects).length}
+              <div className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                {stats.revealed}
               </div>
-              <div className="text-sm text-gray-400">Revelados</div>
+              <div className="text-sm text-gray-400">Ativos</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+                {stats.totalEverRevealed}
+              </div>
+              <div className="text-sm text-gray-400">Total</div>
             </div>
           </motion.div>
         </motion.div>
 
-        {/* Projects grid */}
+        {/* Projects grid com timers */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project, index) => (
-            <EnhancedProjectCard 
-              key={project.id} 
-              project={project}
-              variant="mystery"
-              index={index}
-              onDiscover={onProjectReveal}
-              isDiscovered={isProjectRevealed(project.id)}
-            />
+            <div key={`${project.id}-${refreshKey}`} className="relative">
+              <EnhancedProjectCard 
+                project={project}
+                variant="mystery"
+                index={index}
+                onDiscover={onProjectReveal}
+                isDiscovered={isProjectRevealed(project.id)}
+              />
+              
+              {/* Timer overlay para projetos revelados */}
+              {isProjectRevealed(project.id) && (
+                <ProjectTimer
+                  projectId={project.id}
+                  getProjectTimeRemaining={getProjectTimeRemaining}
+                  onExpire={handleProjectExpire}
+                />
+              )}
+            </div>
           ))}
         </div>
 
-        {/* Call to action */}
+        {/* Call to action atualizado */}
         <motion.div
           className="text-center mt-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0 }}
         >
           <p className="text-gray-400 mb-4">
             Cada revelação pode mudar sua perspectiva sobre tecnologia
@@ -359,7 +464,7 @@ export const MysteryProjectsSection: React.FC<MysteryProjectsSectionProps> = ({
               y: [0, -5, 0]
             }}
             transition={{
-              duration: 2,
+              duration: 1,
               repeat: Infinity,
               ease: "easeInOut"
             }}

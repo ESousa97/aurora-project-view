@@ -3,8 +3,15 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 
 const STORAGE_KEY = 'revealed-projects';
 const STORAGE_VERSION_KEY = 'revealed-projects-version';
-const CURRENT_VERSION = '1.0';
-const MAX_STORAGE_ITEMS = 1000; // Limite para evitar overflow do localStorage
+const CURRENT_VERSION = '1.1'; // Aumentado para nova estrutura com timestamps
+const MAX_STORAGE_ITEMS = 1000;
+const REVEAL_DURATION = 1 * 60 * 1000; // 5 minutos em millisegundos
+
+// Nova interface para projetos revelados com timestamp
+interface RevealedProject {
+  id: number;
+  revealedAt: number; // timestamp
+}
 
 // Sistema de eventos para sincronização entre componentes
 const createEventSystem = () => {
@@ -24,7 +31,7 @@ const createEventSystem = () => {
 const revealEventSystem = createEventSystem();
 
 export const useRevealedProjects = () => {
-  const [revealedProjects, setRevealedProjects] = useState<Set<number>>(new Set());
+  const [revealedProjects, setRevealedProjects] = useState<Map<number, RevealedProject>>(new Map());
   const [isLoading, setIsLoading] = useState(true);
 
   // Fallback para localStorage indisponível
@@ -40,6 +47,22 @@ export const useRevealedProjects = () => {
     }
   }, []);
 
+  // Função para limpar projetos expirados
+  const cleanExpiredProjects = useCallback((projectsMap: Map<number, RevealedProject>) => {
+    const now = Date.now();
+    const cleaned = new Map<number, RevealedProject>();
+    
+    projectsMap.forEach((project, id) => {
+      if (now - project.revealedAt < REVEAL_DURATION) {
+        cleaned.set(id, project);
+      } else {
+        console.log('⏰ Expired mystery project:', id, 'revealed', Math.round((now - project.revealedAt) / 1000 / 60), 'minutes ago');
+      }
+    });
+    
+    return cleaned;
+  }, []);
+
   // Carregar projetos revelados do localStorage na inicialização
   useEffect(() => {
     const loadRevealedProjects = async () => {
@@ -53,24 +76,36 @@ export const useRevealedProjects = () => {
         const version = localStorage.getItem(STORAGE_VERSION_KEY);
         
         if (stored && version === CURRENT_VERSION) {
-          const parsedIds = JSON.parse(stored) as number[];
-          
-          // Limitar o número de itens para evitar problemas de performance
-          const limitedIds = parsedIds.slice(-MAX_STORAGE_ITEMS);
-          
-          setRevealedProjects(new Set(limitedIds));
-          console.log('💾 Loaded revealed projects from localStorage:', limitedIds.length, 'projects');
-          
-          // Se limitamos os itens, salvar a versão reduzida
-          if (limitedIds.length !== parsedIds.length) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedIds));
-            console.log('🧹 Cleaned up localStorage, kept last', MAX_STORAGE_ITEMS, 'projects');
+          try {
+            const parsedData = JSON.parse(stored) as RevealedProject[];
+            const projectsMap = new Map<number, RevealedProject>();
+            
+            parsedData.forEach(project => {
+              projectsMap.set(project.id, project);
+            });
+            
+            // Limpar projetos expirados
+            const cleanedMap = cleanExpiredProjects(projectsMap);
+            
+            setRevealedProjects(cleanedMap);
+            console.log('💾 Loaded revealed projects from localStorage:', cleanedMap.size, 'projects');
+            
+            // Salvar versão limpa se necessário
+            if (cleanedMap.size !== projectsMap.size) {
+              const cleanedArray = Array.from(cleanedMap.values());
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanedArray));
+              console.log('🧹 Cleaned expired projects from localStorage');
+            }
+          } catch (parseError) {
+            console.error('❌ Error parsing revealed projects:', parseError);
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
           }
         } else if (version !== CURRENT_VERSION) {
           // Versão desatualizada, limpar e começar fresh
           localStorage.removeItem(STORAGE_KEY);
           localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
-          console.log('🔄 Updated localStorage version, starting fresh');
+          console.log('🔄 Updated localStorage version to v1.1 with timestamps');
         }
       } catch (error) {
         console.error('❌ Error loading revealed projects from localStorage:', error);
@@ -80,19 +115,56 @@ export const useRevealedProjects = () => {
     };
 
     loadRevealedProjects();
-  }, [isLocalStorageAvailable]);
+  }, [isLocalStorageAvailable, cleanExpiredProjects]);
+
+  // Timer para limpeza automática dos projetos expirados
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRevealedProjects(current => {
+        const cleaned = cleanExpiredProjects(current);
+        
+        if (cleaned.size !== current.size) {
+          console.log('⏰ Auto-cleaned expired projects:', current.size - cleaned.size, 'removed');
+          
+          // Atualizar localStorage
+          if (isLocalStorageAvailable) {
+            try {
+              const cleanedArray = Array.from(cleaned.values());
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanedArray));
+              // Notificar outros componentes
+              setTimeout(() => revealEventSystem.notify(), 0);
+            } catch (error) {
+              console.error('❌ Error updating localStorage during cleanup:', error);
+            }
+          }
+          
+          return cleaned;
+        }
+        
+        return current;
+      });
+    }, 30000); // Verificar a cada 30 segundos
+
+    return () => clearInterval(interval);
+  }, [cleanExpiredProjects, isLocalStorageAvailable]);
 
   // Sincronização em tempo real entre componentes
   useEffect(() => {
     const unsubscribe = revealEventSystem.subscribe(() => {
-      // Recarregar dados quando outro componente fizer mudanças
       if (isLocalStorageAvailable) {
         try {
           const stored = localStorage.getItem(STORAGE_KEY);
           if (stored) {
-            const parsedIds = JSON.parse(stored) as number[];
-            setRevealedProjects(new Set(parsedIds));
-            console.log('🔄 Synchronized revealed projects from event:', parsedIds.length);
+            const parsedData = JSON.parse(stored) as RevealedProject[];
+            const projectsMap = new Map<number, RevealedProject>();
+            
+            parsedData.forEach(project => {
+              projectsMap.set(project.id, project);
+            });
+            
+            const cleanedMap = cleanExpiredProjects(projectsMap);
+            setRevealedProjects(cleanedMap);
+            console.log('🔄 Synchronized revealed projects from event:', cleanedMap.size);
           }
         } catch (error) {
           console.error('❌ Error synchronizing revealed projects:', error);
@@ -103,64 +175,109 @@ export const useRevealedProjects = () => {
     return () => {
       unsubscribe();
     };
-  }, [isLocalStorageAvailable]);
+  }, [isLocalStorageAvailable, cleanExpiredProjects]);
 
-  // Revelar um projeto específico com sincronização
+  // Revelar um projeto específico com timestamp
   const revealProject = useCallback((projectId: number) => {
+    const now = Date.now();
+    
     setRevealedProjects(prev => {
-      // Evitar duplicatas
-      if (prev.has(projectId)) {
-        console.log('💾 Project already revealed:', projectId);
+      // Verificar se já está revelado e ainda válido
+      const existing = prev.get(projectId);
+      if (existing && (now - existing.revealedAt) < REVEAL_DURATION) {
+        console.log('💾 Project already revealed and still valid:', projectId);
         return prev;
       }
 
-      const newSet = new Set(prev);
-      newSet.add(projectId);
+      const newMap = new Map(prev);
+      const revealedProject: RevealedProject = {
+        id: projectId,
+        revealedAt: now
+      };
       
-      // Salvar no localStorage com fallback
+      newMap.set(projectId, revealedProject);
+      
+      // Salvar no localStorage
       if (isLocalStorageAvailable) {
         try {
-          const arrayData = Array.from(newSet);
-          
-          // Limitar tamanho para evitar overflow
+          const arrayData = Array.from(newMap.values());
           const limitedData = arrayData.slice(-MAX_STORAGE_ITEMS);
           
           localStorage.setItem(STORAGE_KEY, JSON.stringify(limitedData));
           localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION);
           
-          console.log('💾 Saved revealed project to localStorage:', projectId, 'Total:', limitedData.length);
+          console.log('💾 Saved revealed project with timestamp:', {
+            projectId,
+            revealedAt: new Date(now).toISOString(),
+            expiresAt: new Date(now + REVEAL_DURATION).toISOString(),
+            total: limitedData.length
+          });
           
-          // Notificar outros componentes sobre a mudança
+          // Notificar outros componentes
           setTimeout(() => revealEventSystem.notify(), 0);
           
         } catch (error) {
           console.error('❌ Error saving to localStorage:', error);
-          // Continuar funcionando mesmo se localStorage falhar
         }
       }
       
-      return newSet;
+      return newMap;
     });
   }, [isLocalStorageAvailable]);
 
-  // Verificar se um projeto foi revelado (com cache otimizado)
+  // Verificar se um projeto foi revelado E ainda está dentro do tempo
   const isProjectRevealed = useCallback((projectId: number) => {
+    const revealed = revealedProjects.get(projectId);
+    if (!revealed) return false;
+    
+    const now = Date.now();
+    const isValid = (now - revealed.revealedAt) < REVEAL_DURATION;
+    
+    if (!isValid) {
+      // Projeto expirado, remover na próxima limpeza
+      console.log('⏰ Project expired:', projectId);
+    }
+    
+    return isValid;
+  }, [revealedProjects]);
+
+  // Verificar se um projeto foi revelado PERMANENTEMENTE (para navegação)
+  const isProjectPermanentlyRevealed = useCallback((projectId: number) => {
     return revealedProjects.has(projectId);
+  }, [revealedProjects]);
+
+  // Obter tempo restante para um projeto revelado
+  const getProjectTimeRemaining = useCallback((projectId: number): number => {
+    const revealed = revealedProjects.get(projectId);
+    if (!revealed) return 0;
+    
+    const now = Date.now();
+    const elapsed = now - revealed.revealedAt;
+    const remaining = REVEAL_DURATION - elapsed;
+    
+    return Math.max(0, remaining);
   }, [revealedProjects]);
 
   // Obter estatísticas dos projetos revelados
   const getRevealedStats = useCallback(() => {
+    const now = Date.now();
+    const active = Array.from(revealedProjects.values()).filter(
+      project => (now - project.revealedAt) < REVEAL_DURATION
+    );
+    
     return {
       total: revealedProjects.size,
+      active: active.length,
+      expired: revealedProjects.size - active.length,
       isLocalStorageAvailable,
       storageUsed: isLocalStorageAvailable ? 
         (localStorage.getItem(STORAGE_KEY)?.length || 0) : 0
     };
-  }, [revealedProjects.size, isLocalStorageAvailable]);
+  }, [revealedProjects, isLocalStorageAvailable]);
 
-  // Limpar todos os projetos revelados (para debug/reset)
+  // Limpar todos os projetos revelados
   const clearRevealedProjects = useCallback(() => {
-    setRevealedProjects(new Set());
+    setRevealedProjects(new Map());
     
     if (isLocalStorageAvailable) {
       try {
@@ -168,7 +285,6 @@ export const useRevealedProjects = () => {
         localStorage.removeItem(STORAGE_VERSION_KEY);
         console.log('💾 Cleared all revealed projects from localStorage');
         
-        // Notificar outros componentes
         setTimeout(() => revealEventSystem.notify(), 0);
       } catch (error) {
         console.error('❌ Error clearing localStorage:', error);
@@ -176,13 +292,38 @@ export const useRevealedProjects = () => {
     }
   }, [isLocalStorageAvailable]);
 
+  // Forçar expiração de um projeto específico
+  const expireProject = useCallback((projectId: number) => {
+    setRevealedProjects(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(projectId);
+      
+      if (isLocalStorageAvailable) {
+        try {
+          const arrayData = Array.from(newMap.values());
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(arrayData));
+          setTimeout(() => revealEventSystem.notify(), 0);
+        } catch (error) {
+          console.error('❌ Error updating localStorage after expire:', error);
+        }
+      }
+      
+      return newMap;
+    });
+  }, [isLocalStorageAvailable]);
+
   return {
-    revealedProjects,
+    revealedProjects: new Set(Array.from(revealedProjects.keys())), // Compatibilidade com código existente
     revealProject,
     isProjectRevealed,
+    isProjectPermanentlyRevealed,
+    getProjectTimeRemaining,
     clearRevealedProjects,
+    expireProject,
     getRevealedStats,
     isLoading,
-    isLocalStorageAvailable
+    isLocalStorageAvailable,
+    // Constantes úteis
+    REVEAL_DURATION
   };
 };
