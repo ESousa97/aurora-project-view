@@ -1,5 +1,5 @@
 // src/components/project/EnhancedProjectCard/useProjectCard.ts
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import { LANGUAGE_COLORS, LanguageColor } from '@/lib/languageColors';
@@ -9,11 +9,21 @@ interface UseProjectCardProps {
   project: EnhancedProjectCardType | null | undefined;
   variant: string;
   onDiscover?: (id: number) => void;
+  isDiscovered?: boolean;
 }
 
-export const useProjectCard = ({ project, variant, onDiscover }: UseProjectCardProps) => {
+export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: UseProjectCardProps) => {
   const navigate = useNavigate();
-  const [revealed, setRevealed] = useState(variant !== 'mystery');
+  // Usar isDiscovered do localStorage se disponível, senão usar a lógica padrão
+  const [revealed, setRevealed] = useState(isDiscovered ?? (variant !== 'mystery'));
+
+  // Sincronizar com isDiscovered quando ele mudar (importante para localStorage)
+  useEffect(() => {
+    if (isDiscovered !== undefined) {
+      console.log(`🔍 Project ${project?.titulo} - Setting revealed to:`, isDiscovered);
+      setRevealed(isDiscovered);
+    }
+  }, [isDiscovered, project?.titulo]);
 
   // Detect language config
   const langConfig: LanguageColor = useMemo(

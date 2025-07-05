@@ -18,6 +18,7 @@ export const EnhancedProjectCard: React.FC<EnhancedProjectCardProps> = React.mem
     project,
     variant,
     onDiscover,
+    isDiscovered,
   });
 
   // Early return if no project
