@@ -1,10 +1,10 @@
-// src/components/project/ProjectViewerContent.tsx (Componente Principal Refatorado)
+// src/components/project/ProjectViewerContent.tsx (Adaptado para MDX)
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useContentProcessor } from '@/hooks/useContentProcessor';
 import { useCopyHandler } from '@/hooks/useCopyHandler';
 import { useVideoPlayer } from '@/hooks/useVideoPlayer';
-import { ContentRenderer } from './ContentRenderer';
+import { MDXContentRenderer } from './MDXContentRenderer';
 import { projectViewerStyles } from '@/styles/projectViewerStyles';
 
 interface ProjectViewerContentProps {
@@ -35,12 +35,26 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
       // Add target="_blank" to all links
       const links = contentRef.current.querySelectorAll('a');
       links.forEach((link) => {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
+        if (!link.getAttribute('href')?.startsWith('#')) {
+          link.setAttribute('target', '_blank');
+          link.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+
+      // Apply premium styling classes to existing elements
+      const codeElements = contentRef.current.querySelectorAll('code:not(pre code)');
+      codeElements.forEach((code) => {
+        code.classList.add('premium-inline-code');
+      });
+
+      const preElements = contentRef.current.querySelectorAll('pre');
+      preElements.forEach((pre) => {
+        pre.classList.add('premium-code-block');
       });
     }
   }, [content]);
 
+  // Processar conteúdo MDX mantendo os estilos premium
   const processedContent = processMarkdown(content);
 
   return (
@@ -53,7 +67,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
     >
       <style>{projectViewerStyles}</style>
       
-      <ContentRenderer
+      <MDXContentRenderer
         processedContent={processedContent}
         copiedText={copiedText}
         videoLoaded={videoLoaded}
@@ -62,6 +76,7 @@ export const ProjectViewerContent: React.FC<ProjectViewerContentProps> = ({
         onVideoLoad={handleVideoLoad}
         onToggleVideoExpand={toggleVideoExpand}
         createMarkup={createMarkup}
+        renderVideo={renderVideo}
       />
     </motion.article>
   );

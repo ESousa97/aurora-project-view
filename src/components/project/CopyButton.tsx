@@ -1,4 +1,4 @@
-// src/components/project/CopyButton.tsx
+// src/components/project/CopyButton.tsx (Versão Premium para MDX)
 import React from 'react';
 import { Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,14 +19,27 @@ export const CopyButton: React.FC<CopyButtonProps> = ({
       variant="outline"
       size="sm"
       onClick={() => onCopy(text)}
-      className="mx-1 my-1 bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 border-emerald-300 text-emerald-700 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-emerald-200/50 font-medium"
+      className="premium-copy-button group relative overflow-hidden transition-all duration-300 hover:scale-105"
+      style={{
+        background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+        borderColor: '#0ea5e9',
+        color: '#0369a1'
+      }}
     >
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+      
       {isCopied ? (
-        <CheckCircle className="h-3 w-3 mr-1 animate-pulse" />
+        <CheckCircle className="h-3 w-3 mr-2 animate-pulse text-green-600" />
       ) : (
-        <Copy className="h-3 w-3 mr-1" />
+        <Copy className="h-3 w-3 mr-2 group-hover:rotate-12 transition-transform duration-300" />
       )}
-      <span className="max-w-32 truncate">{text}</span>
+      
+      <span className="max-w-32 truncate font-medium relative z-10">
+        {text}
+      </span>
+      
+      {/* Efeito de shimmer */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transform -skew-x-12 group-hover:animate-shimmer" />
     </Button>
   );
 };

@@ -1,0 +1,102 @@
+// src/projects/projects0001/projects0001.mdx
+---
+id: 1
+titulo: "Sistema de Autenticação JWT"
+descricao: "Sistema completo de autenticação com JWT, refresh tokens e middleware de segurança"
+categoria: "Backend"
+data_criacao: "2024-12-15T10:00:00Z"
+data_modificacao: "2025-01-02T14:30:00Z"
+imageurl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop"
+tecnologias: ["Node.js", "Express", "JWT", "PostgreSQL", "TypeScript"]
+dificuldade: 4
+featured: true
+---
+
+# Sistema de Autenticação JWT Completo
+
+Este projeto implementa um sistema robusto de autenticação utilizando **JWT (JSON Web Tokens)** com refresh tokens e middleware de segurança avançado.
+
+## 🚀 Principais Funcionalidades
+
+### Autenticação Segura
+- **Login/Logout** com validação robusta
+- **Refresh Tokens** para sessões de longa duração
+- **Rate Limiting** para prevenir ataques
+- **Middleware de Autorização** personalizável
+
+### Recursos Avançados
+- Criptografia de senhas com `bcrypt`
+- Validação de entrada com `Joi`
+- Logs detalhados de segurança
+- Proteção contra ataques CSRF
+
+## 💻 Tecnologias Utilizadas
+
+- **Node.js** - Runtime JavaScript
+- **Express.js** - Framework web
+- **PostgreSQL** - Banco de dados
+- **JWT** - Tokens de autenticação
+- **TypeScript** - Tipagem estática
+
+## 🔧 Instalação Rápida
+
+@@npm install@@
+@@npm run dev@@
+
+### Configuração do Banco
+```sql
+CREATE DATABASE auth_system;
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+## 📝 Exemplo de Uso
+
+```typescript
+// Middleware de autenticação
+const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token de acesso requerido' });
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token inválido' });
+    req.user = user;
+    next();
+  });
+};
+```
+
+## 🎯 Highlights do Projeto
+
+:::Esta implementação seguiu as melhores práticas de segurança da OWASP:::
+
+- **Zero vulnerabilidades** conhecidas
+- **100% de cobertura** de testes
+- **Documentação completa** da API
+- **Deploy automatizado** com Docker
+
+## 📊 Demonstração
+
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
+
+> **Dica:** O vídeo mostra a implementação completa do sistema em tempo real!
+
+## 🔗 Links Úteis
+
+- [Documentação da API](https://api.exemplo.com/docs)
+- [Repositório GitHub](https://github.com/user/auth-system)
+- [Deploy Live](https://auth-system.exemplo.com)
+
+---
+
+**Status:** ✅ Produção | **Última atualização:** Janeiro 2025
+
+---

@@ -162,7 +162,7 @@ export const projectViewerStyles = `
   background: var(--code-bg);
   color: var(--code-text);
   font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-  padding: 0.25rem 0.6rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
