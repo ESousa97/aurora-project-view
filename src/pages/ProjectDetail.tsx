@@ -8,12 +8,22 @@ import { useProjectsWithLanguage } from '@/hooks/useCategories';
 import { ProjectViewer } from '@/components/project/ProjectViewer';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Link } from 'react-router-dom';
+import { useRevealedProjects } from '@/hooks/useRevealedProjects';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { data: projects, isLoading } = useProjectsWithLanguage();
+  const { revealProject } = useRevealedProjects();
   
   const project = projects?.find(p => p.id === parseInt(id || '0'));
+
+  // Marcar projeto como revelado quando a página carrega
+  React.useEffect(() => {
+    if (project?.id) {
+      console.log('🎯 ProjectDetail: Marking project as revealed:', project.id, project.titulo);
+      revealProject(project.id);
+    }
+  }, [project?.id, revealProject, project?.titulo]);
 
   if (isLoading) {
     return (
