@@ -18,16 +18,21 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
   const navigate = useNavigate();
   const { revealProject } = useRevealedProjects();
   
-  // APENAS cards mystery começam não revelados
-  const [revealed, setRevealed] = useState(variant !== 'mystery' ? true : (isDiscovered ?? false));
+  // LÓGICA CORRIGIDA: Cards normais (não mystery) SEMPRE revelados
+  const [revealed, setRevealed] = useState(() => {
+    if (variant === 'mystery') {
+      return isDiscovered ?? false; // Mystery só revelado se já foi descoberto
+    }
+    return true; // Todos os outros variants sempre revelados
+  });
 
-  // Sincronizar com isDiscovered quando ele mudar (importante para localStorage)
+  // Sincronizar apenas para mystery cards
   useEffect(() => {
-    if (isDiscovered !== undefined) {
-      console.log(`🔍 Project ${project?.titulo} - Setting revealed to:`, isDiscovered);
+    if (variant === 'mystery' && isDiscovered !== undefined) {
+      console.log(`🔍 Mystery Project ${project?.titulo} - Setting revealed to:`, isDiscovered);
       setRevealed(isDiscovered);
     }
-  }, [isDiscovered, project?.titulo]);
+  }, [isDiscovered, project?.titulo, variant]);
 
   // Detect language config
   const langConfig: LanguageColor = useMemo(
