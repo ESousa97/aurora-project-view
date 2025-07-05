@@ -1,0 +1,367 @@
+/* src/styles/mystery-cyberpunk.css */
+
+/* Utilities para perspectiva 3D */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Keyframes para efeitos cyberpunk */
+@keyframes cyber-glow {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      0 0 15px currentColor;
+  }
+  50% {
+    box-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor;
+  }
+}
+
+@keyframes data-stream {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-horizontal {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  60% {
+    transform: translateX(-1px);
+  }
+  80% {
+    transform: translateX(1px);
+  }
+}
+
+@keyframes glitch-vertical {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-1px);
+  }
+  30% {
+    transform: translateY(1px);
+  }
+  50% {
+    transform: translateY(-0.5px);
+  }
+  70% {
+    transform: translateY(0.5px);
+  }
+  90% {
+    transform: translateY(-0.2px);
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes neon-flicker {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  2% {
+    opacity: 0.8;
+    filter: brightness(0.8);
+  }
+  4% {
+    opacity: 1;
+    filter: brightness(1.2);
+  }
+  6% {
+    opacity: 0.9;
+    filter: brightness(0.9);
+  }
+  8% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+@keyframes hologram {
+  0%, 100% {
+    opacity: 0.8;
+    transform: skewX(0deg);
+  }
+  25% {
+    opacity: 1;
+    transform: skewX(0.5deg);
+  }
+  50% {
+    opacity: 0.9;
+    transform: skewX(-0.5deg);
+  }
+  75% {
+    opacity: 1;
+    transform: skewX(0.2deg);
+  }
+}
+
+@keyframes matrix-rain {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes cyber-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Classes utilitárias para efeitos cyberpunk */
+.cyber-glow {
+  animation: cyber-glow 2s ease-in-out infinite;
+}
+
+.glitch-effect {
+  animation: 
+    glitch-horizontal 0.3s ease-in-out infinite,
+    glitch-vertical 0.2s ease-in-out infinite;
+}
+
+.neon-flicker {
+  animation: neon-flicker 1.5s ease-in-out infinite;
+}
+
+.hologram-effect {
+  animation: hologram 3s ease-in-out infinite;
+}
+
+.cyber-pulse {
+  animation: cyber-pulse 2s ease-in-out infinite;
+}
+
+/* Gradientes cyberpunk */
+.cyber-gradient-red {
+  background: linear-gradient(
+    135deg,
+    #ff0000 0%,
+    #cc0000 25%,
+    #990000 50%,
+    #ff3333 75%,
+    #ff0000 100%
+  );
+}
+
+.cyber-gradient-green {
+  background: linear-gradient(
+    135deg,
+    #00ff00 0%,
+    #00cc00 25%,
+    #009900 50%,
+    #33ff33 75%,
+    #00ff00 100%
+  );
+}
+
+.cyber-gradient-blue {
+  background: linear-gradient(
+    135deg,
+    #0099ff 0%,
+    #0066cc 25%,
+    #003399 50%,
+    #33aaff 75%,
+    #0099ff 100%
+  );
+}
+
+/* Efeitos de borda neon */
+.neon-border-red {
+  border: 1px solid #ff0000;
+  box-shadow: 
+    0 0 5px #ff0000,
+    inset 0 0 5px #ff0000;
+}
+
+.neon-border-green {
+  border: 1px solid #00ff00;
+  box-shadow: 
+    0 0 5px #00ff00,
+    inset 0 0 5px #00ff00;
+}
+
+.neon-border-blue {
+  border: 1px solid #0099ff;
+  box-shadow: 
+    0 0 5px #0099ff,
+    inset 0 0 5px #0099ff;
+}
+
+/* Efeitos de texto cyberpunk */
+.cyber-text-red {
+  color: #ff3333;
+  text-shadow: 
+    0 0 5px #ff0000,
+    0 0 10px #ff0000,
+    0 0 15px #ff0000;
+}
+
+.cyber-text-green {
+  color: #33ff33;
+  text-shadow: 
+    0 0 5px #00ff00,
+    0 0 10px #00ff00,
+    0 0 15px #00ff00;
+}
+
+.cyber-text-blue {
+  color: #33aaff;
+  text-shadow: 
+    0 0 5px #0099ff,
+    0 0 10px #0099ff,
+    0 0 15px #0099ff;
+}
+
+/* Background patterns */
+.circuit-pattern {
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+.hex-pattern {
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Animações de scan line */
+.scan-line-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-line-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00ff00, transparent);
+  animation: scan-line 3s ease-in-out infinite;
+  z-index: 10;
+}
+
+/* Efeitos de interferência */
+.interference-lines {
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.03) 2px,
+      rgba(255, 255, 255, 0.03) 4px
+    );
+}
+
+/* Classe para suporte a reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cyber-glow,
+  .glitch-effect,
+  .neon-flicker,
+  .hologram-effect,
+  .cyber-pulse,
+  .scan-line-container::before {
+    animation: none;
+  }
+  
+  .scan-line-container::before {
+    display: none;
+  }
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .cyber-glow {
+    animation-duration: 3s;
+  }
+  
+  .neon-border-red,
+  .neon-border-green,
+  .neon-border-blue {
+    box-shadow: 
+      0 0 3px currentColor,
+      inset 0 0 3px currentColor;
+  }
+  
+  .cyber-text-red,
+  .cyber-text-green,
+  .cyber-text-blue {
+    text-shadow: 
+      0 0 3px currentColor,
+      0 0 6px currentColor;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .neon-border-red,
+  .neon-border-green,
+  .neon-border-blue {
+    border-width: 2px;
+    box-shadow: none;
+  }
+  
+  .cyber-text-red,
+  .cyber-text-green,
+  .cyber-text-blue {
+    text-shadow: none;
+    font-weight: bold;
+  }
+}
