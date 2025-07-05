@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/components/ui/sonner';
 import { LANGUAGE_COLORS, LanguageColor } from '@/lib/languageColors';
+import { useRevealedProjects } from '@/hooks/useRevealedProjects';
 import type { EnhancedProjectCard as EnhancedProjectCardType } from '@/types/enhanced';
 
 interface UseProjectCardProps {
@@ -14,6 +15,8 @@ interface UseProjectCardProps {
 
 export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: UseProjectCardProps) => {
   const navigate = useNavigate();
+  const { revealProject } = useRevealedProjects();
+  
   // Usar isDiscovered do localStorage se disponível, senão usar a lógica padrão
   const [revealed, setRevealed] = useState(isDiscovered ?? (variant !== 'mystery'));
 
@@ -35,6 +38,10 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
   const handleClick = useCallback(() => {
     if (!project?.id) return;
     
+    // SEMPRE marcar como revelado no localStorage quando clicado
+    revealProject(project.id);
+    console.log('🎯 EnhancedProjectCard: Marking project as revealed:', project.id, project.titulo);
+    
     if (!revealed) {
       setRevealed(true);
       toast.success(`Descobriu ${project.titulo}!`, { duration: 2000 });
@@ -43,7 +50,7 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
     }
     
     navigate(`/projects/${project.id}`);
-  }, [project, revealed, navigate, onDiscover]);
+  }, [project, revealed, navigate, onDiscover, revealProject]);
 
   return {
     revealed,

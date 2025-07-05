@@ -6,6 +6,7 @@ import { detectLanguage } from '@/lib/languageColors';
 import { format, differenceInDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { useRevealedProjects } from '@/hooks/useRevealedProjects';
 import type { ProjectCard as ProjectCardType } from '@/types';
 
 interface ProjectCardProps {
@@ -16,9 +17,18 @@ interface ProjectCardProps {
 const hoverEffects = { scale: 1.02, boxShadow: '0 8px 24px rgba(0,0,0,0.05)' };
 
 export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, compact = false }) => {
+  // Hook para capturar projetos revelados
+  const { revealProject } = useRevealedProjects();
+  
   // MELHORADO: Detecta múltiplas linguagens e usa gradiente
   const languageConfig = detectLanguage(project);
   const { gradient, icon: Icon } = languageConfig;
+
+  // Função para capturar clique e marcar como revelado
+  const handleClick = () => {
+    console.log('🎯 ProjectCard: Marking project as revealed:', project.id, project.titulo);
+    revealProject(project.id);
+  };
 
   // Memoize parsed date to avoid unnecessary re-renders
   const modified = useMemo(
@@ -40,7 +50,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = React.memo(({ project, co
   );
 
   return (
-    <Link to={`/projects/${project.id}`} aria-label={`Abrir projeto ${project.titulo}`}>
+    <Link to={`/projects/${project.id}`} onClick={handleClick} aria-label={`Abrir projeto ${project.titulo}`}>
       <motion.div
         whileHover={hoverEffects}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
