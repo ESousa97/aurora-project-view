@@ -34,12 +34,48 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 // ===== DESCOBERTA AUTOMÁTICA DE PROJETOS =====
 
 async function discoverProjects(): Promise<string[]> {
-  // Em um ambiente real, isso escanearia o diretório
-  // Por enquanto, vamos usar um método que funciona no browser
-  const knownProjects = ['projects0001', 'projects0002'];
-  
-  console.log(`📁 Discovered projects: ${knownProjects.join(', ')}`);
-  return knownProjects;
+  try {
+    console.log('📁 Discovering projects in src/projects directory...');
+    
+    // Lista de projetos conhecidos baseada na estrutura de diretórios
+    // Esta lista deve ser mantida manualmente ou gerada via build script
+    const knownProjects = [
+      'projects0001',
+      'projects0002'
+      // Adicione mais projetos conforme necessário
+    ];
+    
+    // Verificar quais projetos realmente existem através de import dinâmico
+    const existingProjects: string[] = [];
+    
+    for (const projectSlug of knownProjects) {
+      try {
+        console.log(`🔍 Checking for project: ${projectSlug}`);
+        
+        // Tentar importar o arquivo MDX para verificar se existe
+        await import(`../projects/${projectSlug}/${projectSlug}.mdx?raw`);
+        existingProjects.push(projectSlug);
+        console.log(`✅ Found project: ${projectSlug}`);
+      } catch (error) {
+        console.warn(`⚠️ Project file not found: ${projectSlug}`, error);
+        // Se o import com ?raw falhar, tentar sem
+        try {
+          await import(`../projects/${projectSlug}/${projectSlug}.mdx`);
+          existingProjects.push(projectSlug);
+          console.log(`✅ Found project (fallback): ${projectSlug}`);
+        } catch (fallbackError) {
+          console.warn(`⚠️ Project not accessible: ${projectSlug}`);
+        }
+      }
+    }
+    
+    console.log(`📁 Discovered ${existingProjects.length} projects: ${existingProjects.join(', ')}`);
+    return existingProjects;
+    
+  } catch (error) {
+    console.error('❌ Error discovering projects:', error);
+    return [];
+  }
 }
 
 // ===== FUNÇÃO PARA PARSEAMENTO DO FRONTMATTER =====
@@ -165,122 +201,58 @@ function parseFrontmatter(content: string): { metadata: MDXMetadata; content: st
 
 // ===== FUNÇÃO PARA CARREGAR CONTEÚDO MDX =====
 
-// ===== FUNÇÃO PARA CARREGAR CONTEÚDO MDX =====
-
 async function loadMDXFile(projectSlug: string): Promise<string | null> {
   try {
     console.log(`📁 Loading MDX file for: ${projectSlug}`);
     
-    // DADOS ESTÁTICOS TEMPORÁRIOS (até configurar arquivos reais)
-    const staticMDXData: Record<string, string> = {
-      'projects0001': `---
-id: 1
-titulo: Sistema de Autenticação JWT
-descricao: Sistema completo de autenticação com JWT, refresh tokens e middleware de segurança
-categoria: Backend
-data_criacao: 2024-12-15T10:00:00Z
-data_modificacao: 2025-01-02T14:30:00Z
-imageurl: https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600&fit=crop
-tecnologias: ["Node.js", "Express", "JWT", "PostgreSQL", "TypeScript"]
-dificuldade: 4
-featured: true
----
-
-# Sistema de Autenticação JWT Completo
-
-Sistema robusto de autenticação utilizando **JWT (JSON Web Tokens)** com refresh tokens e middleware de segurança avançado.
-
-## 🚀 Principais Funcionalidades
-
-### Autenticação Segura
-- **Login/Logout** com validação robusta
-- **Refresh Tokens** para sessões de longa duração
-- **Rate Limiting** para prevenir ataques
-- **Middleware de Autorização** personalizável
-
-### Recursos Avançados
-- Criptografia de senhas com \`bcrypt\`
-- Validação de entrada com \`Joi\`
-- Logs detalhados de segurança
-- Proteção contra ataques CSRF
-
-## 💻 Tecnologias Utilizadas
-
-- **Node.js** - Runtime JavaScript
-- **Express.js** - Framework web
-- **PostgreSQL** - Banco de dados
-- **JWT** - Tokens de autenticação
-- **TypeScript** - Tipagem estática
-
-## 🔧 Instalação Rápida
-
-@@npm install@@
-@@npm run dev@@
-
-:::Esta implementação seguiu as melhores práticas de segurança da OWASP:::
-
-**Status:** ✅ Produção | **Última atualização:** Janeiro 2025`,
-
-      'projects0002': `---
-id: 2
-titulo: Dashboard Analytics React
-descricao: Dashboard interativo com gráficos em tempo real, métricas KPI e sistema de filtros avançados
-categoria: Frontend
-data_criacao: 2024-11-20T09:00:00Z
-data_modificacao: 2024-12-28T16:45:00Z
-imageurl: https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop
-tecnologias: ["React", "TypeScript", "D3.js", "Tailwind CSS", "Chart.js"]
-dificuldade: 3
-featured: false
----
-
-# Dashboard Analytics Interativo
-
-Dashboard moderno construído em **React** com visualizações de dados em tempo real e interface responsiva.
-
-## ✨ Características Principais
-
-### Visualizações Dinâmicas
-- **Gráficos interativos** com D3.js e Chart.js
-- **Métricas KPI** atualizadas em tempo real
-- **Filtros avançados** por período e categoria
-- **Exportação de dados** em PDF/Excel
-
-### Interface Moderna
-- Design **mobile-first** responsivo
-- Tema **dark/light** personalizável
-- Animações suaves com **Framer Motion**
-- Componentes **acessíveis** (ARIA)
-
-## 🛠️ Stack Tecnológica
-
-- **React 18** - Biblioteca de interface
-- **TypeScript** - Tipagem estática
-- **Tailwind CSS** - Framework CSS
-- **D3.js** - Visualizações personalizadas
-- **Chart.js** - Gráficos interativos
-
-## ⚡ Quick Start
-
-@@git clone https://github.com/user/dashboard-analytics@@
-@@cd dashboard-analytics@@
-@@npm install && npm start@@
-
-:::O dashboard processa mais de 10.000 pontos de dados simultaneamente:::
-
-**Status:** 🔄 Em desenvolvimento | **Última atualização:** Dezembro 2024`
-    };
-
-    if (staticMDXData[projectSlug]) {
-      console.log(`✅ Found static MDX data for: ${projectSlug}`);
-      return staticMDXData[projectSlug];
+    // Tentar importar o arquivo MDX como raw text
+    try {
+      console.log(`📄 Importing: ../projects/${projectSlug}/${projectSlug}.mdx?raw`);
+      const mdxModule = await import(`../projects/${projectSlug}/${projectSlug}.mdx?raw`);
+      const mdxContent = mdxModule.default;
+      
+      if (!mdxContent) {
+        console.warn(`⚠️ Empty MDX content for: ${projectSlug}`);
+        return null;
+      }
+      
+      console.log(`✅ Successfully loaded MDX file for: ${projectSlug} (${mdxContent.length} chars)`);
+      return mdxContent;
+      
+    } catch (rawError) {
+      console.warn(`⚠️ Raw import failed for ${projectSlug}, trying standard import...`);
+      
+      // Fallback: tentar import normal (pode funcionar em alguns bundlers)
+      try {
+        const mdxModule = await import(`../projects/${projectSlug}/${projectSlug}.mdx`);
+        
+        // Se o módulo tem uma propriedade default que é string
+        if (typeof mdxModule.default === 'string') {
+          console.log(`✅ Successfully loaded MDX via standard import: ${projectSlug}`);
+          return mdxModule.default;
+        }
+        
+        // Se o módulo tem metadados e conteúdo separados
+        if (mdxModule.content || mdxModule.source) {
+          const content = mdxModule.content || mdxModule.source;
+          console.log(`✅ Successfully loaded MDX content: ${projectSlug}`);
+          return content;
+        }
+        
+        console.warn(`⚠️ MDX module structure not recognized for: ${projectSlug}`);
+        return null;
+        
+      } catch (standardError) {
+        console.error(`❌ Both import methods failed for ${projectSlug}:`, {
+          rawError,
+          standardError
+        });
+        return null;
+      }
     }
-
-    console.warn(`⚠️ No static MDX data found for: ${projectSlug}`);
-    return null;
     
   } catch (error) {
-    console.error(`❌ Error loading MDX data for ${projectSlug}:`, error);
+    console.error(`❌ Error loading MDX file for ${projectSlug}:`, error);
     return null;
   }
 }
@@ -498,6 +470,15 @@ export async function reloadMDXProjects(): Promise<ProjectCard[]> {
   return await getAllMDXProjects();
 }
 
+/**
+ * Adicionar um novo projeto à lista de descobertos (para expansão futura)
+ */
+export function addKnownProject(projectSlug: string): void {
+  console.log(`📝 Adding known project: ${projectSlug}`);
+  // Esta função poderia expandir a lista de projetos dinamicamente
+  // Por enquanto, ela apenas registra no console
+}
+
 // ===== EXPORT PADRÃO =====
 
 export default {
@@ -508,9 +489,12 @@ export default {
   getFeaturedMDXProjects,
   getMDXProjectMetadata,
   clearMDXCache,
-  reloadMDXProjects
+  reloadMDXProjects,
+  addKnownProject
 };
 
 // ===== LOGS DE INICIALIZAÇÃO =====
 
-console.log('🚀 MDX Project Loader initialized - File System Mode');
+console.log('🚀 MDX Project Loader initialized - Dynamic Import Mode');
+console.log('📁 Expected project structure: src/projects/{projectSlug}/{projectSlug}.mdx');
+console.log('📦 Using dynamic imports with ?raw for text content loading');

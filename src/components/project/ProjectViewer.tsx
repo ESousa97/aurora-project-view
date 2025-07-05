@@ -1,4 +1,4 @@
-// src/components/project/ProjectViewer.tsx (Versão MDX Otimizada)
+// src/components/project/ProjectViewer.tsx (Versão com Layout Otimizado)
 import React, { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Share2, BookOpen, Clock, User, Tag, ExternalLink, Github } from 'lucide-react';
@@ -241,19 +241,53 @@ export const ProjectViewer: React.FC<ProjectViewerProps> = ({ project }) => {
         </div>
       </motion.div>
 
-      {/* Conteúdo principal MDX */}
-      <div className="max-w-4xl mx-auto">
+      {/* Conteúdo principal MDX - LAYOUT OTIMIZADO */}
+      <div className="max-w-8xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <ProjectViewerContent
-            content={project.conteudo || 'Conteúdo não disponível'}
-            onCopy={handleCopy}
-            renderVideo={renderVideo}
-            className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg"
-          />
+          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
+            {/* Container interno com melhor espaçamento */}
+            <div className="px-8 py-10 sm:px-12 lg:px-16 xl:px-20">
+              {/* Wrapper do conteúdo com tipografia otimizada */}
+              <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:scroll-mt-20 prose-headings:font-semibold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:leading-7 prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-pre:bg-gray-50 dark:prose-pre:bg-gray-800 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:pl-6 prose-blockquote:py-2 prose-blockquote:rounded-r-lg">
+                <ProjectViewerContent
+                  content={project.conteudo || 'Conteúdo não disponível'}
+                  onCopy={handleCopy}
+                  renderVideo={renderVideo}
+                />
+              </div>
+            </div>
+            
+            {/* Rodapé do card com informações extras */}
+            <div className="px-8 py-6 sm:px-12 lg:px-16 xl:px-20 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span>Última atualização: {formatProjectDate(project.data_modificacao)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    <span>Projeto: {project.titulo}</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    {project.categoria}
+                  </Badge>
+                  {mdxMetadata?.dificuldade && (
+                    <Badge variant="secondary" className="text-xs">
+                      Dificuldade: {mdxMetadata.dificuldade}/5
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Separador */}
