@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { AppLayout } from '@/components/layout/AppLayout';
 
@@ -16,14 +15,12 @@ export const EmptyState: React.FC = () => {
               Nenhum projeto encontrado
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Que tal criar seu primeiro projeto e começar a jornada?
+              Os projetos MDX não foram encontrados ou ainda estão sendo carregados.
             </p>
           </div>
-          <Link to="/projects/new">
-            <button className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:scale-105 transition-transform">
-              Criar Primeiro Projeto
-            </button>
-          </Link>
+          <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+            <p>Verificando arquivos em: <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">public/projects/</code></p>
+          </div>
         </div>
       </div>
     </AppLayout>
