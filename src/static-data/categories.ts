@@ -34,82 +34,14 @@ export const getStaticCategories = async (): Promise<Category[]> => {
   return cachedCategories;
 };
 
-// Adicionar algumas categorias extras (sem projetos por enquanto)
+// Retornar apenas categorias com projetos reais baseadas nos arquivos .mdx
 export const getAllCategories = async (): Promise<Category[]> => {
   const staticCategories = await getStaticCategories();
   
-  const allCategories: Category[] = [
-    ...staticCategories,
-    {
-      name: "Node.js",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Vue.js",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Django",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "React Native",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Next.js",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "PostgreSQL",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Docker",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Kubernetes",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "AWS",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Machine Learning",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Blockchain",
-      count: 0,
-      projects: []
-    },
-    {
-      name: "Mobile",
-      count: 0,
-      projects: []
-    }
-  ].filter(cat => !staticCategories.find(sc => sc.name === cat.name));
-
-  return [...staticCategories, ...allCategories]
-    .sort((a, b) => {
-      // Priorizar categorias com projetos
-      if (a.count > 0 && b.count === 0) return -1;
-      if (a.count === 0 && b.count > 0) return 1;
-      // Depois ordenar por quantidade
-      return b.count - a.count;
-    });
+  // Filtrar apenas categorias que têm projetos (count > 0)
+  return staticCategories
+    .filter(category => category.count > 0)
+    .sort((a, b) => b.count - a.count);
 };
 
 // Combinar categorias com projetos e vazias (mantido para compatibilidade)
