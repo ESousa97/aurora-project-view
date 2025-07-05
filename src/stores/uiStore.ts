@@ -99,7 +99,7 @@ export const useUIStore = create<UIStore>()(
       explorationProgress: 0,
 
       /* Novo modelo da sidebar */
-      collapsed: false,     // começa expandida
+      collapsed: true,      // começa sempre fechada
       sidebarMode: 'push',
 
       /* ---------- Getters de compatibilidade ---------- */
@@ -178,7 +178,7 @@ export const useUIStore = create<UIStore>()(
         ...curr,
         ...persisted,
         revealedProjects: new Set(persisted.revealedProjects ?? []),
-        collapsed: persisted.collapsed ?? false,
+        collapsed: persisted.collapsed ?? true,
         sidebarMode: persisted.sidebarMode ?? 'push',
       }),
     }

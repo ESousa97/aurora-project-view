@@ -9,13 +9,9 @@ export const useResponsiveSidebar = () => {
     const handleResize = () => {
       const width = window.innerWidth;
       
-      // Mobile: sempre overlay e esconder sidebar por padrão
+      // Mobile: sempre overlay e manter fechada
       if (width < 768) {
         setSidebarMode('overlay');
-        // Em mobile, esconder a sidebar se estiver aberta
-        if (!collapsed) {
-          collapseSidebar();
-        }
         return;
       }
       
@@ -30,10 +26,6 @@ export const useResponsiveSidebar = () => {
       if (width >= requiredWidth) {
         // Espaço suficiente para modo push
         setSidebarMode('push');
-        // Se estava collapsed, expandir novamente
-        if (collapsed) {
-          expandSidebar();
-        }
       } else {
         // Não há espaço suficiente, usar overlay
         setSidebarMode('overlay');

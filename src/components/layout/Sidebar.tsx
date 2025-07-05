@@ -166,7 +166,7 @@ export const Sidebar: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: -SIZE_FULL }}
               transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-              className="absolute top-16 left-0 h-[calc(100vh-4rem)] w-[280px] bg-background/95 backdrop-blur-xl shadow-xl border-r border-border/30"
+              className="absolute top-0 left-0 h-full w-[280px] bg-background/95 backdrop-blur-xl shadow-xl border-r border-border/30 z-50"
             >
               <div className="h-12 flex items-center justify-center border-b border-border/30">
                 <Link to="/" className="p-2 rounded hover:bg-muted/10">
