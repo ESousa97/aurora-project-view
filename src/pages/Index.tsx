@@ -90,16 +90,16 @@ const Index = () => {
       return []; // Seção vazia ou mensagem de conclusão
     }
     
-    if (unrevealedProjects.length <= 3) {
-      console.log('🔮 Few projects remaining, showing all unrevealed');
-      // Mostrar todos os não revelados se poucos restam
-      return unrevealedProjects.sort(() => Math.random() - 0.5) as ProjectType[];
-    }
+    // Limitar a máximo 3 cards e mínimo 1 na seção mystery
+    const maxMysteryCards = 3;
+    const selectedCount = Math.min(unrevealedProjects.length, maxMysteryCards);
     
-    // Mostrar seleção estratégica de projetos não revelados
+    console.log('🔮 Mystery card limits: max=3, available=', unrevealedProjects.length, 'selecting=', selectedCount);
+    
+    // Mostrar seleção limitada de projetos não revelados (máximo 3)
     const selectedMystery = unrevealedProjects
       .sort(() => Math.random() - 0.5)
-      .slice(0, 6) as ProjectType[]; // Máximo 6 para não sobrecarregar
+      .slice(0, selectedCount) as ProjectType[];
     
     console.log('🔮 Final mystery selection:', selectedMystery.length, 'projects');
     console.log('🔮 Mystery titles:', selectedMystery.map(p => p.titulo));
