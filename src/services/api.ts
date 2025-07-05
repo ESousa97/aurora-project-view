@@ -2,6 +2,7 @@
 import { ProjectCard, ProjectDetails, Category } from '@/types';
 import { 
   getStaticProjects,
+  initializeStaticProjects,
   getProjectById, 
   getProjectsByCategory,
   searchProjects as staticSearchProjects,
@@ -17,17 +18,20 @@ const simulateDelay = (ms: number = 300) =>
 export const apiService = {
   // Get all project cards
   getCards: async (): Promise<ProjectCard[]> => {
-    console.log('🎯 API: getCards() called');
-    console.log('📋 API: Loading projects via static data service...');
+    console.log('🎯 API: getCards() called - forcing fresh initialization');
     await simulateDelay(200);
     
     try {
-      const projects = await getStaticProjects(); // Garante que os projetos MDX sejam carregados
-      console.log(`🎯 API: Retrieved ${projects?.length || 0} projects from static data`);
+      // Força uma nova inicialização para garantir que os dados estão atualizados
+      const projects = await initializeStaticProjects();
+      console.log(`🎯 API: Retrieved ${projects?.length || 0} projects from initialization`);
       
       if (!projects || projects.length === 0) {
-        console.warn('⚠️ API: No projects returned from getStaticProjects');
-        return [];
+        console.warn('⚠️ API: No projects returned from initializeStaticProjects');
+        // Tenta fallback
+        const fallbackProjects = await getStaticProjects();
+        console.log(`🔄 API: Fallback retrieved ${fallbackProjects?.length || 0} projects`);
+        return fallbackProjects || [];
       }
       
       console.log('📝 API: Project titles:', projects.map(p => `${p.titulo} (${p.categoria})`));

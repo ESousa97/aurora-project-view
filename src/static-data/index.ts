@@ -5,10 +5,9 @@
 // os tipos diretamente da sua fonte original, que é '@/types'.
 import { ProjectCard, Category } from '@/types';
 
-// 2. IMPORTAR DADOS COM 'IMPORT'
 // Usar a sintaxe de import do ES6 é mais moderno e consistente
 // com o resto do seu código do que usar 'require()'.
-import { getStaticProjects } from './projects';
+import { getStaticProjects, initializeStaticProjects } from './projects';
 import { getAllCategories } from './categories';
 
 // Re-exportar tudo dos outros módulos para que possam ser importados a partir daqui

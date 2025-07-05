@@ -1,40 +1,28 @@
-// src/static-data/projects.ts (Atualizado para usar MDX do public/)
+// src/static-data/projects.ts (Simplificado para usar diretamente MDX)
 import { ProjectCard } from '@/types';
 import { getAllMDXProjects, getMDXProjectById, searchMDXProjects, getMDXProjectsByCategory } from '@/utils/publicMdxLoader';
 
-// Cache simples para otimização
-let cachedProjects: ProjectCard[] | null = null;
-
-// Função principal para obter projetos (agora usando MDX)
+// Função principal simplificada - usa diretamente getAllMDXProjects
 export const getStaticProjects = async (): Promise<ProjectCard[]> => {
-  console.log('🔄 getStaticProjects called');
-  
-  if (cachedProjects) {
-    console.log('📋 Returning cached projects:', cachedProjects.length);
-    return cachedProjects;
-  }
-  
-  console.log('🔄 Loading projects from MDX files...');
+  console.log('🔄 getStaticProjects: Direct call to getAllMDXProjects');
+  return await getAllMDXProjects();
+};
+
+// Projetos estáticos inicializados de forma síncrona
+export let staticProjects: ProjectCard[] = [];
+
+// Função para inicializar projetos (chamada pelos hooks quando necessário)
+export const initializeStaticProjects = async (): Promise<ProjectCard[]> => {
+  console.log('🚀 initializeStaticProjects: Initializing...');
   try {
-    cachedProjects = await getAllMDXProjects();
-    console.log(`✅ getStaticProjects: Loaded ${cachedProjects.length} projects from MDX`);
-    return cachedProjects;
+    staticProjects = await getAllMDXProjects();
+    console.log(`✅ initializeStaticProjects: Loaded ${staticProjects.length} projects`);
+    return staticProjects;
   } catch (error) {
-    console.error('❌ getStaticProjects: Error loading MDX projects:', error);
+    console.error('❌ initializeStaticProjects: Error:', error);
     return [];
   }
 };
-
-// Projetos estáticos (mantido para compatibilidade, mas agora vem do MDX)
-export let staticProjects: ProjectCard[] = [];
-
-// Inicializar projetos estáticos
-const initializeStaticProjects = async () => {
-  staticProjects = await getStaticProjects();
-};
-
-// Inicializar na importação do módulo
-initializeStaticProjects();
 
 // Funções auxiliares (atualizadas para usar MDX)
 export const getProjectById = async (id: number): Promise<ProjectCard | null> => {
@@ -54,6 +42,5 @@ export const searchProjects = async (query: string): Promise<ProjectCard[]> => {
 
 // Função para forçar recarregamento do cache
 export const reloadProjects = async (): Promise<void> => {
-  cachedProjects = null;
   staticProjects = await getStaticProjects();
 };

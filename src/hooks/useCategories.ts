@@ -47,44 +47,40 @@ export const useCategories = () => {
   });
 };
 
-// Hook específico para obter projetos com linguagem detectada baseada nos dados do banco
+// Hook específico para obter projetos com linguagem detectada
 export const useProjectsWithLanguage = () => {
   return useQuery({
     queryKey: ['projects-with-language'],
     queryFn: async () => {
-      console.log('🔄 useProjectsWithLanguage: Starting fetch...');
+      console.log('🔄 useProjectsWithLanguage: Starting direct fetch from API...');
       
-      // Buscar categorias para ter mapeamento ID -> Categoria correto
-      const categories = await apiService.getCategories();
+      // Chamar diretamente a API sem dupla busca
       const projects = await apiService.getCards();
+      console.log(`📊 useProjectsWithLanguage: Got ${projects?.length || 0} projects from API`);
       
-      // Criar mapa de categoria por ID do projeto
-      const categoryMap = new Map<number, string>();
-      categories.forEach(category => {
-        category.projects.forEach(project => {
-          categoryMap.set(project.id, project.categoria);
-        });
-      });
+      if (!projects || projects.length === 0) {
+        console.warn('⚠️ useProjectsWithLanguage: No projects received from API');
+        return [];
+      }
       
+      // Enriquecer com detecção de linguagem
       const enrichedProjects = projects.map(project => {
-        // Usar categoria do banco se disponível, senão usar a do projeto
-        const correctCategory = categoryMap.get(project.id) || project.categoria;
-        const projectWithCorrectCategory = { ...project, categoria: correctCategory };
+        console.log(`🔧 Processing project: ${project.titulo} (${project.categoria})`);
         
         // SINCRONIZAÇÃO: Garantir detecção consistente da linguagem
-        const detectedLanguage = detectLanguage(projectWithCorrectCategory);
+        const detectedLanguage = detectLanguage(project);
         
         return {
-          ...projectWithCorrectCategory,
+          ...project,
           detectedLanguage,
           languageMetadata: {
             detectedAt: new Date().toISOString(),
-            confidence: 100 // 100% pois vem do banco de dados
+            confidence: 100
           }
         };
       });
       
-      console.log(`✅ useProjectsWithLanguage: Enriched ${enrichedProjects.length} projects with synchronized language data`);
+      console.log(`✅ useProjectsWithLanguage: Successfully enriched ${enrichedProjects.length} projects`);
       
       // Log de exemplo das linguagens detectadas
       const languageCounts = enrichedProjects.reduce((acc, project) => {
