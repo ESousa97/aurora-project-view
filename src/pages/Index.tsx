@@ -65,7 +65,7 @@ const Index = () => {
     return featured;
   }, [projects]);
 
-  // Projetos mistério para descoberta - todos os projetos, mas mostrados como revelados ou não baseado no localStorage
+  // Projetos mistério - APENAS projetos que ainda NÃO foram revelados/visualizados
   const mysteryProjects = React.useMemo(() => {
     console.log('🔮 Computing mysteryProjects, projects:', projects?.length || 0);
     if (!projects) {
@@ -73,13 +73,26 @@ const Index = () => {
       return [];
     }
     
-    // Mostrar todos os projetos como mystery (alguns já revelados, outros não)
-    const mystery = projects
+    // FILTRAR apenas projetos que ainda NÃO foram revelados
+    const unrevealedProjects = projects.filter(project => !isProjectRevealed(project.id));
+    console.log('🔮 Unrevealed projects found:', unrevealedProjects.length);
+    
+    // Se não há projetos não revelados, mostrar uma mensagem ou projetos aleatórios
+    if (unrevealedProjects.length === 0) {
+      console.log('🔮 All projects revealed! Showing random selection for variety');
+      const randomSelection = projects
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3) as ProjectType[]; // Menos projetos se todos já foram revelados
+      return randomSelection;
+    }
+    
+    // Embaralhar e limitar projetos não revelados
+    const mystery = unrevealedProjects
       .sort(() => Math.random() - 0.5)
       .slice(0, 6) as ProjectType[]; // Máximo 6 projetos na seção mistério
     
-    console.log('🔮 Final mystery projects:', mystery.length, mystery.map(p => p.titulo));
-    console.log('🔮 Revealed status:', mystery.map(p => `${p.titulo}: ${isProjectRevealed(p.id) ? 'REVEALED' : 'HIDDEN'}`));
+    console.log('🔮 Final mystery projects (unrevealed):', mystery.length, mystery.map(p => p.titulo));
+    console.log('🔮 All should be HIDDEN:', mystery.map(p => `${p.titulo}: ${isProjectRevealed(p.id) ? 'REVEALED' : 'HIDDEN'}`));
     return mystery;
   }, [projects, isProjectRevealed]);
 

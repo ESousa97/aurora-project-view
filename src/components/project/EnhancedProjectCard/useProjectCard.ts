@@ -58,21 +58,27 @@ export const useProjectCard = ({ project, variant, onDiscover, isDiscovered }: U
     navigate(`/projects/${project.id}`);
   }, [project, revealed, navigate, onDiscover, revealProject]);
 
-  // Auto-reveal no viewport para cards mystery
+  // Auto-reveal no viewport para TODOS os cards (sincronização entre seções)
   const handleViewportReveal = useCallback(() => {
-    if (variant === 'mystery' && !revealed && project?.id) {
-      setRevealed(true);
+    if (project?.id) {
+      // SEMPRE marcar como revelado quando visualizado, independente da seção
       revealProject(project.id);
-      onDiscover?.(project.id);
-      toast.success(`Descobriu ${project.titulo}!`, { duration: 2000 });
-      console.log('🔍 Auto-revealed project via viewport:', project.id, project.titulo);
+      console.log('👁️ Project viewed in viewport:', project.id, project.titulo, 'variant:', variant);
+      
+      // Para mystery cards, também mostrar toast e disparar onDiscover
+      if (variant === 'mystery' && !revealed) {
+        setRevealed(true);
+        onDiscover?.(project.id);
+        toast.success(`Descobriu ${project.titulo}!`, { duration: 2000 });
+        console.log('🔍 Auto-revealed mystery project:', project.id, project.titulo);
+      }
     }
-  }, [variant, revealed, project, revealProject, onDiscover]);
+  }, [project, revealProject, variant, revealed, onDiscover]);
 
   const viewportRef = useViewportReveal({
-    enabled: variant === 'mystery' && !revealed,
+    enabled: true, // SEMPRE ativo para todas as seções (sincronização)
     onReveal: handleViewportReveal,
-    threshold: 0.4
+    threshold: 0.3 // Threshold um pouco menor para melhor UX
   });
 
   return {
