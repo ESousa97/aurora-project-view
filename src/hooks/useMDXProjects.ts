@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { ProjectCard } from '@/types';
 import { detectLanguage, LanguageColor } from '@/lib/languageColors';
-import { getAllMDXProjects, getMDXProjectById, getFeaturedMDXProjects } from '@/utils/mdxProjectLoader';
+import { getAllMDXProjects, getMDXProjectById, getFeaturedMDXProjects } from '@/utils/publicMdxLoader';
 import type { EnhancedProjectCard } from '@/types/enhanced';
 
 // Hook para carregar todos os projetos MDX com detecção de linguagem

@@ -11,16 +11,16 @@ interface SidebarHeaderProps {
 }
 
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ onClose }) => {
-  const { sidebarMode, minimize, hide } = useSidebar();
+  const { sidebarMode, collapse, hideOverlay } = useSidebar();
 
   const handleMinimize = () => {
     if (sidebarMode === 'overlay') {
       // Em modo overlay, fechar completamente
-      hide();
+      hideOverlay();
       onClose?.();
     } else {
       // Em modo push, minimizar
-      minimize();
+      collapse();
     }
   };
 

@@ -27,7 +27,7 @@ export const apiService = {
   searchProjects: async (query: string): Promise<ProjectCard[]> => {
     console.log(`🔍 Searching projects with query: "${query}"`);
     await simulateDelay(150);
-    const results = staticSearchProjects(query);
+    const results = await staticSearchProjects(query);
     console.log(`🔍 Found ${results.length} projects matching "${query}"`);
     return results;
   },
@@ -45,7 +45,7 @@ export const apiService = {
     console.log(`📄 Fetching project details for ID: ${id}`);
     await simulateDelay(300);
     
-    const project = getProjectById(parseInt(id));
+    const project = await getProjectById(parseInt(id));
     if (!project) {
       throw new Error(`Project with ID ${id} not found`);
     }

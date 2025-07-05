@@ -1,4 +1,4 @@
-// src/utils/mdxProjectLoader.ts - VERSÃO CORRIGIDA
+// src/utils/publicMdxLoader.ts - Loader para arquivos MDX em public/
 import { ProjectCard } from '@/types';
 
 // ===== INTERFACES PARA METADADOS MDX =====
@@ -31,88 +31,75 @@ let projectsCache: MDXProject[] | null = null;
 let lastCacheTime: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
 
-// ===== DESCOBERTA AUTOMÁTICA DE PROJETOS =====
+// ===== LISTA DE PROJETOS CONHECIDOS =====
 
-async function discoverProjects(): Promise<string[]> {
+const KNOWN_PROJECTS = [
+  'projects0001',
+  'projects0002'
+  // Adicione mais projetos conforme necessário
+];
+
+// ===== FUNÇÃO PARA CARREGAR ARQUIVO MDX DO PUBLIC =====
+
+async function loadMDXFromPublic(projectSlug: string): Promise<string | null> {
   try {
-    console.log('📁 Discovering projects in src/projects directory...');
+    console.log(`📁 Loading MDX from public: ${projectSlug}`);
     
-    // Lista de projetos conhecidos baseada na estrutura de diretórios
-    const knownProjects = [
-      'projects0001',
-      'projects0002'
-      // Adicione mais projetos conforme necessário
-    ];
+    const response = await fetch(`/projects/${projectSlug}/${projectSlug}.mdx`);
     
-    // Verificar quais projetos realmente existem através de import dinâmico
-    const existingProjects: string[] = [];
-    
-    for (const projectSlug of knownProjects) {
-      try {
-        console.log(`🔍 Checking for project: ${projectSlug}`);
-        
-        // Tentar importar o arquivo MDX para verificar se existe
-        await import(`../projects/${projectSlug}/${projectSlug}.mdx?raw`);
-        existingProjects.push(projectSlug);
-        console.log(`✅ Found project: ${projectSlug}`);
-      } catch (error) {
-        console.warn(`⚠️ Project file not found: ${projectSlug}`, error);
-        // Se o import com ?raw falhar, tentar sem
-        try {
-          await import(`../projects/${projectSlug}/${projectSlug}.mdx`);
-          existingProjects.push(projectSlug);
-          console.log(`✅ Found project (fallback): ${projectSlug}`);
-        } catch (fallbackError) {
-          console.warn(`⚠️ Project not accessible: ${projectSlug}`);
-        }
-      }
+    if (!response.ok) {
+      console.warn(`⚠️ Failed to load ${projectSlug}: ${response.status} ${response.statusText}`);
+      return null;
     }
     
-    console.log(`📁 Discovered ${existingProjects.length} projects: ${existingProjects.join(', ')}`);
-    return existingProjects;
+    const content = await response.text();
+    
+    if (!content || content.trim().length === 0) {
+      console.warn(`⚠️ Empty content for ${projectSlug}`);
+      return null;
+    }
+    
+    console.log(`✅ Successfully loaded ${projectSlug} (${content.length} chars)`);
+    return content;
     
   } catch (error) {
-    console.error('❌ Error discovering projects:', error);
-    return [];
+    console.error(`❌ Error loading ${projectSlug}:`, error);
+    return null;
   }
 }
 
-// ===== FUNÇÃO CORRIGIDA PARA PARSEAMENTO DO FRONTMATTER =====
+// ===== FUNÇÃO PARA PARSEAMENTO DO FRONTMATTER =====
 
 function parseFrontmatter(content: string): { metadata: MDXMetadata; content: string } {
   console.log(`🔍 Parsing frontmatter for content (${content.length} chars)`);
   
-  // Limpar conteúdo preservando quebras de linha essenciais
   const cleanContent = content.trim();
   
-  // Tentar diferentes padrões de frontmatter preservando estrutura
+  // Padrões de frontmatter
   const patterns = [
-    /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/,  // Padrão principal
-    /^---\n([\s\S]*?)\n---\n([\s\S]*)$/,           // Padrão simples
-    /^---([\s\S]*?)---([\s\S]*)$/,                 // Sem quebras obrigatórias
+    /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/,
+    /^---\n([\s\S]*?)\n---\n([\s\S]*)$/,
+    /^---([\s\S]*?)---([\s\S]*)$/,
   ];
   
   let frontmatterMatch = null;
-  let patternUsed = '';
   
   for (let i = 0; i < patterns.length; i++) {
     frontmatterMatch = cleanContent.match(patterns[i]);
     if (frontmatterMatch) {
-      patternUsed = `Pattern ${i + 1}`;
-      console.log(`✅ Frontmatter matched with ${patternUsed}`);
+      console.log(`✅ Frontmatter matched with Pattern ${i + 1}`);
       break;
     }
   }
   
   if (!frontmatterMatch) {
-    console.error('❌ No frontmatter pattern matched. Content start:', cleanContent.substring(0, 200));
+    console.error('❌ No frontmatter pattern matched');
     throw new Error('Arquivo MDX inválido: frontmatter não encontrado');
   }
 
   const [, frontmatterStr, markdownContent] = frontmatterMatch;
-  console.log(`📝 Frontmatter extracted (${frontmatterStr.length} chars)`);
   
-  // Inicializar com valores padrão
+  // Inicializar metadados com valores padrão
   const metadata: MDXMetadata = {
     id: 0,
     titulo: '',
@@ -129,10 +116,8 @@ function parseFrontmatter(content: string): { metadata: MDXMetadata; content: st
     demo: ''
   };
   
-  // CORREÇÃO: Processar linha por linha preservando estrutura
+  // Processar frontmatter linha por linha
   const lines = frontmatterStr.split(/\r?\n/);
-  
-  console.log(`🔑 Processing: ${frontmatterStr.replace(/\r?\n/g, '')}`);
   
   for (const line of lines) {
     const trimmedLine = line.trim();
@@ -144,96 +129,58 @@ function parseFrontmatter(content: string): { metadata: MDXMetadata; content: st
     const key = trimmedLine.substring(0, colonIndex).trim();
     const value = trimmedLine.substring(colonIndex + 1).trim();
     
-    // Parse diferentes tipos de dados com validação
+    // Parse diferentes tipos de dados
     switch (key) {
-      case 'id': {
+      case 'id':
         const parsedId = parseInt(value);
-        if (!isNaN(parsedId)) {
-          metadata.id = parsedId;
-        }
+        if (!isNaN(parsedId)) metadata.id = parsedId;
         break;
-      }
         
-      case 'titulo': {
-        const titulo = value.replace(/^["']|["']$/g, '').trim();
-        if (titulo) {
-          metadata.titulo = titulo;
-        }
+      case 'titulo':
+        metadata.titulo = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'descricao': {
-        const descricao = value.replace(/^["']|["']$/g, '').trim();
-        if (descricao) {
-          metadata.descricao = descricao;
-        }
+      case 'descricao':
+        metadata.descricao = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'categoria': {
-        const categoria = value.replace(/^["']|["']$/g, '').trim();
-        if (categoria) {
-          metadata.categoria = categoria;
-        }
+      case 'categoria':
+        metadata.categoria = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'data_criacao': {
-        const dataCriacao = value.replace(/^["']|["']$/g, '').trim();
-        if (dataCriacao) {
-          metadata.data_criacao = dataCriacao;
-        }
+      case 'data_criacao':
+        metadata.data_criacao = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'data_modificacao': {
-        const dataModificacao = value.replace(/^["']|["']$/g, '').trim();
-        if (dataModificacao) {
-          metadata.data_modificacao = dataModificacao;
-        }
+      case 'data_modificacao':
+        metadata.data_modificacao = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'imageurl': {
-        const imageurl = value.replace(/^["']|["']$/g, '').trim();
-        if (imageurl) {
-          metadata.imageurl = imageurl;
-        }
+      case 'imageurl':
+        metadata.imageurl = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'dificuldade': {
+      case 'dificuldade':
         const dificuldade = parseInt(value);
         if (!isNaN(dificuldade) && dificuldade >= 1 && dificuldade <= 5) {
           metadata.dificuldade = dificuldade;
         }
         break;
-      }
         
-      case 'featured': {
+      case 'featured':
         metadata.featured = value.toLowerCase() === 'true';
         break;
-      }
         
-      case 'repositorio': {
-        const repo = value.replace(/^["']|["']$/g, '').trim();
-        if (repo) {
-          metadata.repositorio = repo;
-        }
+      case 'repositorio':
+        metadata.repositorio = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
-      case 'demo': {
-        const demo = value.replace(/^["']|["']$/g, '').trim();
-        if (demo) {
-          metadata.demo = demo;
-        }
+      case 'demo':
+        metadata.demo = value.replace(/^["']|["']$/g, '').trim();
         break;
-      }
         
       case 'tecnologias':
-      case 'tags': {
-        // Melhor parsing de arrays
+      case 'tags':
         const arrayMatch = value.match(/\[(.*?)\]/);
         if (arrayMatch) {
           const arrayValue = arrayMatch[1]
@@ -248,89 +195,20 @@ function parseFrontmatter(content: string): { metadata: MDXMetadata; content: st
           }
         }
         break;
-      }
     }
   }
 
-  // VALIDAÇÃO CRÍTICA
+  // Validação
   if (!metadata.id || !metadata.titulo) {
-    console.error('❌ Invalid metadata: missing id or title', {
-      id: metadata.id,
-      titulo: metadata.titulo,
-      hasId: !!metadata.id,
-      hasTitle: !!metadata.titulo
-    });
-    throw new Error(`Invalid metadata for project: missing ${!metadata.id ? 'id' : 'title'}`);
+    throw new Error(`Invalid metadata: missing ${!metadata.id ? 'id' : 'title'}`);
   }
 
-  console.log(`📋 Parsed metadata:`, {
-    id: metadata.id,
-    titulo: metadata.titulo,
-    categoria: metadata.categoria,
-    featured: metadata.featured,
-    tecnologias: metadata.tecnologias?.length || 0
-  });
+  console.log(`📋 Parsed metadata: ${metadata.titulo} (ID: ${metadata.id})`);
 
   return {
     metadata,
     content: markdownContent.trim()
   };
-}
-
-// ===== FUNÇÃO PARA CARREGAR CONTEÚDO MDX =====
-
-async function loadMDXFile(projectSlug: string): Promise<string | null> {
-  try {
-    console.log(`📁 Loading MDX file for: ${projectSlug}`);
-    
-    // Tentar importar o arquivo MDX como raw text
-    try {
-      console.log(`📄 Trying raw import for: ${projectSlug}`);
-      const mdxModule = await import(`../projects/${projectSlug}/${projectSlug}.mdx?raw`);
-      const mdxContent = mdxModule.default;
-      
-      if (!mdxContent) {
-        console.warn(`⚠️ Empty MDX content for: ${projectSlug}`);
-        return null;
-      }
-      
-      console.log(`✅ Successfully loaded MDX file for: ${projectSlug} (${mdxContent.length} chars)`);
-      return mdxContent;
-      
-    } catch (rawError) {
-      console.warn(`⚠️ Raw import failed for ${projectSlug}, trying standard import...`);
-      
-      // Fallback: tentar import normal
-      try {
-        const mdxModule = await import(`../projects/${projectSlug}/${projectSlug}.mdx`);
-        
-        if (typeof mdxModule.default === 'string') {
-          console.log(`✅ Successfully loaded MDX via standard import: ${projectSlug}`);
-          return mdxModule.default;
-        }
-        
-        if (mdxModule.content || mdxModule.source) {
-          const content = mdxModule.content || mdxModule.source;
-          console.log(`✅ Successfully loaded MDX content: ${projectSlug}`);
-          return content;
-        }
-        
-        console.warn(`⚠️ MDX module structure not recognized for: ${projectSlug}`);
-        return null;
-        
-      } catch (standardError) {
-        console.error(`❌ Both import methods failed for ${projectSlug}:`, {
-          rawError: rawError.message,
-          standardError: standardError.message
-        });
-        return null;
-      }
-    }
-    
-  } catch (error) {
-    console.error(`❌ Error loading MDX file for ${projectSlug}:`, error);
-    return null;
-  }
 }
 
 // ===== FUNÇÃO PARA CARREGAR UM PROJETO MDX =====
@@ -339,7 +217,7 @@ async function loadMDXProject(projectSlug: string): Promise<MDXProject | null> {
   try {
     console.log(`📖 Loading MDX project: ${projectSlug}`);
     
-    const mdxContent = await loadMDXFile(projectSlug);
+    const mdxContent = await loadMDXFromPublic(projectSlug);
     
     if (!mdxContent) {
       console.warn(`⚠️ MDX content not found for: ${projectSlug}`);
@@ -348,12 +226,6 @@ async function loadMDXProject(projectSlug: string): Promise<MDXProject | null> {
 
     const { metadata, content } = parseFrontmatter(mdxContent);
     
-    // Validação adicional
-    if (!metadata.id || !metadata.titulo) {
-      console.error(`❌ Invalid metadata for ${projectSlug}: missing id or title`);
-      return null;
-    }
-
     const project: MDXProject = {
       ...metadata,
       content,
@@ -380,14 +252,13 @@ async function loadAllMDXProjects(): Promise<MDXProject[]> {
     return projectsCache;
   }
 
-  console.log('📋 Loading all MDX projects from file system...');
+  console.log('📋 Loading all MDX projects from public directory...');
   
-  const projectSlugs = await discoverProjects();
   const projects: MDXProject[] = [];
   const failedProjects: string[] = [];
   
-  // Carregar todos os projetos descobertos
-  for (const projectSlug of projectSlugs) {
+  // Carregar todos os projetos conhecidos
+  for (const projectSlug of KNOWN_PROJECTS) {
     const project = await loadMDXProject(projectSlug);
     if (project) {
       projects.push(project);
@@ -410,7 +281,7 @@ async function loadAllMDXProjects(): Promise<MDXProject[]> {
   projectsCache = projects;
   lastCacheTime = now;
 
-  console.log(`✅ Loaded ${projects.length} MDX projects from file system`);
+  console.log(`✅ Loaded ${projects.length} MDX projects from public directory`);
   return projects;
 }
 
@@ -530,20 +401,6 @@ export async function getFeaturedMDXProjects(): Promise<ProjectCard[]> {
 }
 
 /**
- * Obter metadados de um projeto MDX
- */
-export function getMDXProjectMetadata(id: number): MDXMetadata | null {
-  // Esta função retorna dados sincronamente do cache
-  if (!projectsCache) {
-    console.warn('⚠️ No cached projects available for metadata lookup');
-    return null;
-  }
-  
-  const project = projectsCache.find(p => p.id === id);
-  return project || null;
-}
-
-/**
  * Limpar cache de projetos MDX
  */
 export function clearMDXCache(): void {
@@ -568,13 +425,12 @@ export default {
   searchMDXProjects,
   getMDXProjectsByCategory,
   getFeaturedMDXProjects,
-  getMDXProjectMetadata,
   clearMDXCache,
   reloadMDXProjects
 };
 
 // ===== LOGS DE INICIALIZAÇÃO =====
 
-console.log('🚀 MDX Project Loader initialized - Dynamic Import Mode (Fixed)');
-console.log('📁 Expected project structure: src/projects/{projectSlug}/{projectSlug}.mdx');
-console.log('📦 Using dynamic imports with enhanced error handling and content cleaning');
+console.log('🚀 Public MDX Project Loader initialized');
+console.log('📁 Expected project structure: public/projects/{projectSlug}/{projectSlug}.mdx');
+console.log('📦 Using fetch API to load MDX files from public directory');

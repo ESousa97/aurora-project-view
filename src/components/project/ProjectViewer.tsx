@@ -11,7 +11,6 @@ import { RelatedProjects } from './RelatedProjects';
 import { toast } from 'sonner';
 import { formatProjectDate } from '@/utils/projectHelpers';
 import { detectLanguage } from '@/lib/languageColors';
-import { getMDXProjectMetadata } from '@/utils/mdxProjectLoader';
 import type { ProjectCard as ProjectCardType } from '@/types';
 
 interface ProjectViewerProps {
@@ -22,8 +21,8 @@ export const ProjectViewer: React.FC<ProjectViewerProps> = ({ project }) => {
   const [isLoading, setIsLoading] = useState(false);
   const languageConfig = detectLanguage(project);
   
-  // Obter metadados adicionais do MDX
-  const mdxMetadata = getMDXProjectMetadata(project.id);
+  // Obter metadados adicionais (removido pois não está disponível)
+  const mdxMetadata = null;
 
   // CORREÇÃO: Função para copiar conteúdo SEM toast (já é tratado no useCopyHandler)
   const handleCopy = useCallback((text: string) => {

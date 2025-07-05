@@ -1,6 +1,6 @@
-// src/static-data/projects.ts (Atualizado para usar MDX)
+// src/static-data/projects.ts (Atualizado para usar MDX do public/)
 import { ProjectCard } from '@/types';
-import { getAllMDXProjects, getMDXProjectById, searchMDXProjects, getMDXProjectsByCategory } from '@/utils/mdxProjectLoader';
+import { getAllMDXProjects, getMDXProjectById, searchMDXProjects, getMDXProjectsByCategory } from '@/utils/publicMdxLoader';
 
 // Cache simples para otimização
 let cachedProjects: ProjectCard[] | null = null;
